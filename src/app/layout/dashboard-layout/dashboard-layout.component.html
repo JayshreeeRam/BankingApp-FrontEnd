@@ -1,0 +1,16 @@
+<div class="layout">
+  <nav class="sidebar">
+    <h3><i class="fas fa-university"></i> MyBank</h3>
+    <ul>
+      <li><a routerLink="" routerLinkActive="active"><i class="fas fa-home"></i> Overview</a></li>
+      <li><a routerLink="profile" routerLinkActive="active"><i class="fas fa-user"></i> Profile</a></li>
+      <li><a routerLink="transactions" routerLinkActive="active"><i class="fas fa-exchange-alt"></i> Transactions</a></li>
+      <li><a routerLink="settings" routerLinkActive="active"><i class="fas fa-cog"></i> Settings</a></li>
+      <li><a routerLink="/login"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

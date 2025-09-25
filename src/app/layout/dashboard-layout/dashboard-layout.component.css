@@ -1,0 +1,62 @@
+/* Reset & Font */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+  background-color: #f4f6f8;
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: 250px;
+  background-color: #1f2a40;
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar h3 {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #00d09c;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar li {
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #cfd8dc;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.sidebar a i {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  color: #00d09c;
+  font-weight: bold;
+}
+
+/* Main content area */
+.content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}

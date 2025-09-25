@@ -1,0 +1,200 @@
+.welcome-banner {
+  background: linear-gradient(90deg, #004085 0%, #2c7be5 100%);
+  padding: 2rem 1.5rem;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 0.15);
+}
+
+.welcome-content {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar {
+  font-size: 3.5rem;
+  opacity: 0.85;
+}
+
+.welcome-text h1 {
+  font-size: 1.9rem;
+  margin: 0;
+}
+
+.welcome-text p {
+  margin: 0.25rem 0 0;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.username {
+  color: #ffd700;
+}
+.dashboard-container {
+  display: flex;
+  height: 80vh;
+}
+.sidebar {
+  flex: 0 0 180px;
+  background-color: #004085;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.tab-btn {
+  background: transparent;
+  color: #adb5bd;
+  border: none;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.tab-btn:hover {
+  background-color: #495057;
+  color: white;
+}
+
+.tab-btn.active {
+  background-color: #0d6efd;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 8px #0d6efd;
+}
+.content {
+  flex-grow: 1;
+  background: #f5f5f5;
+  padding: 20px;
+  overflow-y: auto;
+}
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.list-table th, .list-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+.list-table th {
+  background: #eee;
+}
+.form-section {
+  margin: 15px 0;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+.btn-add {
+  background: #007bff;
+  border: none;
+  color: #fff;
+  padding: 7px 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.btn-add:hover {
+  background: #0056b3;
+}
+button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+input[type="text"], input[type="email"], input[type="tel"], select {
+  padding: 5px;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+form input[type="text"],
+form input[type="email"],
+form input[type="tel"],
+form input[type="number"],
+form input[type="password"],
+form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 4px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+form label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600;
+  color: #444;
+}
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.documents-table th, .documents-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.documents-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.documents-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.documents-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.documents-table button {
+  margin-right: 5px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+}
+/* Transactions Table */
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.transactions-table th,
+.transactions-table td {
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.transactions-table th {
+  background-color: #f0f2f7;
+  font-weight: 600;
+  color: #333;
+}
+
+button {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background-color: #084298;
+}

@@ -1,28 +1,40 @@
-<div class="login-container">
-  <h2>Login</h2>
+<div class="auth-container">
+  <div class="auth-card">
+    <h2><i class="fas fa-university"></i> MyBank Login</h2>
 
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input id="username" formControlName="username" type="text" />
-    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" formControlName="username" placeholder="Enter your email" required />
+      </div>
 
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" formControlName="password" type="password" />
-    </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" formControlName="password" placeholder="Enter your password" required />
+      </div>
 
-    <div class="form-group captcha-box">
-      <label>Captcha</label>
-      <div class="captcha">{{ captchaText }}</div>
-      <input formControlName="captcha" placeholder="Enter captcha" />
-    </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select formControlName="role">
+          <option *ngFor="let role of roles" [value]="role">{{ role | titlecase }}</option>
+        </select>
+      </div>
 
-    <button type="submit">Login</button>
-  </form>
+      <div class="form-group captcha">
+        <label>Captcha</label>
+        <div class="captcha-box">
+          <span>{{ captchaText }}</span>
+          <button type="button" (click)="generateCaptcha()">↻</button>
+        </div>
+        <input type="text" formControlName="captcha" placeholder="Enter captcha" />
+      </div>
 
-  <p class="register-link">
-    Not registered?
-    <a routerLink="/register"target="_blank">Register here</a>
-  </p>
+      <button type="submit" [disabled]="form.invalid">Login</button>
+    </form>
+
+    <p class="auth-switch">Not registered? <a routerLink="/register">Register here</a></p>
+    <p class="auth-forgot">
+  <a routerLink="/forgot-password">Forgot Password?</a>
+</p>
+  </div>
 </div>
