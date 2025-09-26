@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';   
-import { UserDashboardComponent } from './dashboard/user-dashboard/user-dashboard.component';
+import { UserDashboardComponent } from './components/user-dashboard/user-dashboard.component';
 import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
-import { AdminDashboardComponent } from './dashboard/admin-dashboard/admin-dashboard.component';
-import { SuperadminDashboardComponent } from './dashboard/superadmin-dashboard/superadmin-dashboard.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { SuperadminDashboardComponent } from './components/superadmin-dashboard/superadmin-dashboard.component';
 import { Client } from './components/client/client';
 
 export const routes: Routes = [

@@ -26,21 +26,34 @@
   <section class="content">
     <!-- Clients Tab -->
     <div *ngIf="activeTab === 'clients'" class="tab-content">
-      <h3>Clients</h3>
-      <table>
-        <thead>
-          <tr><th>Client Name</th><th>Account No</th><th>Bank</th><th>Verification Status</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let client of clients">
-            <td>{{client.name}}</td>
-            <td>{{client.accountNo}}</td>
-            <td>{{client.bankName}}</td>
-            <td>{{client.verificationStatus}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <h3>Load Users</h3>
+  <form (submit)="getAllClients($event)">
+    <button type="submit">Load Users</button>
+  </form>
+
+  <div class="table-container" *ngIf="users && users.length > 0">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Phone Number</th>
+          <th>User Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.userId }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phoneNumber }}</td>
+          <td>{{ user.userRole }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
     <!-- Payments Tab -->
     <div *ngIf="activeTab === 'payments'" class="tab-content">
