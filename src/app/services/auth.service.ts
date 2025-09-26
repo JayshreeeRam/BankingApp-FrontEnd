@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LoginDto } from '../DTOs/login.dto';
 import { LoginResponseDTO } from '../DTOs/login-response.dto';  // import the new LoginResponseDTO
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:5147/api/Auth';
+  private baseUrl =  environment.backendURL+'Auth';
 
   constructor(private http: HttpClient) {}
 

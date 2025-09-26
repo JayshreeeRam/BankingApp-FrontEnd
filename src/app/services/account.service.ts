@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { Account } from '../Models/Account';
 import { CreateAccountDto } from '../DTOs/CreateAccountDto';
 import { UpdateAccountDto } from '../DTOs/UpdateAccountDto';
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
-  url: string = 'http://localhost:5147/api/Account';
+  url: string = environment.backendURL+'Account';
 
   constructor(private http: HttpClient) {}
 

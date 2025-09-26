@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 // Safe URL Pipe
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Pipe, PipeTransform } from '@angular/core';
+import { ClientService } from '../../services/client.service';
+import { ClientDto } from '../../DTOs/ClientDto';
+import { PaymentService } from '../../services/payment.service';
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
@@ -86,7 +89,7 @@ interface DocumentItem {
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'clients';
   userDocuments = [
     { id: 1, userName: 'John Doe', fileUrl: 'https://example.com/sample.pdf' },
@@ -95,18 +98,40 @@ export class AdminDashboardComponent {
 expandedUserIndex: number | null = null;
   selectedDocumentUrl: string | null = null;
   showModal: boolean = false;
-constructor(private router:Router){}
-  clients: Client[] = [
-    { clientId: 1, name: 'Company ABC', accountNo: '1234567890', bankName: 'Bank A', verificationStatus: 'Verified' },
-    { clientId: 2, name: 'Company XYZ', accountNo: '0987654321', bankName: 'Bank B', verificationStatus: 'Pending' },
-  ];
+constructor(private router:Router,private clientsvc:ClientService,private paymentService:PaymentService){}
+  clients: any[] = [];
 
- 
+  ngOnInit(): void {
+    this.getAllPayments();
+  }
 
-  payments: Payment[] = [
-    { paymentId: 1, clientName: 'Company ABC', beneficiaryName: 'John Doe', amount: 10000, paymentDate: new Date(), paymentStatus: 'Pending' },
-    { paymentId: 2, clientName: 'Company XYZ', beneficiaryName: 'Jane Smith', amount: 5000, paymentDate: new Date(), paymentStatus: 'Completed' },
-  ];
+  getAllClients(event: Event) {
+  event.preventDefault();
+  this.clientsvc.getAllClients().subscribe(
+    (data) => {
+      this.clients = data;
+      console.log(this.clients);
+    },
+    (error) => {
+      console.error(error);
+    }
+  );
+}
+  
+
+  payments: any[] = [];
+  getAllPayments() {
+    this.paymentService.getAllPayments().subscribe(
+      (data) => {
+        this.payments = data;
+        console.log(this.payments);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+  }
+
 
   reportTypes = ['Daily Transactions', 'Client Activity', 'Payment Summary'];
   selectedReportType: string = this.reportTypes[0];

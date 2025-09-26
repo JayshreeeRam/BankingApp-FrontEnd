@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ReportDto } from '../DTOs/ReportDto'; // Adjust the import path as needed
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReportService {
-  private url: string = "http://localhost:5147/api/Report";
+  private url: string = environment.backendURL+"Report";
 
   constructor(private http: HttpClient) {}
 

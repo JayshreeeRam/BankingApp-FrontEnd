@@ -1,0 +1,26 @@
+<form (submit)="getAllClients($event)">
+  <button type="submit">Load Users</button>
+</form>
+
+<div class="table-container" *ngIf="users && users.length > 0">
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Phone Number</th>
+        <th>User Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.userId }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phoneNumber }}</td>
+        <td>{{ user.userRole }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

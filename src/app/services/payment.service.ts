@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PaymentDto } from '../DTOs/PaymentDto'; // Adjust the path as needed
 import { CreatePaymentDto } from '../DTOs/CreatePaymentDto';
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService {
-  private url: string = "http://localhost:5147/api/Payment";
+  private url: string = environment.backendURL+"Payment";
 
   constructor(private http: HttpClient) {}
 

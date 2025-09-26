@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 export class DocumentService {
   private documents: { type: string; fileName: string; url: string }[] = [];
 
-  url:string = "http://localhost:5147/api" + "/Document";
+  url:string = environment.backendURL+ "/Document";
 
   constructor(private http:HttpClient){}
 

@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { ClientDto } from '../DTOs/ClientDto'; // Adjust the import paths accordingly
 import { CreateClientDto } from '../DTOs/CreateClientDto';
 import { UpdateClientDto } from '../DTOs/UpdateClientDto';
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
-  private url: string = "http://localhost:5147/api/Client";
+  private url: string = environment.backendURL+ "Client";
 
   constructor(private http: HttpClient) {}
 

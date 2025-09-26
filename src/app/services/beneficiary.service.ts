@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BeneficiaryDto } from '../DTOs/Beneficiary.dto'; // Adjust paths as needed
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BeneficiaryService {
-  private url: string = "http://localhost:5147/api/Beneficiary";
+  private url: string = environment.backendURL+ "Beneficiary";
 
   constructor(private http: HttpClient) {}
 
