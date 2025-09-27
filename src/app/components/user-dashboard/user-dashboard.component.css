@@ -1,248 +1,330 @@
+/* --- Dashboard Container --- */
 .dashboard-container {
   display: flex;
-  gap: 1.5rem;
-  padding: 20px;
+  height: calc(100vh - 60px);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f7f9fc;
-  min-height: 70vh;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
+  background-color: #f0f2f5;
 }
 
-/* Sidebar styles */
+/* --- Sidebar --- */
 .sidebar {
-  flex: 0 0 180px;
-  background-color: #004085;
-  border-radius: 8px;
+  width: 220px;
+  background-color: #2c2f48;
+  color: #fff;
+  padding: 25px 15px;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  gap: 12px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
-.tab-btn {
-  background: transparent;
-  color: #cbd5e0;
+.sidebar .tab-btn {
+  background: none;
   border: none;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-  font-size: 1.1rem;
+  padding: 12px 15px;
+  color: #fff;
   text-align: left;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-.tab-btn:hover {
-  background-color: #2c7be5;
-  color: white;
-}
-
-.tab-btn.active {
-  background-color: #2c7be5;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 0 8px #2c7be5;
-}
-
-/* Content styles */
-.content {
-  flex: 1;
-  background-color: white;
   border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
-}
-
-.tab-content h3 {
-  margin-bottom: 1rem;
-  color: #222;
-}
-
-.upload-section {
-  margin-bottom: 1.5rem;
-}
-
-.upload-section label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #333;
-}
-
-input[type="file"] {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 6px 10px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.preview-img {
-  margin-top: 8px;
-  max-width: 150px;
-  max-height: 90px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  object-fit: contain;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-}
-
-.upload-btn {
-  background-color: #2c7be5;
-  color: white;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.upload-btn:hover {
-  background-color: #1a5bb8;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-  }
-  .sidebar {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 0.5rem;
-  }
-  .tab-btn {
-    flex: 1;
-    margin-bottom: 0;
-    margin-right: 6px;
-    text-align: center;
-  }
-}
-
-/* Profile form styling */
-form label {
-  display: block;
-  margin-top: 12px;
-  font-weight: 600;
-  color: #444;
-}
-
-form input[type="text"],
-form input[type="email"],
-form input[type="tel"],
-form input[type="number"],
-form input[type="password"],
-form textarea {
-  width: 100%;
-  padding: 8px 12px;
-  margin-top: 4px;
-  border: 1.5px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-form input:focus,
-form textarea:focus {
-  border-color: #2c7be5;
-  outline: none;
-}
-
-form button {
-  margin-top: 16px;
-  background-color: #2c7be5;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-form button:hover {
-  background-color: #1a5bb8;
-}
-
-/* Transactions Table */
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.transactions-table th,
-.transactions-table td {
-  border: 1px solid #ddd;
-  padding: 10px 14px;
-  text-align: left;
-}
-
-.transactions-table th {
-  background-color: #f0f2f7;
-  font-weight: 600;
-  color: #333;
-}
-
-.debit {
-  color: #d9534f; /* Red for debits */
-  font-weight: 600;
-}
-
-.credit {
-  color: #5cb85c; /* Green for credits */
-  font-weight: 600;
-}
-
-/* Welcome banner */
-.welcome-banner {
-  background: linear-gradient(90deg, #004085 0%, #2c7be5 100%);
-  padding: 2rem 1.5rem;
-  color: white;
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 0.15);
-}
-
-.welcome-content {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.avatar {
-  font-size: 3.5rem;
-  opacity: 0.85;
-}
-
-.welcome-text h1 {
-  font-size: 1.9rem;
-  margin: 0;
-}
-
-.welcome-text p {
-  margin: 0.25rem 0 0;
+  transition: 0.3s;
   font-weight: 500;
-  opacity: 0.85;
 }
+
+.sidebar .tab-btn:hover,
+.sidebar .tab-btn.active {
+  background-color: #4b4e73;
+}
+
+/* --- Logout Button --- */
 .logout-section {
-  margin-top: 40px;
-  text-align: center;
+  margin-top: auto;
 }
 
 .logout-btn {
-  background-color: #d9534f;
+  width: 100%;
+  background-color: #e74c3c;
   color: white;
-  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
 }
 
 .logout-btn:hover {
-  background-color: #c9302c;
+  background-color: #c0392b;
+}
+
+/* --- Main Content --- */
+.content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+}
+
+/* --- Tabs --- */
+.tab-content {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+/* --- Tables --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+table th,
+table td {
+  border: 1px solid #e0e0e0;
+  padding: 10px 12px;
+}
+
+table th {
+  background-color: #f5f5f5;
+  text-align: left;
+  font-weight: 600;
+}
+
+.transactionType.green-text {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.transactionType.red-text {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+/* --- Form Inputs --- */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0 14px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 14px;
+  transition: border 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #4a76a8;
+  box-shadow: 0 0 4px rgba(74, 118, 168, 0.4);
+}
+
+/* --- Buttons --- */
+button {
+  padding: 12px 20px;
+  background-color: #4a76a8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+button:hover {
+  background-color: #3b5d85;
+}
+
+/* --- Upload Section --- */
+.upload-section {
+  margin-bottom: 15px;
+}
+
+.doc-count {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* --- Welcome Banner --- */
+.welcome-banner {
+  background-color: #4a76a8;
+  color: white;
+  padding: 20px 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-radius: 0 0 15px 15px;
+}
+
+.welcome-banner .avatar {
+  font-size: 50px;
+}
+
+.welcome-banner .welcome-text h1 {
+  margin: 0;
+}
+
+.welcome-banner .welcome-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+/* --- Support Form --- */
+.support-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 550px;
+  margin-top: 20px;
+}
+
+.support-form label {
+  font-weight: 600;
+}
+
+.support-form input,
+.support-form select,
+.support-form textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.support-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.support-form button {
+  padding: 12px;
+  background-color: #007bff;
+  font-weight: 600;
+}
+
+.support-form button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+/* --- Beneficiary & Payment Section --- */
+.beneficiary-section,
+.payment-section {
+  margin-top: 20px;
+  background-color: #fdfdfd;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.beneficiary-section select,
+.payment-section select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.beneficiary-section button,
+.payment-section button {
+  margin-top: 10px;
+}
+
+/* --- Selected Beneficiary Box --- */
+.selected-beneficiary-box {
+  margin-top: 12px;
+  padding: 14px;
+  background-color: #e8f4ff;
+  border: 1px solid #a8d1ff;
+  border-radius: 8px;
+}
+
+/* --- Create Beneficiary Form --- */
+.create-beneficiary-form {
+  max-width: 520px;
+  margin-top: 25px;
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.create-beneficiary-form label {
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.create-beneficiary-form input,
+.create-beneficiary-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 14px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.create-beneficiary-form button {
+  margin-top: 12px;
+  width: 100%;
+  background-color: #28a745;
+  font-weight: 600;
+}
+
+.create-beneficiary-form button:hover {
+  background-color: #218838;
+}
+
+/* --- Table for My Beneficiaries --- */
+.beneficiary-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.beneficiary-list th,
+.beneficiary-list td {
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.beneficiary-list th {
+  background-color: #f0f4f8;
+  font-weight: 600;
+}
+
+/* --- Buttons for Add/View --- */
+.btn-add {
+  background-color: #28a745;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-add:hover {
+  background-color: #218838;
+}
+
+.btn-view {
+  background-color: #17a2b8;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-view:hover {
+  background-color: #138496;
 }

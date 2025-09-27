@@ -1,0 +1,52 @@
+<div class="support-container">
+  <h2>Contact Support</h2>
+  <form #supportForm="ngForm" (ngSubmit)="submitSupportForm()">
+    
+    <label for="name">Name:</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      [(ngModel)]="support.name"
+      required
+    />
+
+    <label for="email">Email:</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      [(ngModel)]="support.email"
+      required
+    />
+
+    <label for="subject">Subject:</label>
+    <select
+      id="subject"
+      name="subject"
+      [(ngModel)]="support.subject"
+      required
+    >
+      <option value="" disabled selected>Select issue type</option>
+      <option value="Bank Related">Bank Related Issue</option>
+      <option value="Profile Related">Profile Related Issue</option>
+      <option value="Fraud">Fraud</option>
+      <option value="Payment Issue">Payment Issue</option>
+      <option value="Account Related">Account Related Issue</option>
+      <option value="Complaint">Complaint</option>
+      <option value="Others">Others</option>
+    </select>
+
+    <label for="message">Message:</label>
+    <textarea
+      id="message"
+      name="message"
+      [(ngModel)]="support.message"
+      rows="5"
+      placeholder="Write your message here..."
+      required
+    ></textarea>
+
+    <button type="submit">Submit</button>
+  </form>
+</div>

@@ -1,0 +1,28 @@
+<div class="transaction-table">
+  <h2>My Transactions</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Sender</th>
+        <th>Receiver</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let txn of transactions">
+        <td>{{ txn.transactionId }}</td>
+        <td>{{ txn.transactionType }}</td>
+        <td>{{ txn.amount | currency }}</td>
+        <td [ngClass]="txn.transactionStatus">{{ txn.transactionStatus }}</td>
+        <td>{{ txn.transactionDate | date:'medium' }}</td>
+        <td>{{ txn.senderName }}</td>
+        <td>{{ txn.receiverName }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

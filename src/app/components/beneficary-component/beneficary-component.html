@@ -1,0 +1,27 @@
+<div>
+  <h2>Your Beneficiaries</h2>
+
+  <select (change)="onSelectBeneficiary($event)">
+   <option value="">-- Select Beneficiary --</option>
+<option *ngFor="let b of beneficiaries" [value]="b.beneficiaryId">
+  {{ b.bankName }} - {{ b.accountNo }}
+</option>
+
+
+  </select>
+
+  <div *ngIf="selectedBeneficiary">
+    <p>Selected: {{ selectedBeneficiary.bankName }}</p>
+
+    <input
+      type="number"
+      [(ngModel)]="paymentAmount"
+      placeholder="Enter amount"
+    />
+
+    <button (click)="onMakePayment()">Make Payment</button>
+    <button (click)="deleteSelectedBeneficiary()">Delete</button>
+  </div>
+
+  <button (click)="onCreateNewBeneficiary()">Create New Beneficiary</button>
+</div>

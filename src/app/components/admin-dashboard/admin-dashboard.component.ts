@@ -56,6 +56,7 @@ interface User {
   clientName?: string;
   transactionId?: string;
   beneficiaryId?: string;
+  phoneNumber?: string;
   documents?: Document[];
 }
 

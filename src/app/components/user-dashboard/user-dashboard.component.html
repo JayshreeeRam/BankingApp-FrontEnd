@@ -4,7 +4,7 @@
       <i class="fas fa-user-circle"></i>
     </div>
     <div class="welcome-text">
-      <h1>Welcome, <span class="username">{{ profile.Username }}</span>!</h1>
+      <h1>Welcome, <span class="username">{{ profile.username }}</span>!</h1>
       <p>Your personal banking dashboard</p>
     </div>
   </div>
@@ -18,10 +18,10 @@
     <button class="tab-btn" [class.active]="activeTab === 'transactions'" (click)="activeTab = 'transactions'">💳 Transactions</button>
     <button class="tab-btn" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">💰 Make Payment</button>
     <button class="tab-btn" [class.active]="activeTab === 'support'" (click)="activeTab = 'support'">📞 Support</button>
+
     <div class="logout-section">
-  <button class="logout-btn" (click)="logout()">🚪 Logout</button>
-</div>
-   
+      <button class="logout-btn" (click)="logout()">🚪 Logout</button>
+    </div>
   </nav>
 
   <section class="content">
@@ -29,48 +29,99 @@
     <div *ngIf="activeTab === 'home'" class="tab-content">
       <h3>Welcome to User Dashboard</h3>
       <p>Here you can manage your banking profile and upload documents.</p>
+       <button (click)="goToTransactions()">View All Transactions</button>
     </div>
 
     <!-- Documents Tab -->
-    <div *ngIf="activeTab === 'documents'" class="tab-content">
-      <h3>Upload Documents</h3>
+ <div *ngIf="activeTab === 'documents'" class="tab-content">
+  <h3>Upload Documents</h3>
 
-      <div class="upload-section">
-        <label>Aadhaar Card:</label>
-        <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'aadhaar')" />
-        <p *ngIf="aadhaarFile">Selected: {{ aadhaarFile?.name }}</p>
-        <img *ngIf="aadhaarPreview" [src]="aadhaarPreview" alt="Aadhaar preview" class="preview-img"/>
-      </div>
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <label>Aadhaar Card:</label>
+    <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'aadhaar')" />
+    <p *ngIf="aadhaarFile">Selected: {{ aadhaarFile.name }}</p>
+  </div>
 
-      <div class="upload-section">
-        <label>PAN Card:</label>
-        <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'pan')" />
-        <p *ngIf="panFile">Selected: {{ panFile?.name }}</p>
-        <img *ngIf="panPreview" [src]="panPreview" alt="PAN preview" class="preview-img"/>
-      </div>
+  <div class="upload-section">
+    <label>PAN Card:</label>
+    <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'pan')" />
+    <p *ngIf="panFile">Selected: {{ panFile.name }}</p>
+  </div>
 
-      <button class="upload-btn" (click)="uploadDocuments()">Upload</button>
-    </div>
+  <button class="upload-btn" (click)="uploadDocuments()">Upload Documents</button>
+
+  <!-- Show number of uploaded documents -->
+  <p class="doc-count">Total documents uploaded: {{ documents.length }}</p>
+
+  <!-- Uploaded Documents Table -->
+  <h3>Uploaded Documents</h3>
+  <table *ngIf="documents.length > 0" class="documents-table">
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let doc of documents">
+        <td>{{ doc.fileName }}</td>
+        <td>{{ doc.documentType }}</td>
+        <td>{{ doc.documentStatus }}</td>
+        <td>
+          <button (click)="viewDocument(doc.filePath)">View</button>
+        <button (click)="downloadDocument(doc.filePath, doc.fileName)">Download</button>
+    </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="documents.length === 0">No documents uploaded yet.</p>
+</div>
+
+
+
+
 
     <!-- Profile Tab -->
     <div *ngIf="activeTab === 'profile'" class="tab-content">
       <h3>Profile Details</h3>
       <form (ngSubmit)="updateProfile()" #profileForm="ngForm">
         <label>Username:</label>
-        <input type="text" [(ngModel)]="profile.Username" name="username" required />
+        <input
+          type="text"
+          [(ngModel)]="profile.username"
+          name="username"
+          required
+          [attr.aria-invalid]="!profile.username ? true : null"
+        />
 
         <label>Email:</label>
-        <input type="email" [(ngModel)]="profile.Email" name="email" required />
+        <input
+          type="email"
+          [(ngModel)]="profile.email"
+          name="email"
+          required
+          [attr.aria-invalid]="!profile.email ? true : null"
+        />
 
         <label>Phone Number:</label>
-        <input type="tel" [(ngModel)]="profile.PhoneNumber" name="phoneNumber" required />
+        <input
+          type="tel"
+          [(ngModel)]="profile.phoneNumber"
+          name="phoneNumber"
+          required
+          [attr.aria-invalid]="!profile.phoneNumber ? true : null"
+        />
 
         <button type="submit">Update Profile</button>
       </form>
     </div>
 
     <!-- Transactions Tab -->
-    <div *ngIf="activeTab === 'transactions'" class="tab-content">
+    <div *ngIf="activeTab === 'transactions'" class="tab-content" >
       <h3>Recent Transactions</h3>
       <table class="transactions-table">
         <thead>
@@ -79,74 +130,148 @@
             <th>Receiver</th>
             <th>Amount</th>
             <th>Status</th>
+            <th>Type</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let tx of transactions">
-  <td>{{ tx.sender }}</td>
-  <td>{{ tx.receiver }}</td>
-  <td>₹{{ tx.amount }}</td>
-  <td>{{ tx.status }}</td>
-</tr>
+            <td>{{ tx.senderName }}</td>
+            <td>{{ tx.receiverName }}</td>
+            <td>₹{{ tx.amount }}</td>
+            <td>{{ tx.transactionStatus }}</td>
+           <td class="transactionType" [ngClass]="{'green-text': tx.transactionType === 'Credit', 'red-text': tx.transactionType == 'Debit'}">
+             {{ tx.transactionType }}</td>
+ <td>{{ tx.transactionDate | date: 'medium' }}</td>
+          </tr>
         </tbody>
       </table>
-    </div>
-   
-     
 
-<!-- 📞 Support Tab -->
-<div *ngIf="activeTab === 'support'" class="tab-content">
-  <h2>Contact Support</h2>
-
-  <form (ngSubmit)="submitSupport()" #supportForm="ngForm">
-    <div>
-      <label for="subject">Subject:</label>
-      <input
-        type="text"
-        id="subject"
-        name="subject"
-        [(ngModel)]="support.subject"
-        required
-      />
+      
     </div>
 
-    <div>
-      <label for="message">Message:</label>
-      <textarea
-        id="message"
-        name="message"
-        [(ngModel)]="support.message"
-        rows="5"
-        required
-      ></textarea>
-    </div>
-
-    <button type="submit" [disabled]="!supportForm.form.valid">Send Message</button>
-  </form>
-</div>
-
-  
-
+    <!-- Make Payment Tab -->
    <!-- Make Payment Tab -->
 <div *ngIf="activeTab === 'payment'" class="tab-content">
   <h3>Make a Payment</h3>
-  <form (ngSubmit)="submitPayment()" #paymentForm="ngForm">
-    
-    <label>Select Beneficiary:</label>
-    <select name="beneficiaryId" [(ngModel)]="payment.beneficiaryId" required>
-      <option *ngFor="let b of beneficiaries" [value]="b.id">{{ b.bankName }} - {{ b.accountNo }}</option>
-    </select>
 
-    <label>Amount (₹):</label>
-    <input type="number" name="amount" [(ngModel)]="payment.amount" required min="1" />
+  <label>Select Beneficiary:</label>
+  <select [(ngModel)]="payment.beneficiaryId" (change)="onBeneficiarySelect($event)">
+    <option [value]="null" disabled selected>Select beneficiary</option>
+    <option *ngFor="let b of beneficiaries" [value]="b.beneficiaryId">
+      {{ b.bankName }} - {{ b.accountNo }}
+    </option>
+  </select>
 
-    <label>Remarks:</label>
-    <input type="text" name="remarks" [(ngModel)]="payment.remarks" />
+  <!-- Buttons -->
+  <div style="margin: 10px 0; display: flex; gap: 10px;">
+    <button (click)="onCreateNewBeneficiary()" class="btn-add">
+      + Add New Beneficiary
+    </button>
+    <button (click)="showBeneficiaryList = !showBeneficiaryList" class="btn-view">
+      👁 View My Beneficiaries
+    </button>
+  </div>
 
-    <button type="submit">Send Payment</button>
-  </form>
+  <!-- Beneficiary List -->
+  <div *ngIf="showBeneficiaryList" class="beneficiary-list">
+    <table>
+      <thead>
+        <tr>
+          <th>Bank Name</th>
+          <th>Account No</th>
+          <th>IFSC Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of beneficiaries">
+          <td>{{ b.bankName }}</td>
+          <td>{{ b.accountNo }}</td>
+          <td>{{ b.ifscCode }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Selected Beneficiary Info -->
+  <div *ngIf="selectedBeneficiary" class="selected-beneficiary-box">
+    <p><strong>Account No:</strong> {{ selectedBeneficiary.accountNo }}</p>
+    <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifscCode }}</p>
+  </div>
+
+  <label>Amount (₹):</label>
+  <input type="number" [(ngModel)]="payment.amount" placeholder="Enter amount" />
+
+  <label>Remarks:</label>
+  <input type="text" [(ngModel)]="payment.remarks" placeholder="Optional" />
+
+  <button (click)="submitPayment()" [disabled]="!selectedBeneficiary || !payment.amount">Pay</button>
 </div>
 
+
+
+
+
+
+    <!-- Support Tab -->
+    <div *ngIf="activeTab === 'support'" class="tab-content">
+  <h3>Contact Support</h3>
+
+  <form (ngSubmit)="submitSupportForm()" #supportForm="ngForm" class="support-form">
+    <!-- Name -->
+    <label for="name">Name:</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      [(ngModel)]="support.name"
+      required
+      placeholder="Enter your name"
+    />
+
+    <!-- Email -->
+    <label for="email">Email:</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      [(ngModel)]="support.email"
+      required
+      placeholder="Enter your email"
+    />
+
+    <!-- Subject -->
+    <label for="subject">Subject:</label>
+    <select
+      id="subject"
+      name="subject"
+      [(ngModel)]="support.subject"
+      required
+    >
+      <option value="" disabled selected>Select subject</option>
+      <option value="bank_issue">Bank related issue</option>
+      <option value="profile_issue">Profile related issue</option>
+      <option value="fraud">Fraud</option>
+      <option value="payment_issue">Payment issue</option>
+      <option value="account_issue">Account related issue</option>
+      <option value="complaint">Complaint</option>
+      <option value="others">Others</option>
+    </select>
+
+    <!-- Message -->
+    <label for="message">Message:</label>
+    <textarea
+      id="message"
+      name="message"
+      [(ngModel)]="support.message"
+      required
+      rows="5"
+      placeholder="Enter your message here"
+    ></textarea>
+
+    <button type="submit" [disabled]="!supportForm.form.valid">Submit</button>
+  </form>
+</div>
 
   </section>
 </div>

@@ -1,0 +1,39 @@
+<div class="create-beneficiary-form">
+  <h3>Create Beneficiary</h3>
+
+  <!-- Only Client ID input -->
+  <label for="clientId">Client ID:</label>
+  <input
+    id="clientId"
+    type="number"
+    [(ngModel)]="clientId"
+    placeholder="Enter Client ID"
+  />
+
+  <!-- Auto-populated fields (readonly) -->
+  <label for="bankName">Bank Name:</label>
+  <input
+    id="bankName"
+    type="text"
+    [(ngModel)]="bankName"
+    readonly
+  />
+
+  <label for="ifscCode">IFSC Code:</label>
+  <input
+    id="ifscCode"
+    type="text"
+    [(ngModel)]="ifscCode"
+    readonly
+  />
+
+  <label for="accountNo">Account Number:</label>
+  <input
+    id="accountNo"
+    type="text"
+    [(ngModel)]="accountNo"
+    readonly
+  />
+
+  <button (click)="onCreate()">Create Beneficiary</button>
+</div>

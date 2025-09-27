@@ -1,0 +1,25 @@
+.success {
+  color: green;
+}
+
+.failed {
+  color: red;
+}
+
+.pending {
+  color: orange;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+thead {
+  background-color: #f5f5f5;
+}

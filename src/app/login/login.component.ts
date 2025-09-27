@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
   captchaText: string = '';
   roles = ['user', 'admin', 'superadmin'];
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {}
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -41,45 +41,56 @@ export class LoginComponent implements OnInit {
   }
 
   submit() {
-    if (this.form.valid) {
-      if (this.form.value.captcha?.toUpperCase() === this.captchaText) {
-        const loginData: LoginDto = {
-          username: this.form.value.username,
-          password: this.form.value.password,
-        };
+  if (this.form.valid) {
+    if (this.form.value.captcha?.toUpperCase() === this.captchaText) {
+      const loginData: LoginDto = {
+        username: this.form.value.username,
+        password: this.form.value.password,
+        role: this.form.value.role
+      };
 
-        // Call the login method of the AuthService
-        this.authService.login(loginData).subscribe({
-          next: (res) => {
-            // Save the token and user info to localStorage
-            console.log(res);
-            this.authService.saveToken(res);
+      this.authService.login(loginData).subscribe({
+        next: (res) => {
+          console.log('Login response:', res);
 
-            alert(`Login successful! as ${this.form.value.role}!`);
-            // Navigate based on the user's role
-            switch (this.form.value.role) {
-              case 'user':
-                this.router.navigate(['/dashboard/user']);
-                break;
-              case 'admin':
-                this.router.navigate(['/dashboard/admin']);
-                break;
-              case 'superadmin':
-                this.router.navigate(['/dashboard/superadmin']);
-                break;
-            }
-          },
-          error: (err) => {
-            alert('Login failed: ' + (err.error?.message || 'Unknown error'));
-            this.generateCaptcha(); // regenerate captcha on failure
-          },
-        });
-      } else {
-        alert('Invalid captcha. Please try again.');
-        this.generateCaptcha(); // regenerate captcha
-      }
+          if (!res.token) {
+            alert('Token not received from server!');
+            this.generateCaptcha();
+            return;
+          }
+
+          this.authService.saveToken(res);
+
+          // Use role directly from the response (not res.user.role)
+          alert(`Login successful! as ${res.role}!`);
+
+          switch (res.role.toLowerCase()) {
+            case 'user':
+              this.router.navigate(['/dashboard/user']);
+              break;
+            case 'admin':
+              this.router.navigate(['/dashboard/admin']);
+              break;
+            case 'superadmin':
+              this.router.navigate(['/dashboard/superadmin']);
+              break;
+            default:
+              this.router.navigate(['/login']);
+              break;
+          }
+        },
+        error: (err) => {
+          alert('Login failed: ' + (err.error?.message || 'Unknown error'));
+          this.generateCaptcha();
+        },
+      });
     } else {
-      alert('Please fill in all fields.');
+      alert('Invalid captcha. Please try again.');
+      this.generateCaptcha();
     }
+  } else {
+    alert('Please fill in all fields.');
   }
+}
+
 }

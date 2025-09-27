@@ -36,4 +36,10 @@ export class BeneficiaryService {
   deleteBeneficiary(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  // Get beneficiaries for a specific user/client
+getBeneficiariesByUser(userId: number): Observable<BeneficiaryDto[]> {
+  return this.http.get<BeneficiaryDto[]>(`${this.url}/user/${userId}`);
+}
+
 }

@@ -1,28 +1,26 @@
-﻿export class UserDto {
-  username: string;  // Required, max length: 50
-  password: string;  // Required, max length: 100
-  email: string;     // Required, max length: 100
-  phoneNumber: string;  // Required, max length: 10
-  userRole: UserRole;  // Required, enum type
+﻿import { UserRole } from "../Enum/UserRole 1";
+
+export class UserDto {
+  userId: number;
+  username: string;
+  email: string;
+  phoneNumber: string;
+  userRole:UserRole;
+  documents: any[];
 
   constructor(
+    userId: number,
     username: string,
-    password: string,
     email: string,
     phoneNumber: string,
-    userRole: UserRole
+    userRole: UserRole,
+    documents: any[] = []
   ) {
+    this.userId = userId;
     this.username = username;
-    this.password = password;
     this.email = email;
     this.phoneNumber = phoneNumber;
     this.userRole = userRole;
+    this.documents = documents;
   }
-}
-
-// Enum for UserRole (can be customized based on your system's roles)
-export enum UserRole {
-  Admin = 'Admin',
-  User = 'User',
-  Moderator = 'Moderator'
 }

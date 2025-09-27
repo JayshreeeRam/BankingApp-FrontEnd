@@ -6,18 +6,35 @@ import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-la
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { SuperadminDashboardComponent } from './components/superadmin-dashboard/superadmin-dashboard.component';
 import { Client } from './components/client/client';
+import { AdminGuard } from './guards/adminGuard';
+import { UserGuard } from './guards/userGuard';
+import { SuperadminGuard } from './guards/superadminGuard';
+import { Transactions } from './components/transactions/transactions';
+import { PaymentComponent } from './components/payment/payment';
+import { CreateBeneficaryComponent } from './components/create-beneficary-component/create-beneficary-component';
+import { BeneficaryComponent } from './components/beneficary-component/beneficary-component';
+
+// import { Support } from './components/support/support';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard/user', component: UserDashboardComponent },
-  { path: 'dashboard/admin', component: AdminDashboardComponent },
-  { path: 'dashboard/superadmin', component: SuperadminDashboardComponent },
   { path: 'clients', component: Client },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  {
-  path: 'forgot-password',
-  loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
-}
-];
 
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./forgot-password/forgot-password.component')
+      .then(m => m.ForgotPasswordComponent)
+  },
+
+  { path: 'dashboard/admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
+  { path: 'dashboard/user', component: UserDashboardComponent, canActivate: [UserGuard] },
+  { path: 'dashboard/superadmin', component: SuperadminDashboardComponent, canActivate: [SuperadminGuard] },
+
+  { path: 'transactions/user/:id', component: Transactions, canActivate: [UserGuard] },
+  { path: 'beneficiary', component:BeneficaryComponent },
+  { path: 'create-beneficiary/:clientId', component: CreateBeneficaryComponent },
+  { path: 'payment', component: PaymentComponent },
+  // { path: 'support', component: SupportComponent }
+];

@@ -1,0 +1,55 @@
+.create-beneficiary-form {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.create-beneficiary-form h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.create-beneficiary-form label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.create-beneficiary-form input,
+.create-beneficiary-form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.create-beneficiary-form input[readonly] {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.create-beneficiary-form button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-beneficiary-form button:hover {
+  background-color: #0056b3;
+}

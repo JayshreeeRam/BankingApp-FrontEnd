@@ -13,6 +13,23 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
+  getUserIdFromToken(): number | null {
+  const token = this.getToken();
+  if (!token) return null;
+
+  try {
+    const payloadBase64 = token.split('.')[1];
+    const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+    const decodedPayload = JSON.parse(atob(base64));
+    
+    // Adjust the claim key as per your token payload (example below)
+    return Number(decodedPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']);
+  } catch (error) {
+    console.error('Error decoding token to get userId', error);
+    return null;
+  }
+}
+
   // Adjust the login method to expect LoginDto and return LoginResponseDTO
   login(credentials: LoginDto): Observable<LoginResponseDTO> {
     return this.http.post<LoginResponseDTO>(`${this.baseUrl}/login`, credentials);
