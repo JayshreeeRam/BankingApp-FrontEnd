@@ -11,7 +11,7 @@ export class AdminGuard implements CanActivate {
   canActivate(): boolean {
     const role = this.authService.getRole(); // from localStorage
 
-    if (role === 'admin') {
+    if (role?.toLocaleLowerCase() === 'admin') {
       return true;
     }
 

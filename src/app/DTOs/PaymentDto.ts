@@ -1,26 +1,30 @@
-﻿export enum PaymentStatus {
-  Pending = 'Pending',
-  Completed = 'Completed',
-  Failed = 'Failed',
-  Canceled = 'Canceled',
-}
+﻿import { PaymentStatus } from "../Enum/PaymentStatus 1";
 
 export class PaymentDto {
+  paymentId: number;
   clientId: number;
+  clientName: string;          // Added sender/client name
   beneficiaryId: number;
+  beneficiaryName: string;     // Added beneficiary name
   amount: number;
   paymentDate: Date;
   paymentStatus: PaymentStatus;
 
   constructor(
+    paymentId: number,
     clientId: number,
+    clientName: string,
     beneficiaryId: number,
+    beneficiaryName: string,
     amount: number,
     paymentDate: Date,
     paymentStatus: PaymentStatus = PaymentStatus.Pending
   ) {
+    this.paymentId = paymentId;
     this.clientId = clientId;
+    this.clientName = clientName;
     this.beneficiaryId = beneficiaryId;
+    this.beneficiaryName = beneficiaryName;
     this.amount = amount;
     this.paymentDate = paymentDate;
     this.paymentStatus = paymentStatus;

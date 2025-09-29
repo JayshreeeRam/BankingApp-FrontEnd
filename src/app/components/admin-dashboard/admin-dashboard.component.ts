@@ -1,13 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-// Safe URL Pipe
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Pipe, PipeTransform } from '@angular/core';
 import { ClientService } from '../../services/client.service';
 import { PaymentService } from '../../services/payment.service';
-
+import { DocumentService } from '../../services/document.service';
+import { ReportService } from '../../services/report.service';
+import { EmployeeService } from '../../services/employee.service';
+import { UserService } from '../../services/user.service';
+import { SalaryDisbursementService } from '../../services/salary-disbursement.service';
+import { SalaryDisbursement } from '../../Models/SalaryDisbursement';
+import {  PaymentDto } from '../../DTOs/PaymentDto';
+import { SalaryDisbursementDto } from '../../DTOs/SalaryDisbursementDto';
+import { PaymentStatus } from '../../Enum/PaymentStatus 1';
+import { Payment } from '../../Models/Payment';
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
@@ -25,19 +32,14 @@ interface Client {
   verificationStatus: string;
 }
 
-interface Document {
+interface DocumentItem {
+  documentId: number;
+  uploadedByUsername: string;
   documentType: string;
-  status: string;
-  filePath: string;
-}
-
-interface Payment {
-  paymentId: number;
-  clientName: string;
-  beneficiaryName: string;
-  amount: number;
-  paymentDate: Date;
-  paymentStatus: string;
+  documentStatus: string;
+  uploadDate: Date;
+  fileName: string;
+  filePath?: string;
 }
 
 interface Report {
@@ -52,22 +54,16 @@ interface User {
   name: string;
   email: string;
   role: string;
-  accountNumber?: string;
-  clientName?: string;
-  transactionId?: string;
-  beneficiaryId?: string;
   phoneNumber?: string;
-  documents?: Document[];
 }
 
-interface DocumentItem {
-  documentId: number;
-  uploadedByUsername: string;
-  documentType: string;
-  documentStatus: string;
-  uploadDate: Date;
-  fileName: string;
-  filePath?: string;
+interface Employee {
+  id: number; // table ID
+  employeeId: number;
+  name: string;
+  bankName: string;
+  salary: number;
+  clientName: string;
 }
 
 @Component({
@@ -79,186 +75,261 @@ interface DocumentItem {
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'clients';
+  PaymentStatus = PaymentStatus;
 
-  userDocuments = [
-    { id: 1, userName: 'John Doe', fileUrl: 'https://example.com/sample.pdf' },
-    { id: 2, userName: 'Jane Smith', fileUrl: 'https://example.com/sample-image.jpg' }
-  ];
+  clients: Client[] = [];
+  users: User[] = [];
+  employees: Employee[] = [];
+  // payments: PaymentDto[] = [];
+  payments: Payment[] = [];
+  displayedPayments: PaymentDto[] = [];
+  documents: DocumentItem[] = [];
+  reports: Report[] = [];
+  pastDisbursements: SalaryDisbursement[] = [];
+
+  selectedReportType: string = 'Daily Transactions';
+  reportTypes = ['Daily Transactions', 'Client Activity', 'Payment Summary'];
+
+  salaryDisbursement: {
+    employeeId: number | null;
+    amount: number | null;
+    remarks: string;
+  } = { employeeId: null, amount: null, remarks: '' };
 
   expandedUserIndex: number | null = null;
   selectedDocumentUrl: string | null = null;
   showModal: boolean = false;
-
-  clients: Client[] = [];
-  users: User[] = [];
-
-  payments: Payment[] = [];
-
-  reportTypes = ['Daily Transactions', 'Client Activity', 'Payment Summary'];
-  selectedReportType: string = this.reportTypes[0];
-
-  reports: Report[] = [
-    {
-      reportId: 1,
-      reportType: 'Daily Transactions',
-      generatedDate: new Date(),
-      filePath: 'reports/daily-transactions-20250921.pdf'
-    }
-  ];
-
-  documents: DocumentItem[] = [
-    {
-      documentId: 1,
-      uploadedByUsername: 'EdwinGeorge',
-      documentType: 'Aadhaar',
-      documentStatus: 'Pending',
-      uploadDate: new Date('2025-09-20T10:30:00'),
-      fileName: 'aadhaar_edwin.pdf',
-      filePath: 'C:\\Users\\edwin.joseph\\Pictures\\Loan'
-    },
-    {
-      documentId: 2,
-      uploadedByUsername: 'AliceSmith',
-      documentType: 'PAN',
-      documentStatus: 'Approved',
-      uploadDate: new Date('2025-09-18T14:45:00'),
-      fileName: 'pan_alice.jpg',
-      filePath: 'https://pinetools.com/random-file-generator'
-    }
-  ];
-
-  // Salary Disbursement
-  salaryDisbursement = {
-    employeeId: null as number | null,
-    amount: null as number | null,
-    remarks: ''
-  };
-
-  employees = [
-    { id: 1, name: 'Alice Thomas' },
-    { id: 2, name: 'John Doe' },
-    { id: 3, name: 'Kavita Rao' }
-  ];
-
-  pastDisbursements = [
-    { employeeName: 'Alice Thomas', amount: 35000, date: new Date(), status: 'Completed' },
-    { employeeName: 'John Doe', amount: 30000, date: new Date(), status: 'Pending' }
-  ];
+  showAllPayments: boolean = true; 
+  showRejectRemarkIndex: number | null = null;
 
   constructor(
     private router: Router,
-    private clientsvc: ClientService,
-    private paymentService: PaymentService
+    private clientSvc: ClientService,
+    private paymentSvc: PaymentService,
+    private documentSvc: DocumentService,
+    private reportSvc: ReportService,
+    private employeeSvc: EmployeeService,
+    private userSvc: UserService,
+    private salaryDisburse: SalaryDisbursementService
   ) {}
 
   ngOnInit(): void {
-    this.getAllPayments();
+    this.getAllClients();
+    this.getAllUsers();
+    this.getAllEmployees();
+    // this.getAllPayments();
+    this.getAllDocuments();
+    this.getReports();
+    this.getPastDisbursements();
   }
 
-  getAllClients(event: Event) {
-    event.preventDefault();
-   this.clientsvc.getAllClients().subscribe(
-  (data: any[]) => {
-    this.users = data.map(clientDto => ({
-      userId: clientDto.clientId,
-      name: clientDto.name,
-      email: clientDto.email,
-      role: clientDto.role,
-      // assign optional fields as needed, or leave undefined
-    }));
-    console.log('Users loaded:', this.users);
-  },
-  (error) => {
-    console.error('Error loading users:', error);
+  // --- Clients ---
+  getAllClients(event?: Event) {
+    event?.preventDefault();
+    this.clientSvc.getAllClients().subscribe({
+      next: (data: any[]) => {
+        this.clients = data.map(c => ({
+          clientId: c.clientId,
+          name: c.name,
+          accountNo: c.accountNo,
+          bankName: c.bankName,
+          verificationStatus: c.verificationStatus
+        }));
+      },
+      error: err => console.error('Error loading clients:', err)
+    });
   }
-);
+
+  // --- Users ---
+  getAllUsers(event?: Event) {
+    event?.preventDefault();
+    this.userSvc.getAllUsers().subscribe({
+      next: (data: any[]) => {
+        this.users = data.map(u => ({
+          userId: u.userId,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          phoneNumber: u.phoneNumber
+        }));
+      },
+      error: err => console.error('Error loading users:', err)
+    });
+  }
+
+  // --- Employees ---
+  getAllEmployees() {
+    this.employeeSvc.getAllEmployees().subscribe({
+      next: (data: any[]) => {
+        this.employees = data.map((e, index) => ({
+          id: index + 1,
+          employeeId: e.employeeId,
+          name: e.employeeName,
+          bankName: e.bankName || '',
+          salary: e.salary,
+          clientName: e.senderName || ''
+        }));
+      },
+      error: err => console.error('Error loading employees:', err)
+    });
+  }
+
+  // --- Payments ---
+// getAllPayments() {
+//   this.paymentSvc.getAllPayments().subscribe({
+//     next: (data: PaymentDto[]) => {
+//       this.payments = data.map((p, index) => ({
+//         paymentId: index + 1,            // unique display id
+//         clientId: p.clientId,            // required
+//         beneficiaryId: p.beneficiaryId,  // required
+//         amount: p.amount,
+//         paymentDate: new Date(p.paymentDate),
+//         paymentStatus: p.paymentStatus.toString // convert enum to string
+//       }));
+//     },
+//     error: err => console.error('Error loading payments:', err)
+//   });
+// }
+ 
+  
+ 
+
+// Helpers to map id → name
+getClientNameById(id: number): string {
+  const client = this.clients.find(c => c.clientId === id);
+  return client ? client.name : 'Unknown';
 }
-  getAllPayments() {
-   this.paymentService.getAllPayments().subscribe(
-  (data: any[]) => {
-    this.payments = data.map(paymentDto => ({
-      paymentId: paymentDto.id,
-      clientName: paymentDto.clientName,
-      beneficiaryName: paymentDto.beneficiaryName,
-      amount: paymentDto.amount,
-      paymentDate: new Date(paymentDto.date),
-      paymentStatus: paymentDto.status
-    }));
-    console.log('Payments loaded:', this.payments);
-  },
-  (error) => {
-    console.error('Error loading payments:', error);
-  }
-);
+
+getBeneficiaryNameById(id: number): string {
+  const user = this.users.find(u => u.userId === id);
+  return user ? user.name : 'Unknown';
 }
 
-  generateReport() {
-    const newReport: Report = {
-      reportId: this.reports.length + 1,
-      reportType: this.selectedReportType,
-      generatedDate: new Date(),
-      filePath: '' // simulate processing
-    };
-    this.reports.push(newReport);
+// Filtered display function
+getDisplayedPayments(): Payment[] {
+  return this.showAllPayments ? this.payments : this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
+}
 
-    setTimeout(() => {
-      newReport.filePath = `reports/${this.selectedReportType
-        .toLowerCase()
-        .replace(/ /g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`;
-    }, 3000);
+
+  updateDisplayedPayments() {
+  return 1;
   }
 
-  logout() {
-    localStorage.clear(); // <-- call it as a function
-    this.router.navigate(['/login']);
+  // getPendingPayments(): PaymentDto[] {
+  //   return this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
+  // }
+
+
+
+  togglePaymentsView(showAll: boolean) {
+    this.showAllPayments = showAll;
+    this.updateDisplayedPayments();
   }
 
-  approveDocument(doc: DocumentItem) {
-    doc.documentStatus = 'Approved';
-    alert(`Document ${doc.documentId} approved.`);
-    // TODO: backend update
+  approvePayment(payment: PaymentDto) {
+    this.paymentSvc.approvePayment(payment.clientId).subscribe({
+      next: () => {
+        payment.paymentStatus = PaymentStatus.Approved;
+        alert('Payment approved successfully.');
+        this.updateDisplayedPayments();
+      },
+      error: err => console.error('Error approving payment:', err)
+    });
   }
 
-  rejectDocument(doc: DocumentItem) {
-    doc.documentStatus = 'Rejected';
-    alert(`Document ${doc.documentId} rejected.`);
-    // TODO: backend update
+
+
+  rejectPayment(payment: PaymentDto) {
+   
+    this.paymentSvc.rejectPayment(payment.clientId).subscribe({
+      next: () => {
+        payment.paymentStatus = PaymentStatus.Failed;
+        alert('Payment rejected successfully.');
+        this.updateDisplayedPayments();
+      },
+      error: err => console.error('Error rejecting payment:', err)
+    });
   }
 
-  viewDocument(filePath: string | undefined) {
-    if (filePath) {
-      window.open(filePath, '_blank');
-    } else {
-      alert('No document file available.');
-    }
+  toggleRejectRemark(index: number) {
+    this.showRejectRemarkIndex = this.showRejectRemarkIndex === index ? null : index;
   }
 
+  // --- Documents ---
+  getAllDocuments() {
+    this.documentSvc.getAllDocuments().subscribe({
+      next: (data: any[]) => this.documents = data,
+      error: err => console.error('Error loading documents:', err)
+    });
+  }
+
+  viewDocument(filePath?: string) {
+    if (filePath) window.open(filePath, '_blank');
+    else alert('No document file available.');
+  }
+
+  // --- Reports ---
+  getReports() {
+    this.reportSvc.getAllReports().subscribe({
+      next: (data: any[]) => this.reports = data,
+      error: err => console.error('Error loading reports:', err)
+    });
+  }
+
+  // --- Salary Disbursement ---
   submitSalaryDisbursement() {
-    if (!this.salaryDisbursement.employeeId || !this.salaryDisbursement.amount) {
-      alert('Please select an employee and enter amount.');
+    if (!this.salaryDisbursement.employeeId) {
+      alert('Please select an employee.');
       return;
     }
 
-    const selectedEmployee = this.employees.find(
-      (e) => e.id === this.salaryDisbursement.employeeId
+    const selectedEmp = this.employees.find(emp => emp.id === this.salaryDisbursement.employeeId);
+    if (!selectedEmp) {
+      alert('Selected employee not found.');
+      return;
+    }
+
+    const dto = new SalaryDisbursementDto(
+      0,
+      selectedEmp.employeeId,
+      selectedEmp.name,
+      selectedEmp.clientName || 'N/A',
+      selectedEmp.id,
+      selectedEmp.salary,
+      new Date(),
+      PaymentStatus.Pending,
+      0
     );
-    this.pastDisbursements.unshift({
-      employeeName: selectedEmployee?.name || 'Unknown',
-      amount: this.salaryDisbursement.amount,
-      date: new Date(),
-      status: 'Pending'
+
+    this.salaryDisburse.addSalaryDisbursement(dto).subscribe({
+      next: res => {
+        alert('Salary Disbursement Initiated');
+        this.getPastDisbursements();
+        this.salaryDisbursement = { employeeId: null, amount: null, remarks: '' };
+      },
+      error: err => console.error('Error disbursing salary:', err)
     });
-
-    alert('Salary Disbursement Initiated (Mock)');
-
-    this.salaryDisbursement = {
-      employeeId: null,
-      amount: null,
-      remarks: ''
-    };
   }
 
-  toggleUserInfo(index: number, event: Event): void {
+  onEmployeeChange(selectedEmpId: number) {
+    const selectedEmp = this.employees.find(emp => emp.id === selectedEmpId);
+    this.salaryDisbursement.amount = selectedEmp ? selectedEmp.salary : null;
+  }
+
+  getPastDisbursements() {
+    this.salaryDisburse.getAllSalaryDisbursements().subscribe({
+      next: data => this.pastDisbursements = data,
+      error: err => console.error('Error loading past disbursements:', err)
+    });
+  }
+
+  // --- Utility ---
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  toggleUserInfo(index: number, event: Event) {
     event.preventDefault();
     this.expandedUserIndex = this.expandedUserIndex === index ? null : index;
   }

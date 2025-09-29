@@ -10,8 +10,9 @@ export class UserGuard implements CanActivate {
 
   canActivate(): boolean {
     const role = this.authService.getRole();
-
-    if (role?.toLocaleLowerCase() === 'user') {
+     console.log('Role in guard:', role);
+       console.log('[UserGuard] Role:', role);
+    if (role?.toLocaleLowerCase() === 'user' || role?.toLocaleLowerCase() === 'client') {
       return true;
     }
 

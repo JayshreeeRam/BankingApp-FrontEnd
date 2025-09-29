@@ -12,6 +12,7 @@ export interface ClientDto {
 
   accountNo: string;
 
-  verificationStatus?: AccountStatus | null; // default: AccountStatus.Pending (handle default in logic)
-  accountType?: AccountType | null;
+  verificationStatus?: AccountStatus ; // default: AccountStatus.Pending (handle default in logic)
+  accountType?: AccountType ;
 }
+

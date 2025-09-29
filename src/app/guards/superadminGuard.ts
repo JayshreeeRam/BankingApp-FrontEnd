@@ -10,8 +10,8 @@ export class SuperadminGuard implements CanActivate {
 
   canActivate(): boolean {
     const role = this.authService.getRole();
-
-    if (role === 'superadmin') {
+  console.log('SuperadminGuard role:', role);
+    if (role?.toLocaleLowerCase() === 'superadmin') {
       return true;
     }
 

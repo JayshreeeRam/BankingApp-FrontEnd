@@ -1,236 +1,133 @@
+<!-- SuperAdmin Dashboard -->
 <section class="welcome-banner">
   <div class="welcome-content">
     <div class="avatar">
       <i class="fas fa-user-shield"></i>
     </div>
     <div class="welcome-text">
-      <h1>Welcome, <span class="username">{{superadminName}}</span>!</h1>
+      <h1>Welcome, <span class="username">{{ superadminName }}</span>!</h1>
       <p>SuperAdmin Control Panel</p>
     </div>
   </div>
 </section>
 
 <div class="dashboard-container">
+  <!-- Sidebar -->
   <nav class="sidebar">
-    <button class="tab-btn" [class.active]="activeTab === 'admins'" (click)="activeTab = 'admins'">👨‍💼 Admins</button>
-    <button class="tab-btn" [class.active]="activeTab === 'banks'" (click)="activeTab = 'banks'">🏦 Banks</button>
-    <button class="tab-btn" [class.active]="activeTab === 'clients'" (click)="activeTab = 'clients'">🏢 Clients</button>
-    <button class="tab-btn" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">💼 Salary Disbursement</button>
-    <button class="tab-btn" [class.active]="activeTab === 'payments'" (click)="activeTab = 'payments'">💰 Payments</button>
-    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'">📊 Reports</button>
+    <div class="sidebar-header">
+      <h2>Dashboard</h2>
+    </div>
+    <ul class="nav-links">
+      <li (click)="activeTab='admins'" [class.active]="activeTab==='admins'">
+        <i class="fas fa-user-shield"></i> Admins
+      </li>
+      <li (click)="activeTab='banks'" [class.active]="activeTab==='banks'">
+        <i class="fas fa-university"></i> Banks
+      </li>
+      <li (click)="activeTab='reports'" [class.active]="activeTab==='reports'">
+        <i class="fas fa-file-alt"></i> Reports
+      </li>
+      <li (click)="activeTab='payments'" [class.active]="activeTab==='payments'">
+        <i class="fas fa-money-bill-wave"></i> Payments
+      </li>
+    </ul>
     <div class="logout-section">
-  <button class="logout-btn" (click)="logout()">🚪 Logout</button>
-</div>
+      <button (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
   </nav>
 
+  <!-- Main Content -->
   <section class="content">
-
-    <!-- Admins Management -->
-    <div *ngIf="activeTab === 'admins'" class="tab-content">
-      <h3>Manage Admins</h3>
-      <button (click)="showAddAdminForm = !showAddAdminForm" class="btn-add">Add New Admin</button>
-
-      <div *ngIf="showAddAdminForm" class="form-section">
-        <h4>Add Admin</h4>
-        <form (ngSubmit)="addAdmin()" #addAdminForm="ngForm">
-          <label>Name:</label>
-          <input type="text" [(ngModel)]="newAdmin.name" name="name" required />
-          <label>Email:</label>
-          <input type="email" [(ngModel)]="newAdmin.email" name="email" required />
-          <label>Phone:</label>
-          <input type="tel" [(ngModel)]="newAdmin.phone" name="phone" required />
-          <button type="submit">Save Admin</button>
-          <button type="button" (click)="cancelAddAdmin()">Cancel</button>
-        </form>
+    <!-- Admins -->
+    <div *ngIf="activeTab==='admins'" class="tab-content cards-container">
+      <h2>Admins</h2>
+      <div class="cards">
+        <div class="card" *ngFor="let admin of admins">
+          <div class="card-header">{{ admin.username }}</div>
+          <div class="card-body">
+            <p><strong>Email:</strong> {{ admin.email }}</p>
+            <p><strong>Phone:</strong> {{ admin.phoneNumber }}</p>
+            <p><strong>ID:</strong> {{ admin.userId }}</p>
+          </div>
+        </div>
       </div>
+    </div>
 
+    <!-- Banks -->
+   <!-- Button to show add bank form -->
+<button (click)="showAddBankForm = !showAddBankForm" class="btn-add">Add New Bank</button>
+
+<!-- Add Bank Form -->
+<div *ngIf="showAddBankForm" class="form-section">
+  <h4>Add Bank</h4>
+  <form (ngSubmit)="addBank()" #addBankForm="ngForm">
+    <label>Bank Name:</label>
+    <input type="text" [(ngModel)]="newBank.name" name="name" required />
+
+    <label>Address:</label>
+    <input type="text" [(ngModel)]="newBank.address" name="address" />
+
+    <label>IFSC Code:</label>
+    <input type="text" [(ngModel)]="newBank.ifscCode" name="ifscCode" required />
+
+    <div class="form-buttons">
+      <button type="submit" class="btn-save">Save</button>
+      <button type="button" class="btn-cancel" (click)="showAddBankForm=false">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- Banks Display as Cards -->
+<div class="cards-container">
+  <div class="bank-card" *ngFor="let bank of banks">
+    <h3>{{ bank.name }}</h3>
+    <p><strong>Address:</strong> {{ bank.address || 'N/A' }}</p>
+    <p><strong>IFSC Code:</strong> {{ bank.ifscCode || 'N/A' }}</p>
+   
+  </div>
+</div>
+
+
+    <!-- Reports -->
+    <div *ngIf="activeTab==='reports'" class="tab-content">
+      <h2>Generate Report</h2>
+      <div class="form-section">
+        <p>Click the button below to generate system reports. This feature will include logs, metrics, and summaries (logic to be added).</p>
+        <button class="btn-generate" (click)="generateReport()">Generate Report</button>
+      </div>
+    </div>
+
+    <!-- Payments -->
+    <div *ngIf="activeTab==='payments'" class="tab-content">
+      <h2>Payments</h2>
       <table class="list-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Actions</th>
+            <th>Client</th>
+            <th>Beneficiary</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let admin of admins">
-            <td>{{admin.id}}</td>
+          <tr *ngFor="let p of payments">
+            <td>{{ p.paymentId }}</td>
+            <td>{{ p.clientId }}</td>
+            <td>{{ p.beneficiaryId }}</td>
+            <td>₹{{ p.amount }}</td>
+            <td>{{ p.paymentDate | date:'mediumDate' }}</td>
             <td>
-              <input *ngIf="admin.editing" [(ngModel)]="admin.name" />
-              <span *ngIf="!admin.editing">{{admin.name}}</span>
-            </td>
-            <td>
-              <input *ngIf="admin.editing" [(ngModel)]="admin.email" />
-              <span *ngIf="!admin.editing">{{admin.email}}</span>
-            </td>
-            <td>
-              <input *ngIf="admin.editing" [(ngModel)]="admin.phone" />
-              <span *ngIf="!admin.editing">{{admin.phone}}</span>
-            </td>
-            <td>
-              <button *ngIf="!admin.editing" (click)="editAdmin(admin)">Edit</button>
-              <button *ngIf="admin.editing" (click)="saveAdmin(admin)">Save</button>
-              <button *ngIf="admin.editing" (click)="cancelEditAdmin(admin)">Cancel</button>
-              <button (click)="deleteAdmin(admin)">Delete</button>
+              <span class="status" [class.approved]="p.paymentStatus === PaymentStatus.Approved"
+                    [class.pending]="p.paymentStatus === PaymentStatus.Pending"
+                    [class.rejected]="p.paymentStatus === PaymentStatus.Failed">
+                {{ p.paymentStatus }}
+              </span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- Banks Management -->
-    <div *ngIf="activeTab === 'banks'" class="tab-content">
-      <h3>Manage Banks</h3>
-      <button (click)="showAddBankForm = !showAddBankForm" class="btn-add">Add New Bank</button>
-
-      <div *ngIf="showAddBankForm" class="form-section">
-        <h4>Add Bank</h4>
-        <form (ngSubmit)="addBank()" #addBankForm="ngForm">
-          <label>Bank Name:</label>
-          <input type="text" [(ngModel)]="newBank.name" name="name" required />
-          <label>Branch:</label>
-          <input type="text" [(ngModel)]="newBank.branch" name="branch" />
-          <button type="submit">Save Bank</button>
-          <button type="button" (click)="cancelAddBank()">Cancel</button>
-        </form>
-      </div>
-
-      <table class="list-table">
-        <thead>
-          <tr><th>ID</th><th>Name</th><th>Branch</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let bank of banks">
-            <td>{{bank.id}}</td>
-            <td>
-              <input *ngIf="bank.editing" [(ngModel)]="bank.name" />
-              <span *ngIf="!bank.editing">{{bank.name}}</span>
-            </td>
-            <td>
-              <input *ngIf="bank.editing" [(ngModel)]="bank.branch" />
-              <span *ngIf="!bank.editing">{{bank.branch}}</span>
-            </td>
-            <td>
-              <button *ngIf="!bank.editing" (click)="editBank(bank)">Edit</button>
-              <button *ngIf="bank.editing" (click)="saveBank(bank)">Save</button>
-              <button *ngIf="bank.editing" (click)="cancelEditBank(bank)">Cancel</button>
-              <button (click)="deleteBank(bank)">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Clients Management -->
-    <div *ngIf="activeTab === 'clients'" class="tab-content">
-      <h3>Manage Clients</h3>
-      <table class="list-table">
-        <thead>
-          <tr><th>ID</th><th>Name</th><th>Account No</th><th>Bank</th><th>Verification</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let client of clients">
-            <td>{{client.clientId}}</td>
-            <td>{{client.name}}</td>
-            <td>{{client.accountNo}}</td>
-            <td>{{client.bankName}}</td>
-            <td>{{client.verificationStatus}}</td>
-            <td><button (click)="viewClientDetails(client)">View / Edit</button></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div *ngIf="selectedClient" class="form-section">
-        <h4>Edit Client</h4>
-        <form (ngSubmit)="updateClient()" #editClientForm="ngForm">
-          <label>Name:</label>
-          <input type="text" [(ngModel)]="selectedClient.name" name="name" required />
-          <label>Address:</label>
-          <input type="text" [(ngModel)]="selectedClient.address" name="address" />
-          <label>Account Number:</label>
-          <input type="text" [(ngModel)]="selectedClient.accountNo" name="accountNo" required />
-          <label>Verification Status:</label>
-          <select [(ngModel)]="selectedClient.verificationStatus" name="verificationStatus" required>
-            <option *ngFor="let status of verificationStatuses" [value]="status">{{status}}</option>
-          </select>
-          <button type="submit">Update Client</button>
-          <button type="button" (click)="cancelClientEdit()">Cancel</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Payments Management -->
-    <div *ngIf="activeTab === 'payments'" class="tab-content">
-      <h3>Payments</h3>
-      <table class="list-table">
-        <thead>
-          <tr><th>ID</th><th>Client</th><th>Beneficiary</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let payment of payments">
-            <td>{{payment.paymentId}}</td>
-            <td>{{payment.clientName}}</td>
-            <td>{{payment.beneficiaryName}}</td>
-            <td>₹{{payment.amount}}</td>
-            <td>{{payment.paymentDate | date:'shortDate'}}</td>
-            <td>{{payment.paymentStatus}}</td>
-            <td>
-              <button (click)="updatePaymentStatus(payment)">Update Status</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-         <!-- Salary Disbursement Tab -->
-<div *ngIf="activeTab === 'salary'" class="tab-content">
-  <h3>Disburse Salary</h3>
-  <form (ngSubmit)="submitSalaryDisbursement()" #salaryForm="ngForm">
-    <label>Select Employee:</label>
-    <select name="employeeId" [(ngModel)]="salaryDisbursement.employeeId" required>
-      <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
-    </select>
-
-    <label>Amount (₹):</label>
-    <input type="number" name="amount" [(ngModel)]="salaryDisbursement.amount" required min="1" />
-
-    <label>Remarks (optional):</label>
-    <input type="text" name="remarks" [(ngModel)]="salaryDisbursement.remarks" />
-
-    <button type="submit">Send Salary</button>
-  </form>
-
-  <hr />
-
-  <h4>Past Disbursements</h4>
-  <table class="transactions-table">
-    <thead>
-      <tr>
-        <th>Employee</th>
-        <th>Amount</th>
-        <th>Date</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let disb of pastDisbursements">
-        <td>{{ disb.employeeName }}</td>
-        <td>₹{{ disb.amount }}</td>
-        <td>{{ disb.date | date: 'shortDate' }}</td>
-        <td>{{ disb.status }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-    <!-- Reports -->
-    <div *ngIf="activeTab === 'reports'" class="tab-content">
-      <h3>Reports</h3>
-      <p>Summary reports and analytics will appear here.</p>
-      <!-- You can expand with charts or downloadable reports -->
-    </div>
-
   </section>
 </div>

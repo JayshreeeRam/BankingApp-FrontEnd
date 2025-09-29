@@ -37,4 +37,7 @@ export class PaymentService {
   approvePayment(id: number): Observable<PaymentDto> {
     return this.http.post<PaymentDto>(`${this.url}/${id}/approve`, {});
   }
+  rejectPayment(id: number): Observable<PaymentDto> {
+    return this.http.post<PaymentDto>(`${this.url}/${id}/reject`, {});
+  }
 }

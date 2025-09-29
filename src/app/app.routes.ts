@@ -14,7 +14,7 @@ import { PaymentComponent } from './components/payment/payment';
 import { CreateBeneficaryComponent } from './components/create-beneficary-component/create-beneficary-component';
 import { BeneficaryComponent } from './components/beneficary-component/beneficary-component';
 
-// import { Support } from './components/support/support';
+import { Support } from './components/support/support';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -36,5 +36,5 @@ export const routes: Routes = [
   { path: 'beneficiary', component:BeneficaryComponent },
   { path: 'create-beneficiary/:clientId', component: CreateBeneficaryComponent },
   { path: 'payment', component: PaymentComponent },
-  // { path: 'support', component: SupportComponent }
+  { path: 'support', component: Support }
 ];

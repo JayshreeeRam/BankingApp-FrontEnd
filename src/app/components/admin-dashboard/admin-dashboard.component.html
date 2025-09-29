@@ -1,227 +1,231 @@
-<section class="welcome-banner">
-  <div class="welcome-content">
-    <div class="avatar">
-      <i class="fas fa-user-shield"></i>
-    </div>
+<div class="admin-dashboard">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="avatar">👤</div>
     <div class="welcome-text">
-      <h1>Welcome, <span class="username">Admin</span>!</h1>
-      <p>Manage your banking system here</p>
+      <h1>Admin Dashboard</h1>
+      <p>Manage Clients, Users, Documents, Payments, Reports & more</p>
     </div>
   </div>
-</section>
 
-<div class="dashboard-container">
-  <nav class="sidebar">
-    <button class="tab-btn" [class.active]="activeTab === 'clients'" (click)="activeTab = 'clients'">👥 Clients</button>
-    <button class="tab-btn" [class.active]="activeTab === 'payments'" (click)="activeTab = 'payments'">💰 Payments</button>
-    <button class="tab-btn" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">💼 Salary Disbursement</button>
-    <button class="tab-btn" [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'">📊 Reports</button>
-    <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">👤 Users</button>
-    <button class="tab-btn" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">📄 Documents</button>
-    <div class="logout-section">
-  <button class="logout-btn" (click)="logout()">🚪 Logout</button>
-</div>
-  </nav>
-
-  <section class="content">
-    <!-- Clients Tab -->
-    <div *ngIf="activeTab === 'clients'" class="tab-content">
-  <h3>Load Users</h3>
-  <form (submit)="getAllClients($event)">
-    <button type="submit">Load Users</button>
-  </form>
-
-  <div class="table-container" *ngIf="users && users.length > 0">
-    <table class="user-table">
-      <thead>
-        <tr>
-          <th>User ID</th>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Phone Number</th>
-          <th>User Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.userId }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.phoneNumber}}</td>
-          <td>{{ user.role }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <button (click)="activeTab = 'clients'" [class.active]="activeTab === 'clients'">Clients</button>
+    <button (click)="activeTab = 'users'" [class.active]="activeTab === 'users'">Users</button>
+    <button (click)="activeTab = 'documents'" [class.active]="activeTab === 'documents'">Documents</button>
+    <button (click)="activeTab = 'payments'" [class.active]="activeTab === 'payments'">Payments</button>
+    <button (click)="activeTab = 'reports'" [class.active]="activeTab === 'reports'">Reports</button>
+    <button (click)="activeTab = 'salary'" [class.active]="activeTab === 'salary'">Salary</button>
+    <button (click)="activeTab = 'employees'" [class.active]="activeTab === 'employees'">Employees</button>
+    <button class="logout" (click)="logout()">Logout</button>
   </div>
-</div>
 
-    <!-- Payments Tab -->
-    <div *ngIf="activeTab === 'payments'" class="tab-content">
-      <h3>Payments</h3>
+  <!-- Clients Tab -->
+  <div *ngIf="activeTab === 'clients'" class="tab-content">
+    <h3>Clients</h3>
+    <button class="btn-view" (click)="getAllClients()">Load Clients</button>
+
+    <div class="table-container" *ngIf="clients.length > 0">
       <table>
         <thead>
-          <tr><th>Client</th><th>Beneficiary</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          <tr>
+            <th>Client ID</th>
+            <th>Name</th>
+            <th>Account No</th>
+            <th>Verification</th>
+          </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let payment of payments">
-            <td>{{payment.clientName}}</td>
-            <td>{{payment.beneficiaryName}}</td>
-            <td>₹{{payment.amount}}</td>
-            <td>{{payment.paymentDate | date:'short'}}</td>
-            <td>{{payment.paymentStatus}}</td>
+          <tr *ngFor="let c of clients">
+            <td>{{ c.clientId }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.accountNo || 'N/A' }}</td>
+            <td>{{ c.verificationStatus || 'Pending' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
+  </div>
 
-     <!-- Salary Disbursement Tab -->
-<div *ngIf="activeTab === 'salary'" class="tab-content">
-  <h3>Disburse Salary</h3>
-  <form (ngSubmit)="submitSalaryDisbursement()" #salaryForm="ngForm">
-    <label>Select Employee:</label>
-    <select name="employeeId" [(ngModel)]="salaryDisbursement.employeeId" required>
-      <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
+  <!-- Users Tab -->
+  <div *ngIf="activeTab === 'users'" class="tab-content">
+    <h3>Users</h3>
+    <button class="btn-view" (click)="getAllUsers()">Load Users</button>
+
+    <div class="table-container" *ngIf="users.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.userId }}</td>
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.phoneNumber || 'N/A' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Documents Tab -->
+  <div *ngIf="activeTab === 'documents'" class="tab-content">
+    <h3>Documents</h3>
+    <div class="table-container" *ngIf="documents.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Upload Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let doc of documents">
+            <td>{{ doc.documentId }}</td>
+            <td>{{ doc.uploadedByUsername }}</td>
+            <td>{{ doc.documentType }}</td>
+            <td>{{ doc.documentStatus }}</td>
+            <td>{{ doc.uploadDate | date }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payments Tab -->
+<div *ngIf="activeTab === 'payments'" class="tab-content">
+  <h3>Payments</h3>
+
+  <div class="payment-toggle">
+    <button (click)="togglePaymentsView(true)">All Payments</button>
+    <button (click)="togglePaymentsView(false)">Pending Payments</button>
+  </div>
+
+  <div class="table-container" *ngIf="displayedPayments.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Beneficiary</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of displayedPayments; let i = index">
+          <td>{{ p.clientId }}</td>
+          <td>{{ p.beneficiaryId }}</td>
+          <td>₹{{ p.amount }}</td>
+          <td>{{ p.paymentDate | date:'short' }}</td>
+          <td>{{ p.paymentStatus }}</td>
+          <td>
+            <div *ngIf="!showAllPayments && p.paymentStatus === PaymentStatus.Pending">
+              <button (click)="approvePayment(p)">Approve</button>
+              <button (click)="toggleRejectRemark(i)">Reject</button>
+
+              <!-- <div *ngIf="showRejectRemarkIndex === i" class="reject-remark">
+                <input type="text" [(ngModel)]="p.rejectRemark" placeholder="Enter rejection reason" />
+                <button (click)="rejectPayment(p, p.rejectRemark)">Submit Reject</button>
+              </div> -->
+            </div>
+            <div *ngIf="showAllPayments || p.paymentStatus === PaymentStatus.Pending">
+              {{ p.paymentStatus }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="displayedPayments.length === 0">
+    <p>No payments to display.</p>
+  </div>
+</div>
+
+
+
+  <!-- Reports Tab -->
+  <div *ngIf="activeTab === 'reports'" class="tab-content">
+    <h3>Reports</h3>
+    <label>Select Report Type:</label>
+    <select [(ngModel)]="selectedReportType">
+      <option *ngFor="let type of reportTypes" [value]="type">{{ type }}</option>
     </select>
 
-    <label>Amount (₹):</label>
-    <input type="number" name="amount" [(ngModel)]="salaryDisbursement.amount" required min="1" />
+    <ul>
+      <li *ngFor="let report of reports">
+        <strong>{{ report.reportType }}</strong> - {{ report.generatedDate | date }}
+        <button *ngIf="report.filePath" (click)="viewDocument(report.filePath)">View</button>
+      </li>
+    </ul>
+  </div>
 
-    <label>Remarks (optional):</label>
-    <input type="text" name="remarks" [(ngModel)]="salaryDisbursement.remarks" />
+  <!-- Salary Tab -->
+    <div *ngIf="activeTab === 'salary'" class="tab-content">
+    <h3>Salary</h3>
+  <label>Employee:</label>
+<select [(ngModel)]="salaryDisbursement.employeeId" 
+        name="employeeId" 
+        required
+        (ngModelChange)="onEmployeeChange($event)">
+  <option [ngValue]="null" disabled>Select Employee</option>
+  <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
+</select>
 
-    <button type="submit">Send Salary</button>
-  </form>
+<label>Amount:</label>
+<input type="number" [(ngModel)]="salaryDisbursement.amount" 
+       name="amount" required readonly />
 
-  <hr />
+<label>Remarks:</label>
+<input type="text" [(ngModel)]="salaryDisbursement.remarks" name="remarks" />
 
-  <h4>Past Disbursements</h4>
-  <table class="transactions-table">
-    <thead>
-      <tr>
-        <th>Employee</th>
-        <th>Amount</th>
-        <th>Date</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let disb of pastDisbursements">
-        <td>{{ disb.employeeName }}</td>
-        <td>₹{{ disb.amount }}</td>
-        <td>{{ disb.date | date: 'shortDate' }}</td>
-        <td>{{ disb.status }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-    <!-- Reports Tab -->
-    <div *ngIf="activeTab === 'reports'" class="tab-content">
-      <h3>Generate Report</h3>
-
-      <label for="reportType">Select Report Type:</label>
-      <select id="reportType" [(ngModel)]="selectedReportType">
-        <option *ngFor="let type of reportTypes" [value]="type">{{type}}</option>
-      </select>
-
-      <button (click)="generateReport()">Generate</button>
-
-      <h4>Generated Reports</h4>
-      <ul>
-        <li *ngFor="let report of reports">
-          {{ report.reportType }} - {{ report.generatedDate | date:'short' }} - 
-          <a href="{{ report.filePath }}" target="_blank" *ngIf="report.filePath">Download</a>
-          <span *ngIf="!report.filePath">(Processing)</span>
-        </li>
-      </ul>
+<button (click)="submitSalaryDisbursement()">Disburse Salary</button>
     </div>
 
-    <!-- Users Tab -->
-    <div *ngIf="activeTab === 'users'" class="tab-content">
-  <h3>Users</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>User Info</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let user of users; let i = index">
+  
+ <!-- Employees Tab -->
+<div *ngIf="activeTab === 'employees'" class="tab-content">
+  <h3>Employees</h3>
+  <div class="table-container" *ngIf="employees.length > 0">
+    <table>
+      <thead>
         <tr>
-        <td>{{ user.name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
-        <td>
-          <a href="#" (click)="toggleUserInfo(i, $event)">View Info</a>
-        </td>
-      </tr>
-      <!-- Expanded Info Row -->
-      <tr *ngIf="expandedUserIndex === i">
-        <td colspan="4">
-          <div class="user-info-box">
-            <p><strong>Account Number:</strong> {{ user.accountNumber || 'N/A' }}</p>
-            <p><strong>Client Name:</strong> {{ user.clientName || 'N/A' }}</p>
-            <p><strong>Transaction ID:</strong> {{ user.transactionId || 'N/A' }}</p>
-            <p><strong>Beneficiary ID:</strong> {{ user.beneficiaryId || 'N/A' }}</p>
-            <div *ngIf="user.documents?.length">
-              <p><strong>Uploaded Documents:</strong></p>
-              <ul>
-                <li *ngFor="let doc of user.documents">
-                  {{ doc.documentType }} - {{ doc.status }} - 
-                  <a href="{{ doc.filePath }}" target="_blank">View</a>
-                </li>
-              </ul>
-            </div>
-            <div *ngIf="!user.documents || user.documents.length === 0">
-              <p>No documents uploaded.</p>
-            </div>
-          </div>
-        </td>
-      </tr>
-      </ng-container>
-    </tbody>
-  </table>
+          <th>#</th>
+          <th>Name</th>
+          <th>Bank</th>
+          <th>Salary</th>
+          <th>Client</th>
+          <th>Employee Id</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of employees">
+          <td>{{ emp.id }}</td>
+          <td>{{ emp.name }}</td>
+          <td>{{ emp.bankName}}</td>
+          <td>₹{{ emp.salary }}</td>
+          <td>{{ emp.clientName }}</td>
+          <td>{{emp.employeeId}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="employees.length === 0">
+    <p>No employees found.</p>
+  </div>
 </div>
-
-    <!-- Document -->
-
-    <div *ngIf="activeTab === 'documents'" class="tab-content">
-  <h3>User Uploaded Documents</h3>
-  <table class="documents-table">
-    <thead>
-      <tr>
-        <th>Document Id</th>
-        <th>User</th>
-        <th>Document Type</th>
-        <th>Status</th>
-        <th>Upload Date</th>
-        <th>File Name</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let doc of documents">
-        <td>{{ doc.documentId }}</td>
-        <td>{{ doc.uploadedByUsername }}</td>
-        <td>{{ doc.documentType }}</td>
-        <td>{{ doc.documentStatus }}</td>
-        <td>{{ doc.uploadDate | date:'short' }}</td>
-        <td>{{ doc.fileName }}</td>
-        <td>
-          <button (click)="viewDocument(doc.filePath)">View</button>
-          <button (click)="approveDocument(doc)" *ngIf="doc.documentStatus === 'Pending'">Approve</button>
-          <button (click)="rejectDocument(doc)" *ngIf="doc.documentStatus === 'Pending'">Reject</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
-
-  </section>
 </div>
 
