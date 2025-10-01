@@ -1,4 +1,4 @@
-<section class="welcome-banner">
+ <section class="welcome-banner">
   <div class="welcome-content">
     <div class="avatar">
       <i class="fas fa-user-circle"></i>
@@ -9,21 +9,29 @@
     </div>
   </div>
 </section>
-
+ 
+ 
 <div class="dashboard-container">
-  <nav class="sidebar">
-    <button class="tab-btn" [class.active]="activeTab === 'home'" (click)="activeTab = 'home'">🏠 Home</button>
-    <button class="tab-btn" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">📄 Documents</button>
-    <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">👤 Profile</button>
-    <button class="tab-btn" [class.active]="activeTab === 'transactions'" (click)="activeTab = 'transactions'">💳 Transactions</button>
-    <button class="tab-btn" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">💰 Make Payment</button>
-    <button class="tab-btn" [class.active]="activeTab === 'support'" (click)="activeTab = 'support'">📞 Support</button>
-
+    <nav class="sidebar" [class.collapsed]="isSidebarCollapsed">
+   
+    <button class="sidebar-toggle" (click)="toggleSidebar()">☰</button>
+    <button class="tab-btn" data-icon="🏠" [class.active]="activeTab === 'home'" (click)="activeTab = 'home'">🏠 Home</button>
+     <button class="tab-btn" data-icon="📄" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">📄 Documents</button>
+     <button class="tab-btn" data-icon="👤" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">👤 Profile</button>
+     <button class="tab-btn" data-icon="💳" [class.active]="activeTab === 'transactions'" (click)="activeTab = 'transactions'">💳 Transactions</button>
+     <button class="tab-btn" data-icon="💰" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">💰 Make Payment</button>
+     <button class="tab-btn" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">💼 Salary</button>
+     <button class="tab-btn" data-icon="👨‍💼" [class.active]="activeTab === 'employee'"(click)="activeTab = 'employee'">👨‍💼 Employee</button>
+     <button class="tab-btn" data-icon="📞" [class.active]="activeTab === 'support'" (click)="activeTab = 'support'">📞 Support</button>
+ 
+ 
+ 
+ 
     <div class="logout-section">
       <button class="logout-btn" (click)="logout()">🚪 Logout</button>
     </div>
   </nav>
-
+ 
   <section class="content">
     <!-- Home Tab -->
     <div *ngIf="activeTab === 'home'" class="tab-content">
@@ -31,29 +39,29 @@
       <p>Here you can manage your banking profile and upload documents.</p>
        <button (click)="goToTransactions()">View All Transactions</button>
     </div>
-
+ 
     <!-- Documents Tab -->
  <div *ngIf="activeTab === 'documents'" class="tab-content">
   <h3>Upload Documents</h3>
-
+ 
   <!-- Upload Section -->
   <div class="upload-section">
     <label>Aadhaar Card:</label>
     <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'aadhaar')" />
     <p *ngIf="aadhaarFile">Selected: {{ aadhaarFile.name }}</p>
   </div>
-
+ 
   <div class="upload-section">
     <label>PAN Card:</label>
     <input type="file" accept=".pdf,image/*" (change)="onFileSelected($event, 'pan')" />
     <p *ngIf="panFile">Selected: {{ panFile.name }}</p>
   </div>
-
+ 
   <button class="upload-btn" (click)="uploadDocuments()">Upload Documents</button>
-
+ 
   <!-- Show number of uploaded documents -->
   <p class="doc-count">Total documents uploaded: {{ documents.length }}</p>
-
+ 
   <!-- Uploaded Documents Table -->
   <h3>Uploaded Documents</h3>
   <table *ngIf="documents.length > 0" class="documents-table">
@@ -61,7 +69,7 @@
       <tr>
         <th>File Name</th>
         <th>Type</th>
-        <th>Status</th>
+        <!-- <th>Status</th> -->
         <th>Actions</th>
       </tr>
     </thead>
@@ -69,7 +77,7 @@
       <tr *ngFor="let doc of documents">
         <td>{{ doc.fileName }}</td>
         <td>{{ doc.documentType }}</td>
-        <td>{{ doc.documentStatus }}</td>
+        <!-- <td>{{ doc.documentStatus }}</td> -->
         <td>
           <button (click)="viewDocument(doc.filePath)">View</button>
         <button (click)="downloadDocument(doc.filePath, doc.fileName)">Download</button>
@@ -77,14 +85,14 @@
       </tr>
     </tbody>
   </table>
-
+ 
   <p *ngIf="documents.length === 0">No documents uploaded yet.</p>
 </div>
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
     <!-- Profile Tab -->
     <div *ngIf="activeTab === 'profile'" class="tab-content">
       <h3>Profile Details</h3>
@@ -97,7 +105,7 @@
           required
           [attr.aria-invalid]="!profile.username ? true : null"
         />
-
+ 
         <label>Email:</label>
         <input
           type="email"
@@ -106,7 +114,7 @@
           required
           [attr.aria-invalid]="!profile.email ? true : null"
         />
-
+ 
         <label>Phone Number:</label>
         <input
           type="tel"
@@ -115,11 +123,11 @@
           required
           [attr.aria-invalid]="!profile.phoneNumber ? true : null"
         />
-
+ 
         <button type="submit">Update Profile</button>
       </form>
     </div>
-
+ 
     <!-- Transactions Tab -->
     <div *ngIf="activeTab === 'transactions'" class="tab-content" >
       <h3>Recent Transactions</h3>
@@ -146,15 +154,15 @@
           </tr>
         </tbody>
       </table>
-
-      
+ 
+     
     </div>
-
+ 
     <!-- Make Payment Tab -->
    <!-- Make Payment Tab -->
 <div *ngIf="activeTab === 'payment'" class="tab-content">
   <h3>Make a Payment</h3>
-
+ 
   <label>Select Beneficiary:</label>
   <select [(ngModel)]="payment.beneficiaryId" (change)="onBeneficiarySelect($event)">
     <option [value]="null" disabled selected>Select beneficiary</option>
@@ -162,7 +170,7 @@
       {{ b.bankName }} - {{ b.accountNo }}
     </option>
   </select>
-
+ 
   <!-- Buttons -->
   <div style="margin: 10px 0; display: flex; gap: 10px;">
     <button (click)="onCreateNewBeneficiary()" class="btn-add">
@@ -172,7 +180,7 @@
       👁 View My Beneficiaries
     </button>
   </div>
-
+ 
   <!-- Beneficiary List -->
   <div *ngIf="showBeneficiaryList" class="beneficiary-list">
     <table>
@@ -192,31 +200,31 @@
       </tbody>
     </table>
   </div>
-
+ 
   <!-- Selected Beneficiary Info -->
   <div *ngIf="selectedBeneficiary" class="selected-beneficiary-box">
     <p><strong>Account No:</strong> {{ selectedBeneficiary.accountNo }}</p>
     <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifscCode }}</p>
   </div>
-
+ 
   <label>Amount (₹):</label>
   <input type="number" [(ngModel)]="payment.amount" placeholder="Enter amount" />
-
+ 
   <label>Remarks:</label>
   <input type="text" [(ngModel)]="payment.remarks" placeholder="Optional" />
-
+ 
   <button (click)="submitPayment()" [disabled]="!selectedBeneficiary || !payment.amount">Pay</button>
 </div>
-
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
+ 
     <!-- Support Tab -->
     <div *ngIf="activeTab === 'support'" class="tab-content">
   <h3>Contact Support</h3>
-
+ 
   <form (ngSubmit)="submitSupportForm()" #supportForm="ngForm" class="support-form">
     <!-- Name -->
     <label for="name">Name:</label>
@@ -228,7 +236,7 @@
       required
       placeholder="Enter your name"
     />
-
+ 
     <!-- Email -->
     <label for="email">Email:</label>
     <input
@@ -239,7 +247,7 @@
       required
       placeholder="Enter your email"
     />
-
+ 
     <!-- Subject -->
     <label for="subject">Subject:</label>
     <select
@@ -257,7 +265,7 @@
       <option value="complaint">Complaint</option>
       <option value="others">Others</option>
     </select>
-
+ 
     <!-- Message -->
     <label for="message">Message:</label>
     <textarea
@@ -268,10 +276,49 @@
       rows="5"
       placeholder="Enter your message here"
     ></textarea>
-
+ 
     <button type="submit" [disabled]="!supportForm.form.valid">Submit</button>
   </form>
 </div>
-
-  </section>
+ 
+ 
+<!-- Employee Tab -->
+<div *ngIf="activeTab === 'employee'">
+  <table class="employee-table">
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let emp of employees">
+        <td>{{ emp.id }}</td>
+        <td>{{ emp.name }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+ 
+<ng-template #notEmployee>
+  <p>No employees found based on transaction history.</p>
+</ng-template>
+ 
+ 
+<!-- Salary Tab -->
+    <div *ngIf="activeTab === 'salary'" class="tab-content">
+      <h3>Salary</h3>
+      <label>Employee:</label>
+      <select [(ngModel)]="salaryDisbursement.employeeId" name="employeeId" required (ngModelChange)="onEmployeeChange($event)">
+        <option [ngValue]="null" disabled>Select Employee</option>
+        <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
+      </select>
+ 
+      <label>Amount:</label>
+      <input type="number" [(ngModel)]="salaryDisbursement.amount" name="amount" required readonly />
+ 
+      <label>Batch ID:</label>
+<input type="number" [(ngModel)]="salaryDisbursement.batchId" name="batchId" required />
+ 
+      <button (click)="submitSalaryDisbursement()">Disburse Salary</button>
+    </div>
