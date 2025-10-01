@@ -38,4 +38,9 @@ export class ClientService {
   deleteClient(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  approveClient(clientId: number): Observable<ClientDto> {
+  return this.http.post<ClientDto>(`${this.url}/${clientId}/approve`, {});
+}
+
 }

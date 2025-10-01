@@ -12,6 +12,7 @@ import { UserDto } from '../../DTOs/UserDto';
 import { AuthService } from '../../services/auth.service';
 import { BeneficiaryDto } from '../../DTOs/Beneficiary.dto';
 import emailjs from '@emailjs/browser';
+import { PaymentDto } from '../../DTOs/PaymentDto';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class UserDashboardComponent implements OnInit {
   currentUserId!: number;
 
   transactions: any[] = [];
+displayedPayments: PaymentDto[] = [];
 
   beneficiaries: BeneficiaryDto[] = [];
   selectedBeneficiary?: BeneficiaryDto;
@@ -145,16 +147,23 @@ toggleBeneficiaryList() {
       new Date()
     );
 
-    this.paymentService.addPayment(paymentDto).subscribe({
-      next: () => {
-        alert('Payment successful');
-        this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
-        this.selectedBeneficiary = undefined;
-        this.loadTransactions();
-      },
-      error: (err) => console.error('Payment failed', err)
-    });
+   this.paymentService.addPayment(paymentDto).subscribe({
+  next: (createdPayment: PaymentDto) => {
+    alert('✅ Payment created successfully with ID ' + createdPayment.paymentId);
+
+    // ✅ Store the actual payment returned from backend
+    this.displayedPayments.push(createdPayment); // or reload the list
+
+    // Clear form
+    this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
+    this.selectedBeneficiary = undefined;
+
+    // Optionally reload transactions or just update UI
+    this.loadTransactions();
   }
+});
+}
+
 
   // ================= Documents =================
   onFileSelected(event: any, type: 'aadhaar' | 'pan') {

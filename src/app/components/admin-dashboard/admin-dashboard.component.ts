@@ -15,6 +15,11 @@ import {  PaymentDto } from '../../DTOs/PaymentDto';
 import { SalaryDisbursementDto } from '../../DTOs/SalaryDisbursementDto';
 import { PaymentStatus } from '../../Enum/PaymentStatus 1';
 import { Payment } from '../../Models/Payment';
+import { UpdatePaymentDto } from '../../DTOs/UpdatePaymentDto';
+import { SalaryDisbursementComponent } from '../salary-disbursement-component/salary-disbursement-component';
+import { DocumentsComponent } from "../document-component/document-component";
+import { AccountStatus } from '../../Enum/AccountStatus 1';
+import { UserRole } from '../../Enum/UserRole 1';
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
@@ -51,41 +56,48 @@ interface Report {
 
 interface User {
   userId: number;
-  name: string;
+  username: string;
   email: string;
-  role: string;
+  // userRole: UserRole;
   phoneNumber?: string;
 }
 
 interface Employee {
   id: number; // table ID
   employeeId: number;
-  name: string;
+  employeeName : string;
   bankName: string;
   salary: number;
-  clientName: string;
+  senderName: string;
 }
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, SafeUrlPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SafeUrlPipe,
+    SalaryDisbursementComponent,
+    DocumentsComponent
+],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'clients';
   PaymentStatus = PaymentStatus;
-
+  AccountStatus = AccountStatus;
   clients: Client[] = [];
   users: User[] = [];
   employees: Employee[] = [];
-  // payments: PaymentDto[] = [];
-  payments: Payment[] = [];
+  payments: PaymentDto[] = [];
+  // payments: Payment[] = [];
   displayedPayments: PaymentDto[] = [];
   documents: DocumentItem[] = [];
   reports: Report[] = [];
   pastDisbursements: SalaryDisbursement[] = [];
+  allClients: any[] = [];
 
   selectedReportType: string = 'Daily Transactions';
   reportTypes = ['Daily Transactions', 'Client Activity', 'Payment Summary'];
@@ -117,39 +129,91 @@ export class AdminDashboardComponent implements OnInit {
     this.getAllClients();
     this.getAllUsers();
     this.getAllEmployees();
-    // this.getAllPayments();
+    this.getAllPayments();
     this.getAllDocuments();
     this.getReports();
     this.getPastDisbursements();
   }
 
   // --- Clients ---
+  // getAllClients(event?: Event) {
+  //   event?.preventDefault();
+  //   this.clientSvc.getAllClients().subscribe({
+  //     next: (data: any[]) => {
+  //       this.clients = data.map(c => ({
+  //         clientId: c.clientId,
+  //         name: c.name,
+  //         accountNo: c.accountNo,
+  //         bankName: c.bankName,
+  //         verificationStatus: c.verificationStatus
+  //       }));
+  //     },
+  //     error: err => console.error('Error loading clients:', err)
+  //   });
+  // }
+
   getAllClients(event?: Event) {
-    event?.preventDefault();
-    this.clientSvc.getAllClients().subscribe({
-      next: (data: any[]) => {
-        this.clients = data.map(c => ({
-          clientId: c.clientId,
-          name: c.name,
-          accountNo: c.accountNo,
-          bankName: c.bankName,
-          verificationStatus: c.verificationStatus
-        }));
-      },
-      error: err => console.error('Error loading clients:', err)
-    });
+  event?.preventDefault();
+  this.clientSvc.getAllClients().subscribe({
+    next: (data: any[]) => {
+      this.allClients = data.map(c => ({
+        clientId: c.clientId,
+        name: c.name,
+        accountNo: c.accountNo,
+        bankName: c.bankName,
+        verificationStatus: c.verificationStatus || 'Pending'
+      }));
+      this.clients = [...this.allClients]; // Show all clients initially
+    },
+    error: err => console.error('Error loading clients:', err)
+  });
+}
+
+// New method to filter clients based on status
+loadClients(filter: AccountStatus | 'all') {
+  if (filter === 'all') {
+    this.clients = [...this.allClients];
+  } else {
+    this.clients = this.allClients.filter(c => c.verificationStatus === filter);
   }
+}
+
+
+/**
+ * Approve client — changes status to Approved
+ */
+approveClient(client: any) {
+  this.clientSvc.approveClient(client.clientId).subscribe({
+    next: (updatedClient) => {
+      client.verificationStatus = updatedClient.verificationStatus;  // Should be AccountStatus.Active
+      alert(`Client ${client.name} approved.`);
+    },
+    error: (err) => {
+      console.error('Error approving client:', err);
+      alert('Failed to approve client. Please try again.');
+    }
+  });
+}
+
+
+rejectClient(client: any) {
+  client.AccountStatus = AccountStatus.Rejected ;
+  alert(`Client ${client.name} rejected.`);
+  // Call backend API to update status if needed
+}
+
 
   // --- Users ---
   getAllUsers(event?: Event) {
     event?.preventDefault();
     this.userSvc.getAllUsers().subscribe({
       next: (data: any[]) => {
+        console.log('Fetching all users from server...}',{ data});
         this.users = data.map(u => ({
           userId: u.userId,
-          name: u.name,
+          username: u.username,
           email: u.email,
-          role: u.role,
+          // userRole: u.role,
           phoneNumber: u.phoneNumber
         }));
       },
@@ -158,38 +222,35 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // --- Employees ---
-  getAllEmployees() {
-    this.employeeSvc.getAllEmployees().subscribe({
-      next: (data: any[]) => {
-        this.employees = data.map((e, index) => ({
-          id: index + 1,
-          employeeId: e.employeeId,
-          name: e.employeeName,
-          bankName: e.bankName || '',
-          salary: e.salary,
-          clientName: e.senderName || ''
-        }));
-      },
-      error: err => console.error('Error loading employees:', err)
-    });
-  }
+ 
+
+getAllEmployees() {
+  this.employeeSvc.getAllEmployees().subscribe({
+    next: (data:any) => {
+      alert('Fetching all employees from server...');
+      this.employees = data;
+      console.log('Employees loaded:', this.employees);
+    },
+    error: (err:any) => {
+      console.error('Failed to load employees', err);
+    }
+  });
+}
+
 
   // --- Payments ---
-// getAllPayments() {
-//   this.paymentSvc.getAllPayments().subscribe({
-//     next: (data: PaymentDto[]) => {
-//       this.payments = data.map((p, index) => ({
-//         paymentId: index + 1,            // unique display id
-//         clientId: p.clientId,            // required
-//         beneficiaryId: p.beneficiaryId,  // required
-//         amount: p.amount,
-//         paymentDate: new Date(p.paymentDate),
-//         paymentStatus: p.paymentStatus.toString // convert enum to string
-//       }));
-//     },
-//     error: err => console.error('Error loading payments:', err)
-//   });
-// }
+getAllPayments() {
+ this.paymentSvc.getAllPayments().subscribe({
+   next: (data: PaymentDto[]) => {
+        console.log('Fetching all payments from server...');
+        //  console.log('Raw payments:', data.map(p => typeof p.paymentStatus + ' → ' + p.paymentStatus));
+     
+        this.payments = data;
+        this.updateDisplayedPayments();
+      },
+      error: err => console.error('Error loading payments:', err)
+    });
+}
  
   
  
@@ -202,22 +263,21 @@ getClientNameById(id: number): string {
 
 getBeneficiaryNameById(id: number): string {
   const user = this.users.find(u => u.userId === id);
-  return user ? user.name : 'Unknown';
+  return user ? user.username : 'Unknown';
 }
 
 // Filtered display function
-getDisplayedPayments(): Payment[] {
+getDisplayedPayments(): PaymentDto[] {
   return this.showAllPayments ? this.payments : this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
 }
 
 
-  updateDisplayedPayments() {
-  return 1;
-  }
-
-  // getPendingPayments(): PaymentDto[] {
-  //   return this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
-  // }
+ updateDisplayedPayments() {
+  this.displayedPayments = this.showAllPayments
+    ? this.payments
+    : this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
+      console.log('Displayed Payments:', this.displayedPayments)
+}
 
 
 
@@ -226,22 +286,25 @@ getDisplayedPayments(): Payment[] {
     this.updateDisplayedPayments();
   }
 
-  approvePayment(payment: PaymentDto) {
-    this.paymentSvc.approvePayment(payment.clientId).subscribe({
-      next: () => {
-        payment.paymentStatus = PaymentStatus.Approved;
-        alert('Payment approved successfully.');
-        this.updateDisplayedPayments();
-      },
-      error: err => console.error('Error approving payment:', err)
-    });
-  }
+ approvePayment(payment: PaymentDto) {
+  this.paymentSvc.approvePayment(payment.paymentId).subscribe({
+    next: () => {
+      payment.paymentStatus = PaymentStatus.Approved;
+      alert('✅ Payment approved successfully.');
+      this.updateDisplayedPayments();
+    },
+    error: err => {
+      alert(`❌ Failed to approve payment: ${err.error?.message || 'Unknown error'}`);
+    }
+  });
+}
+
 
 
 
   rejectPayment(payment: PaymentDto) {
    
-    this.paymentSvc.rejectPayment(payment.clientId).subscribe({
+    this.paymentSvc.rejectPayment(payment.paymentId).subscribe({
       next: () => {
         payment.paymentStatus = PaymentStatus.Failed;
         alert('Payment rejected successfully.');
@@ -277,39 +340,7 @@ getDisplayedPayments(): Payment[] {
   }
 
   // --- Salary Disbursement ---
-  submitSalaryDisbursement() {
-    if (!this.salaryDisbursement.employeeId) {
-      alert('Please select an employee.');
-      return;
-    }
-
-    const selectedEmp = this.employees.find(emp => emp.id === this.salaryDisbursement.employeeId);
-    if (!selectedEmp) {
-      alert('Selected employee not found.');
-      return;
-    }
-
-    const dto = new SalaryDisbursementDto(
-      0,
-      selectedEmp.employeeId,
-      selectedEmp.name,
-      selectedEmp.clientName || 'N/A',
-      selectedEmp.id,
-      selectedEmp.salary,
-      new Date(),
-      PaymentStatus.Pending,
-      0
-    );
-
-    this.salaryDisburse.addSalaryDisbursement(dto).subscribe({
-      next: res => {
-        alert('Salary Disbursement Initiated');
-        this.getPastDisbursements();
-        this.salaryDisbursement = { employeeId: null, amount: null, remarks: '' };
-      },
-      error: err => console.error('Error disbursing salary:', err)
-    });
-  }
+  
 
   onEmployeeChange(selectedEmpId: number) {
     const selectedEmp = this.employees.find(emp => emp.id === selectedEmpId);

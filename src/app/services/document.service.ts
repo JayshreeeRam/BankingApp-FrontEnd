@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../environment/environment';
 import { Document } from '../Models/Document';
+import { DocumentDto } from '../DTOs/DocumentDto';
+import { DocumentStatus } from '../Enum/DocumentStatus 1';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +15,8 @@ export class DocumentService {
   constructor(private http: HttpClient) {}
 
   // Fetch all documents
-  getAllDocuments(): Observable<any[]> {
-    return this.http.get<any[]>(this.url);
+   getAllDocuments(): Observable<DocumentDto[]> {
+    return this.http.get<DocumentDto[]>(this.url);
   }
 
   // Upload a document (Cloudinary handled in backend)
@@ -25,6 +27,10 @@ export class DocumentService {
 downloadFile(fileUrl: string) {
   return this.http.get(fileUrl, { responseType: 'blob' }); // fetch as binary
 }
+updateDocumentStatus(documentId: number, status: DocumentStatus): Observable<DocumentDto> {
+  return this.http.put<DocumentDto>(`${this.url}/${documentId}/status`, { status });
+}
+
 
 }
 

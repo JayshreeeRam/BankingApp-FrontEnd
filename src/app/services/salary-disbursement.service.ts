@@ -36,4 +36,16 @@ export class SalaryDisbursementService {
   approveSalaryByBatch(batchId: number): Observable<SalaryDisbursementDto[]> {
     return this.http.post<SalaryDisbursementDto[]>(`${this.url}/approveBatch/${batchId}`, {});
   }
+
+  getPending(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.url}/pending`);
+}
+rejectSalary(id: number) {
+  return this.http.post(`${this.url}//SalaryDisbursement/reject/${id}`, {});
+}
+updateSalaryDisbursement(id: number, salaryData: any) {
+  return this.http.put(`/api/SalaryDisbursement/${id}`, salaryData);
+}
+
+
 }

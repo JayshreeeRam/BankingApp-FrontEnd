@@ -6,11 +6,11 @@
 }
 
 export enum DocumentStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  // Add other status values as needed
+  Pending = "Pending",
+  Verified = "Verified",
+  Rejected = "Rejected"
 }
+
 
 export class DocumentDto {
   documentId: number;

@@ -21,31 +21,52 @@
   </div>
 
   <!-- Clients Tab -->
-  <div *ngIf="activeTab === 'clients'" class="tab-content">
-    <h3>Clients</h3>
-    <button class="btn-view" (click)="getAllClients()">Load Clients</button>
+ <div *ngIf="activeTab === 'clients'" class="tab-content">
+  <h3>Clients</h3>
 
-    <div class="table-container" *ngIf="clients.length > 0">
-      <table>
-        <thead>
-          <tr>
-            <th>Client ID</th>
-            <th>Name</th>
-            <th>Account No</th>
-            <th>Verification</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of clients">
-            <td>{{ c.clientId }}</td>
-            <td>{{ c.name }}</td>
-            <td>{{ c.accountNo || 'N/A' }}</td>
-            <td>{{ c.verificationStatus || 'Pending' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Filter Buttons -->
+  <div class="filter-buttons" style="margin-bottom: 15px;">
+   <button (click)="getAllClients($event)">Load All Clients</button>
+<button (click)="loadClients(AccountStatus.Pending)">Load Pending Clients</button>
+<!-- <button (click)="loadClients(AccountStatus.Rejected)">Load Rejected Clients</button> -->
+
   </div>
+
+  <div class="table-container" *ngIf="clients.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Client ID</th>
+          <th>Name</th>
+          <th>Account No</th>
+          <th>Verification</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clients">
+          <td>{{ c.clientId }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.accountNo || 'N/A' }}</td>
+          <td>{{ c.verificationStatus || 'Pending' }}</td>
+          <td>
+            <!-- Approve button if Pending or Rejected -->
+            <button *ngIf="c.verificationStatus !== 'Approved'" (click)="approveClient(c)">Approve</button>
+
+            <!-- Reject button only if Pending -->
+            <button *ngIf="c.verificationStatus === 'Pending'" (click)="rejectClient(c)">Reject</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="clients.length === 0">
+    <p>No clients found.</p>
+  </div>
+</div>
+
+
 
   <!-- Users Tab -->
   <div *ngIf="activeTab === 'users'" class="tab-content">
@@ -59,16 +80,16 @@
             <th>User ID</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Role</th>
+            <!-- <th>Role</th> -->
             <th>Phone</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let u of users">
             <td>{{ u.userId }}</td>
-            <td>{{ u.name }}</td>
+            <td>{{ u.username }}</td>
             <td>{{ u.email }}</td>
-            <td>{{ u.role }}</td>
+            <!-- <td>{{ u.userRole }}</td> -->
             <td>{{ u.phoneNumber || 'N/A' }}</td>
           </tr>
         </tbody>
@@ -77,83 +98,62 @@
   </div>
 
   <!-- Documents Tab -->
-  <div *ngIf="activeTab === 'documents'" class="tab-content">
-    <h3>Documents</h3>
-    <div class="table-container" *ngIf="documents.length > 0">
+ <div *ngIf="activeTab === 'documents'" class="tab-content">
+   <app-documents></app-documents>
+  </div>
+
+
+  <!-- Payments Tab -->
+  <div *ngIf="activeTab === 'payments'" class="tab-content">
+    <h3>Payments</h3>
+
+    <div class="payment-toggle">
+      <button (click)="togglePaymentsView(true); getAllPayments()">All Payments</button>
+      <button (click)="togglePaymentsView(false) ;getAllPayments() ">Pending Payments</button>
+    </div>
+
+    <div class="table-container" *ngIf="displayedPayments.length > 0">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Type</th>
+            <th>Client</th>
+            <th>Beneficiary</th>
+            <th>Amount</th>
+            <th>Date</th>
             <th>Status</th>
-            <th>Upload Date</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let doc of documents">
-            <td>{{ doc.documentId }}</td>
-            <td>{{ doc.uploadedByUsername }}</td>
-            <td>{{ doc.documentType }}</td>
-            <td>{{ doc.documentStatus }}</td>
-            <td>{{ doc.uploadDate | date }}</td>
+          <tr *ngFor="let p of displayedPayments; let i = index">
+            <td>{{ p.clientId }}</td>
+            <td>{{ p.beneficiaryId }}</td>
+            <td>₹{{ p.amount }}</td>
+            <td>{{ p.paymentDate | date:'short' }}</td>
+            <td>{{ p.paymentStatus }}</td>
+            <td>
+              <div *ngIf="!showAllPayments && p.paymentStatus === PaymentStatus.Pending">
+                <button (click)="approvePayment(p)">Approve</button>
+                <button (click)="rejectPayment(p)">Reject</button>
+
+                <!-- <div *ngIf="showRejectRemarkIndex === i" class="reject-remark">
+                <input type="text" [(ngModel)]="p.rejectRemark" placeholder="Enter rejection reason" />
+                <button (click)="rejectPayment(p, p.rejectRemark)">Submit Reject</button>
+              </div> -->
+              </div>
+              <div *ngIf="showAllPayments || p.paymentStatus !== PaymentStatus.Pending">
+                {{ p.paymentStatus }}
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <div *ngIf="displayedPayments.length === 0">
+      <p>No payments to display.</p>
+    </div>
   </div>
-
-  <!-- Payments Tab -->
-<div *ngIf="activeTab === 'payments'" class="tab-content">
-  <h3>Payments</h3>
-
-  <div class="payment-toggle">
-    <button (click)="togglePaymentsView(true)">All Payments</button>
-    <button (click)="togglePaymentsView(false)">Pending Payments</button>
-  </div>
-
-  <div class="table-container" *ngIf="displayedPayments.length > 0">
-    <table>
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Beneficiary</th>
-          <th>Amount</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of displayedPayments; let i = index">
-          <td>{{ p.clientId }}</td>
-          <td>{{ p.beneficiaryId }}</td>
-          <td>₹{{ p.amount }}</td>
-          <td>{{ p.paymentDate | date:'short' }}</td>
-          <td>{{ p.paymentStatus }}</td>
-          <td>
-            <div *ngIf="!showAllPayments && p.paymentStatus === PaymentStatus.Pending">
-              <button (click)="approvePayment(p)">Approve</button>
-              <button (click)="toggleRejectRemark(i)">Reject</button>
-
-              <!-- <div *ngIf="showRejectRemarkIndex === i" class="reject-remark">
-                <input type="text" [(ngModel)]="p.rejectRemark" placeholder="Enter rejection reason" />
-                <button (click)="rejectPayment(p, p.rejectRemark)">Submit Reject</button>
-              </div> -->
-            </div>
-            <div *ngIf="showAllPayments || p.paymentStatus === PaymentStatus.Pending">
-              {{ p.paymentStatus }}
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div *ngIf="displayedPayments.length === 0">
-    <p>No payments to display.</p>
-  </div>
-</div>
 
 
 
@@ -174,58 +174,45 @@
   </div>
 
   <!-- Salary Tab -->
-    <div *ngIf="activeTab === 'salary'" class="tab-content">
-    <h3>Salary</h3>
-  <label>Employee:</label>
-<select [(ngModel)]="salaryDisbursement.employeeId" 
-        name="employeeId" 
-        required
-        (ngModelChange)="onEmployeeChange($event)">
-  <option [ngValue]="null" disabled>Select Employee</option>
-  <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
-</select>
+  <div *ngIf="activeTab === 'salary'" class="tab-content">
+    <h3>Salary Disbursement</h3>
+    <app-salary-disbursement></app-salary-disbursement>
+  </div>
 
-<label>Amount:</label>
-<input type="number" [(ngModel)]="salaryDisbursement.amount" 
-       name="amount" required readonly />
 
-<label>Remarks:</label>
-<input type="text" [(ngModel)]="salaryDisbursement.remarks" name="remarks" />
 
-<button (click)="submitSalaryDisbursement()">Disburse Salary</button>
+  <!-- Employees Tab -->
+  <div *ngIf="activeTab === 'employees'" class="tab-content employees-tab">
+    <button class="btn-view" (click)="getAllEmployees()">Load Employees</button>
+    <h3>Employees</h3>
+    <div class="table-container" *ngIf="employees.length > 0">
+      <table>
+        <thead>
+          <tr>
+           
+            <th>Employee Id</th>
+            <th>Name</th>
+            <th>Bank</th>
+            <th>Salary</th>
+            <th>Client</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of employees">
+            <td>{{emp.employeeId}}</td>
+            <td>{{ emp.employeeName }}</td> <!-- employeeName instead of name -->
+            <td>{{ emp.bankName }}</td> <!-- bankName is correct -->
+            <td>₹{{ emp.salary }}</td>
+            <td>{{ emp.senderName  }}</td> <!-- use senderName instead of clientName -->
+           
+
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-  
- <!-- Employees Tab -->
-<div *ngIf="activeTab === 'employees'" class="tab-content">
-  <h3>Employees</h3>
-  <div class="table-container" *ngIf="employees.length > 0">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Bank</th>
-          <th>Salary</th>
-          <th>Client</th>
-          <th>Employee Id</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let emp of employees">
-          <td>{{ emp.id }}</td>
-          <td>{{ emp.name }}</td>
-          <td>{{ emp.bankName}}</td>
-          <td>₹{{ emp.salary }}</td>
-          <td>{{ emp.clientName }}</td>
-          <td>{{emp.employeeId}}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div *ngIf="employees.length === 0">
+      <p>No employees found.</p>
+    </div>
   </div>
-  <div *ngIf="employees.length === 0">
-    <p>No employees found.</p>
-  </div>
-</div>
-</div>
 
+</div>

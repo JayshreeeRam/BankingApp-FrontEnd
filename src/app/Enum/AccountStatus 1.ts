@@ -2,5 +2,6 @@
     Active = "Active",
     Closed = "Closed",
     Frozen = "Frozen",
-    Pending = "Pending"
+    Pending = "Pending",
+    Rejected = "Rejected"
 }

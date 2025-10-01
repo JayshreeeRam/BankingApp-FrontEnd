@@ -1,15 +1,15 @@
 ﻿export class EmployeeDto {
   employeeId: number;
-  name: string;
+  employeeName: string;  // rename here
   bankId: number;
-  bankName?: string; // Optional property
+  bankName?: string;
   clientId: number;
-  clientName?: string; // Optional property
+  clientName?: string;
   salary: number;
 
   constructor(
     employeeId: number,
-    name: string,
+    employeeName: string,
     bankId: number,
     bankName: string | undefined,
     clientId: number,
@@ -17,7 +17,7 @@
     salary: number
   ) {
     this.employeeId = employeeId;
-    this.name = name;
+    this.employeeName = employeeName;
     this.bankId = bankId;
     this.bankName = bankName;
     this.clientId = clientId;

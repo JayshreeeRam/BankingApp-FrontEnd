@@ -1,0 +1,86 @@
+<div class="salary-tabs">
+  <button (click)="setActiveTab('all')">All Salary Disbursements</button>
+  <button (click)="setActiveTab('pending')">Pending Salary Disbursements</button>
+  <button (click)="setActiveTab('batch')">Batch-wise Salary Disbursement</button>
+</div>
+
+<!-- All Salaries -->
+<div *ngIf="activeTab === 'all'" class="salary-section">
+  <h3>All Salary Disbursements</h3>
+  <table class="salary-table">
+    <thead>
+      <tr>
+        <th>Employee Name</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Sender Name</th>
+        <th>Batch ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let salary of allSalaries">
+        <td>{{ salary.employeeName }}</td>
+        <td>₹{{ salary.amount }}</td>
+        <td>{{ salary.status }}</td>
+        <td>{{ salary.senderName }}</td>
+        <td>{{ salary.batchId }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pending Salaries -->
+<div *ngIf="activeTab === 'pending'" class="salary-section">
+  <h3>Pending Salary Disbursements</h3>
+  <table class="salary-table">
+    <thead>
+      <tr>
+        <th>Employee ID</th>
+        <th>Employee Name</th>
+        <th>Amount</th>
+        <th>Batch Id</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let salary of pendingSalaries">
+       <td>{{salary.employeeId}}</td>
+        <td>{{ salary.employeeName }}</td>
+        <td>₹{{ salary.amount }}</td>
+        <td>{{ salary.batchId }}</td>
+        <td>
+          <button class="action-btn approve-btn" (click)="approveSalary(salary.disbursementId)">Approve</button>
+          <button class="action-btn reject-btn" (click)="rejectSalary(salary.disbursementId)">Reject</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Batch Salaries -->
+<div *ngIf="activeTab === 'batch'" class="salary-section">
+  <h3>Batch-wise Salary Disbursement</h3>
+  <input type="number" [(ngModel)]="batchId" placeholder="Enter Batch ID" />
+  <button class="action-btn approve-btn" (click)="loadBatchSalaries()">Load Salaries</button>
+
+  <table class="salary-table" *ngIf="batchSalaries.length > 0">
+    <thead>
+      <tr>
+        <th>Employee Name</th>
+        <th>Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let salary of batchSalaries">
+        <td>{{ salary.employeeName }}</td>
+        <td>₹{{ salary.amount }}</td>
+        <td>{{ salary.status }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="disburse-btn" (click)="disburseAllBatchSalaries()" [disabled]="batchSalaries.length === 0">
+    Disburse All Salaries in Batch
+  </button>
+</div>

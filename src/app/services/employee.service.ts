@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EmployeeDto } from '../DTOs/EmployeeDto'; // Adjust the import path as needed
@@ -13,9 +13,12 @@ export class EmployeeService {
   constructor(private http: HttpClient) {}
 
   // Get all employees
-  getAllEmployees(): Observable<EmployeeDto[]> {
-    return this.http.get<EmployeeDto[]>(this.url);
-  }
+   getAllEmployees() {
+    const token = localStorage.getItem('jwtToken'); // wherever you stored it after login
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.get<any[]>(this.url, { headers });
+   }
 
   // Get employee by ID
   getEmployeeById(id: number): Observable<EmployeeDto> {
