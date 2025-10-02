@@ -18,8 +18,8 @@ export class Client {
 
   users: any[] = [];
 
-getAllClients(event: Event) {
-  event.preventDefault();
+getAllClients(event?: Event) {
+  event?.preventDefault();
   this.clientSvc.getAllUsers().subscribe(
     (data) => {
       this.users = data;

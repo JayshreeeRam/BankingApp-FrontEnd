@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SalaryDisbursementService } from '../../services/salary-disbursement.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PaymentStatus } from '../../Enum/PaymentStatus 1';
 @Component({
   selector: 'app-salary-disbursement',
   standalone:true,
@@ -84,25 +85,36 @@ export class SalaryDisbursementComponent implements OnInit {
   
 
 rejectSalary(id: number) {
-  // Find the salary in pendingSalaries list by id
   const salary = this.pendingSalaries.find(s => s.disbursementId === id);
-
-  if (salary) {
-    // Change status locally to "Rejected"
-    salary.status = 'Rejected';
-
-    // Optionally, update the UI by removing it from pendingSalaries if you want
-    this.pendingSalaries = this.pendingSalaries.filter(s => s.status === 'Pending');
-
-    alert(`Salary disbursement ${id} has been rejected.`);
-  } else {
+  if (!salary) {
     alert('Salary disbursement not found!');
+    return;
   }
+
+  const updatedSalary = {
+    disbursementId: salary.disbursementId,
+    employeeId: salary.employeeId,
+    clientId: salary.clientId,
+    amount: salary.amount,
+    date: salary.date,
+    status: 'Rejected',
+    batchId: salary.batchId
+  };
+
+  this.salaryService.updateSalaryDisbursement(id, updatedSalary).subscribe({
+    next: () => {
+      this.pendingSalaries = this.pendingSalaries.filter(s => s.disbursementId !== id);
+      alert(`Salary disbursement ${id} has been rejected.`);
+    },
+    error: (err) => {
+      console.error('Failed to reject salary:', err);
+      alert('Failed to reject salary disbursement. Please try again.');
+    }
+  });
 }
 
 
-
-  disburseAllBatchSalaries() {
+disburseAllBatchSalaries() {
     if (!this.batchId) {
       alert('Enter batch ID first');
       return;

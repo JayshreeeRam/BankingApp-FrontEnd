@@ -13,6 +13,7 @@ import { AccountStatus } from '../../Enum/AccountStatus 1';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentStatus } from '../../Enum/PaymentStatus 1';
+import { CreateBankDto } from '../../DTOs/CreateBankDto';
 
 // ✅ UI model for displaying clients
 interface ClientUI {
@@ -39,6 +40,7 @@ export class SuperadminDashboardComponent implements OnInit {
 
   admins: UserDto[] = [];
   banks: BankDto[] = [];
+  
   clients: ClientUI[] = [];
   payments: PaymentDto[] = [];
 
@@ -47,7 +49,8 @@ export class SuperadminDashboardComponent implements OnInit {
 
   verificationStatuses = Object.values(AccountStatus); // For dropdown
 
-newBank: BankDto = { bankId: 0, name: '', address: '', ifscCode: '' };
+newBank: CreateBankDto = {  name: '', address: '' };
+
   constructor(
     private userSvc: UserService,
     private bankSvc: BankService,
@@ -74,12 +77,14 @@ newBank: BankDto = { bankId: 0, name: '', address: '', ifscCode: '' };
 
   // ================= Banks =================
   loadBanks() {
-    this.bankSvc.getAll().subscribe({
-      
-      next: data => (this.banks = data),
-      error: err => console.error('Error loading banks:', err)
-    });
-  }
+   this.bankSvc.getAll().subscribe({
+  next: (data: BankDto[]) => {
+    this.banks = data;
+    console.log('Banks loaded:', data); // ✅ Check here that ifscCode exists
+  },
+  error: err => console.error('Error loading banks:', err)
+});
+ }
 
   getBankName(bankId: number): string {
     const bank = this.banks.find(b => b.bankId === bankId);
@@ -89,15 +94,15 @@ newBank: BankDto = { bankId: 0, name: '', address: '', ifscCode: '' };
 
 
  addBank() {
-    this.bankSvc.create(this.newBank).subscribe({
-      next: (data) => {
-        this.banks.push(data); // Add newly created bank to the list
-        this.newBank = { bankId: 0, name: '', address: '', ifscCode: '' }; // Reset form
-        this.showAddBankForm = false; // Hide form
-      },
-      error: (err) => console.error('Failed to add bank', err)
-    });
-  }
+  this.bankSvc.create(this.newBank).subscribe({
+    next: (createdBank: BankDto) => {
+      this.banks.push(createdBank); // ✅ Push into correct array
+      this.newBank = { name: '', address: '' }; // ✅ Reset form
+      this.showAddBankForm = false;
+    },
+    error: err => console.error('Failed to create bank:', err)
+  });
+}
 
 
   // ================= Reports =================

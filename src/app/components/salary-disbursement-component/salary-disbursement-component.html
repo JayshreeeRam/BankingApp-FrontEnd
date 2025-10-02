@@ -47,7 +47,7 @@
        <td>{{salary.employeeId}}</td>
         <td>{{ salary.employeeName }}</td>
         <td>₹{{ salary.amount }}</td>
-        <td>{{ salary.batchId }}</td>
+        <td>    {{ salary.batchId }}</td>
         <td>
           <button class="action-btn approve-btn" (click)="approveSalary(salary.disbursementId)">Approve</button>
           <button class="action-btn reject-btn" (click)="rejectSalary(salary.disbursementId)">Reject</button>

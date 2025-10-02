@@ -41,7 +41,7 @@ export class SalaryDisbursementService {
   return this.http.get<any[]>(`${this.url}/pending`);
 }
 rejectSalary(id: number) {
-  return this.http.post(`${this.url}//SalaryDisbursement/reject/${id}`, {});
+  return this.http.post(`${this.url}/SalaryDisbursement/reject/${id}`, {});
 }
 updateSalaryDisbursement(id: number, salaryData: any) {
   return this.http.put(`/api/SalaryDisbursement/${id}`, salaryData);

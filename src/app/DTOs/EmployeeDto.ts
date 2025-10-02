@@ -1,10 +1,11 @@
 ﻿export class EmployeeDto {
   employeeId: number;
-  employeeName: string;  // rename here
+  employeeName: string;
   bankId: number;
   bankName?: string;
-  clientId: number;
-  clientName?: string;
+  senderClientId: number; // employer ID
+  senderName?: string;
+  employeeClientId: number;
   salary: number;
 
   constructor(
@@ -12,16 +13,18 @@
     employeeName: string,
     bankId: number,
     bankName: string | undefined,
-    clientId: number,
-    clientName: string | undefined,
+    senderClientId: number,
+    senderName: string | undefined,
+    employeeClientId: number,
     salary: number
   ) {
     this.employeeId = employeeId;
     this.employeeName = employeeName;
     this.bankId = bankId;
     this.bankName = bankName;
-    this.clientId = clientId;
-    this.clientName = clientName;
+    this.senderClientId = senderClientId;
+    this.senderName = senderName;
+    this.employeeClientId = employeeClientId;
     this.salary = salary;
   }
 }

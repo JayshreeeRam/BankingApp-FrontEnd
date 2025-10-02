@@ -195,7 +195,7 @@
         <tr *ngFor="let b of beneficiaries">
           <td>{{ b.bankName }}</td>
           <td>{{ b.accountNo }}</td>
-          <td>{{ b.ifscCode }}</td>
+          <td>{{ b.ifsccode }}</td>
         </tr>
       </tbody>
     </table>
@@ -204,7 +204,7 @@
   <!-- Selected Beneficiary Info -->
   <div *ngIf="selectedBeneficiary" class="selected-beneficiary-box">
     <p><strong>Account No:</strong> {{ selectedBeneficiary.accountNo }}</p>
-    <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifscCode }}</p>
+    <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifsccode }}</p>
   </div>
  
   <label>Amount (₹):</label>
@@ -283,36 +283,59 @@
  
  
 <!-- Employee Tab -->
-<div *ngIf="activeTab === 'employee'">
+ <!-- Call loadEmployeesForCurrentClient() only once when employee tab is active -->
+<ng-container *ngIf="(activeTab === 'employee' || activeTab === 'salary') && !employeeDataLoaded">
+  {{ loadEmployeesForCurrentClient() }}
+</ng-container>
+<div *ngIf="activeTab === 'employee' && filteredEmployees.length > 0">
   <table class="employee-table">
     <thead>
       <tr>
+        
         <th>Employee ID</th>
         <th>Name</th>
+        <th>Bank Name</th>
+        <th>Salary</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let emp of employees">
-        <td>{{ emp.id }}</td>
-        <td>{{ emp.name }}</td>
+      <tr *ngFor="let emp of filteredEmployees">
+
+        <td>{{ emp.employeeId }}</td>
+        <td>{{ emp.employeeName }}</td>
+        <td>{{ emp.bankName }}</td>
+        <td>{{ emp.salary }}</td>
       </tr>
     </tbody>
   </table>
 </div>
- 
-<ng-template #notEmployee>
-  <p>No employees found based on transaction history.</p>
+
+<!-- Show if no employees found -->
+<ng-template [ngIf]="filteredEmployees.length === 0 && activeTab === 'employee' && employeeDataLoaded">
+  <p>No employees found for the current client.</p>
 </ng-template>
+
  
  
 <!-- Salary Tab -->
     <div *ngIf="activeTab === 'salary'" class="tab-content">
       <h3>Salary</h3>
       <label>Employee:</label>
-      <select [(ngModel)]="salaryDisbursement.employeeId" name="employeeId" required (ngModelChange)="onEmployeeChange($event)">
-        <option [ngValue]="null" disabled>Select Employee</option>
-        <option *ngFor="let emp of employees" [ngValue]="emp.id">{{ emp.name }}</option>
-      </select>
+   <select
+  [(ngModel)]="salaryDisbursement.employeeId"
+  (ngModelChange)="onEmployeeChange($event)"
+>
+  <option [ngValue]="null">-- Select Employee --</option>
+  <option
+    *ngFor="let employee of filteredEmployees"
+    [ngValue]="employee.employeeId"
+  >
+    {{ employee.employeeName }}
+  </option>
+</select>
+
+
+
  
       <label>Amount:</label>
       <input type="number" [(ngModel)]="salaryDisbursement.amount" name="amount" required readonly />
@@ -321,4 +344,53 @@
 <input type="number" [(ngModel)]="salaryDisbursement.batchId" name="batchId" required />
  
       <button (click)="submitSalaryDisbursement()">Disburse Salary</button>
-    </div>
+   
+    <hr />
+
+<h4>Past Salary Disbursements</h4>
+
+<table class="past-disbursement-table" *ngIf="paginatedDisbursements.length > 0; else noDisbursements">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Employee Name</th>
+      <th>Client Name</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Batch ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let d of paginatedDisbursements; let i = index">
+      <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+      <td>{{ d.employeeId }}</td>
+    <td>{{ getEmployeeNameById(d.employeeId) }}</td>
+      <td>{{ d.amount }}</td>
+      <td>{{ d.status }}</td>
+      <td>{{ d.date | date: 'mediumDate' }}</td>
+      <td>{{ d.batchId }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- No records -->
+<ng-template #noDisbursements>
+  <p>No past disbursements found.</p>
+</ng-template>
+
+<!-- Pagination Controls -->
+<div *ngIf="totalPages > 1" class="pagination">
+  <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+
+  <button
+    *ngFor="let page of [].constructor(totalPages); let i = index"
+    (click)="goToPage(i + 1)"
+    [class.active]="currentPage === i + 1"
+  >
+    {{ i + 1 }}
+  </button>
+
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+</div>
+ </div>

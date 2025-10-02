@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BankDto } from '../DTOs/Bank.dto';
 import { environment } from '../environment/environment';
+import { CreateBankDto } from '../DTOs/CreateBankDto';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class BankService {
     return this.http.get<BankDto>(`${this.url}/${id}`);
   }
 
-  create(bank: BankDto): Observable<BankDto> {
+  create(bank: CreateBankDto): Observable<BankDto> {
     return this.http.post<BankDto>(this.url, bank);
   }
 

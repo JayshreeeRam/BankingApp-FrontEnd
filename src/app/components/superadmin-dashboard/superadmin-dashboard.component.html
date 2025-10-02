@@ -67,9 +67,7 @@
     <label>Address:</label>
     <input type="text" [(ngModel)]="newBank.address" name="address" />
 
-    <label>IFSC Code:</label>
-    <input type="text" [(ngModel)]="newBank.ifscCode" name="ifscCode" required />
-
+   
     <div class="form-buttons">
       <button type="submit" class="btn-save">Save</button>
       <button type="button" class="btn-cancel" (click)="showAddBankForm=false">Cancel</button>
@@ -82,7 +80,7 @@
   <div class="bank-card" *ngFor="let bank of banks">
     <h3>{{ bank.name }}</h3>
     <p><strong>Address:</strong> {{ bank.address || 'N/A' }}</p>
-    <p><strong>IFSC Code:</strong> {{ bank.ifscCode || 'N/A' }}</p>
+    <p><strong>IFSC Code:</strong> {{ bank.ifsccode  }}</p>
    
   </div>
 </div>

@@ -21,7 +21,7 @@ export class CreateBeneficaryComponent implements OnInit{
 
   banks: BankDto[] = [];
   bankName: string = '';
-  ifscCode: string = '';
+  ifsccode : string = '';
   accountNo: string = '';
 
   constructor(
@@ -57,7 +57,7 @@ export class CreateBeneficaryComponent implements OnInit{
     const selectedBank = this.banks.find(b => b.bankId === bankId);
     if (selectedBank) {
       this.bankName = selectedBank.name;
-      this.ifscCode = selectedBank.ifscCode;
+      this.ifsccode  = selectedBank.ifsccode ;
     }
   }
 
@@ -71,7 +71,7 @@ export class CreateBeneficaryComponent implements OnInit{
       beneficiaryId: 0, // Backend will assign
       bankName: this.bankName,
       accountNo: this.accountNo,
-      ifscCode: this.ifscCode,
+      ifsccode : this.ifsccode ,
       clientId: this.clientId
     };
 

@@ -17,6 +17,10 @@ import { PaymentStatus } from '../../Enum/PaymentStatus 1';
 import { SalaryDisbursement } from '../../Models/SalaryDisbursement';
 import { EmployeeService } from '../../services/employee.service';
 import emailjs from '@emailjs/browser';
+import { EmployeeDto } from '../../DTOs/EmployeeDto';
+import { ThisReceiver } from '@angular/compiler';
+import { ClientService } from '../../services/client.service';
+import { ClientDto } from '../../DTOs/ClientDto';
  
  
 @Component({
@@ -49,16 +53,22 @@ export class UserDashboardComponent implements OnInit {
   subject: '',
   message: ''
 };
- 
+ filteredEmployees: EmployeeDto[] = [];
 employees: any[] = [];
 isEmployee: boolean = false;
-pastDisbursements: SalaryDisbursement[] = [];
+
  
  salaryDisbursement: {
     employeeId: number | null;
     amount: number | null;
     batchId: number | null;
   } = { employeeId: null, amount: null, batchId: null };
+
+  pageSize: number = 10;
+currentPage: number = 1;
+pastDisbursements: SalaryDisbursement[] = [];
+paginatedDisbursements: SalaryDisbursement[] = [];
+
  
   constructor(
     private router: Router,
@@ -69,7 +79,8 @@ pastDisbursements: SalaryDisbursement[] = [];
     private documentService: DocumentService,
     private authService: AuthService,
     private employeeService:EmployeeService,
-    private salaryDisburse: SalaryDisbursementService
+    private salaryDisburse: SalaryDisbursementService,
+    private clientService:ClientService,
   ) {}
  
   ngOnInit(): void {
@@ -78,52 +89,41 @@ pastDisbursements: SalaryDisbursement[] = [];
       this.router.navigate(['/login']);
       return;
     }
+   
     this.currentUserId = userId;
+    console.log('Current User ID:', this.currentUserId);
     this.loadProfile(userId);
     this.loadBeneficiaries();
     this.loadTransactions();
     this.loadDocuments();
-    this.loadEmployeeDetailsForUser();
+   this.loadEmployeesForCurrentClient();
+    this.getPastDisbursements();
+    console.log('Filtered Employees:', this.filteredEmployees);
+    console.log("Current Client ID in ngOnInit:", this.currentClientId);
+     this.getClientIdForCurrentUser();
+     this.getEmployees  ();
+    
+  }
+ 
+onTabChange(tab: string) {
+  this.activeTab = tab;
+
+  if (tab === 'employee') {
+    this.loadEmployeesForCurrentClient();
+  }
+  if (tab === 'salary') {
+    if (!this.employeeDataLoaded) {
+      this.loadEmployeesForCurrentClient();
+    }
     this.getPastDisbursements();
   }
- 
-loadEmployeeDetailsForUser() {
-  const userId = this.authService.getUserIdFromToken();
-  if (!userId) {
-    this.isEmployee = false;
-    return;
-  }
- 
-  this.txService.getTransactionsByUserId(userId).subscribe({
-  next: (transactions) => {
-    this.transactions = transactions;
- 
-    const sentSals = transactions.filter(tx => tx.senderId === userId);
-    const map = new Map<number, any>();
- 
-    sentSals.forEach(tx => {
-      map.set(tx.receiverId, {
-        id: tx.receiverId,
-        name: tx.receiverName || '',
-        salary: tx.amount,
-        employeeId: tx.receiverId,
-        clientName: this.profile.username // Or any client name you want to associate
-      });
-    });
- 
-    this.employees = Array.from(map.values());
-    this.isEmployee = this.employees.length > 0;
- 
-    console.log('Employees loaded:', this.employees);
-   
-  },
-  error: (err) => {
-    console.error('Error:', err);
-    this.isEmployee = false;
-  }
-});
 }
- 
+
+getEmployeeNameById(id: number): string {
+  const emp = this.employees.find(e => e.employeeId === id);
+  return emp ? emp.employeeName : 'Unknown';
+}
+
   // ================= Profile =================
   loadProfile(userId: number) {
     this.userService.getUserById(userId).subscribe({
@@ -299,26 +299,30 @@ submitSalaryDisbursement() {
     alert('Please select an employee and enter batch ID.');
     return;
   }
- 
- const selectedEmp = this.employees.find(emp => emp.id === this.salaryDisbursement.employeeId);if (!selectedEmp) {
+
+  const selectedEmp = this.employees.find(
+    emp => emp.employeeId === this.salaryDisbursement.employeeId
+  );
+
+  if (!selectedEmp) {
     alert('Selected employee not found.');
     return;
   }
- 
-  const dto = new SalaryDisbursementDto(
-  0,
-  selectedEmp.employeeId,
-  selectedEmp.name,
-  selectedEmp.clientName || 'N/A',
-  selectedEmp.clientId,  // Ensure this exists and is correct
-  selectedEmp.salary,
-  new Date(),
-  PaymentStatus.Pending,
-  Number(this.salaryDisbursement.batchId) // Make sure batchId is number
-);
-console.log('Salary Disbursement DTO:', dto);
 
- 
+  const dto = new SalaryDisbursementDto(
+    0,
+    selectedEmp.employeeId,
+    selectedEmp.employeeName,        // Corrected from 'name'
+    selectedEmp.senderName || 'N/A', // Employer/client name
+    selectedEmp.senderClientId,      // Employer/client ID
+    selectedEmp.salary,
+    new Date(),
+    PaymentStatus.Pending,
+    Number(this.salaryDisbursement.batchId) // Make sure batchId is number
+  );
+
+  console.log('Salary Disbursement DTO:', dto);
+
   this.salaryDisburse.addSalaryDisbursement(dto).subscribe({
     next: () => {
       alert('Salary Disbursement Initiated');
@@ -328,17 +332,137 @@ console.log('Salary Disbursement DTO:', dto);
     error: err => console.error('Error disbursing salary:', err)
   });
 }
-   onEmployeeChange(selectedEmpId: number) {
-    const selectedEmp = this.employees.find(emp => emp.id === selectedEmpId);
-    this.salaryDisbursement.amount = selectedEmp ? selectedEmp.salary : null;
+
+onEmployeeChange(selectedEmpId: number | null): void {
+  console.log('Selected Employee ID:', selectedEmpId);
+  console.log('Filtered Employees:', this.filteredEmployees);
+
+  if (selectedEmpId == null) {
+    this.salaryDisbursement.amount = null;
+    return;
   }
- 
-  getPastDisbursements() {
-    this.salaryDisburse.getAllSalaryDisbursements().subscribe({
-      next: data => this.pastDisbursements = data,
-      error: err => console.error('Error loading past disbursements:', err)
-    });
+
+  const selectedEmp = this.filteredEmployees.find(emp => emp.employeeId === selectedEmpId);
+
+  if (selectedEmp) {
+    this.salaryDisbursement.amount = selectedEmp.salary;
+    console.log('Selected Employee:', selectedEmp);
+  } else {
+    this.salaryDisbursement.amount = null;
+    console.warn("⚠️ Employee not found for ID:", selectedEmpId);
+    console.warn("Current filteredEmployees:", this.filteredEmployees);
   }
- 
+}
+
+
+
+
+getPastDisbursements(): void {
+  this.salaryDisburse.getAllSalaryDisbursements().subscribe({
+    next: (data: SalaryDisbursement[]) => {
+     this.pastDisbursements = data.map(d => new SalaryDisbursementDto(
+  d.disbursementId,
+  d.employeeId,
+  d.employee?.clientName || 'Unknown',
+  d.client?.name || 'Unknown', // senderName (string)
+  d.clientId,                        // clientId (number)
+  d.amount,
+  new Date(d.date),
+  d.status,
+  d.batchId
+));
+console.log('Past Disbursements:', this.pastDisbursements);
+
+
+      this.currentPage = 1;
+      this.getPaginatedData();
+    },
+    error: err => console.error('Error loading past disbursements:', err)
+  });
+}
+
+
+ // ================== Employee / Salary Logic ==================
+currentClientId!: number;  // store it here
+
+getClientIdForCurrentUser() {
+  this.clientService.getAllClients().subscribe({
+    next: (clients: ClientDto[]) => {
+      const currentClient = clients.find(c => c.userId === this.currentUserId);
+      if (currentClient) {
+        this.currentClientId = currentClient.clientId;
+        console.log('Current Client ID:', this.currentClientId);
+      } else {
+        console.warn('No client found for this user');
+      }
+    },
+    error: (err: any) => console.error('Error fetching clients:', err)
+  });
+}
+
+
+getEmployees(): void {
+  this.employeeService.getAllEmployees().subscribe({
+    next: (data: EmployeeDto[]) => {
+      this.employees = data;
+      console.log("Employees loaded:", this.employees);
+    },
+    error: err => console.error("Error fetching employees:", err)
+  });
+}
+
+employeeDataLoaded = false;
+
+loadEmployeesForCurrentClient(): void {
+  if (this.employeeDataLoaded || !this.currentClientId) return;
+
+  this.employeeService.getAllEmployees().subscribe({
+    next: employees => {
+      this.filteredEmployees = employees.filter(
+        emp => emp.senderClientId === this.currentClientId
+      );
+      console.log("Filtered Employees:", this.filteredEmployees);
+      this.employeeDataLoaded = true;
+    },
+    error: err => {
+      console.error("Error fetching employees:", err);
+      this.filteredEmployees = [];
+      this.employeeDataLoaded = true;
+    }
+  });
+}
+
+
+get totalPages(): number {
+  return Math.ceil(this.pastDisbursements.length / this.pageSize);
+}
+
+getPaginatedData(): void {
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+  this.paginatedDisbursements = this.pastDisbursements.slice(start, end);
+}
+
+goToPage(page: number): void {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.getPaginatedData();
+  }
+}
+
+prevPage(): void {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+    this.getPaginatedData();
+  }
+}
+
+nextPage(): void {
+  if (this.currentPage < this.totalPages) {
+    this.currentPage++;
+    this.getPaginatedData();
+  }
+}
+
 }
  
