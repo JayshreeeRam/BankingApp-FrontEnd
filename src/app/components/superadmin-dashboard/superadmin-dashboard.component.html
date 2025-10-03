@@ -89,10 +89,7 @@
     <!-- Reports -->
     <div *ngIf="activeTab==='reports'" class="tab-content">
       <h2>Generate Report</h2>
-      <div class="form-section">
-        <p>Click the button below to generate system reports. This feature will include logs, metrics, and summaries (logic to be added).</p>
-        <button class="btn-generate" (click)="generateReport()">Generate Report</button>
-      </div>
+   <app-super-admin-report-component></app-super-admin-report-component>
     </div>
 
     <!-- Payments -->

@@ -21,12 +21,13 @@ import { EmployeeDto } from '../../DTOs/EmployeeDto';
 import { ThisReceiver } from '@angular/compiler';
 import { ClientService } from '../../services/client.service';
 import { ClientDto } from '../../DTOs/ClientDto';
+import { ReportComponent } from '../report-component/report-component';
  
  
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,ReportComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.css']
 })

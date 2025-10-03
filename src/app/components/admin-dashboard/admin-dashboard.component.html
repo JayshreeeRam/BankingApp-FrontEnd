@@ -159,18 +159,9 @@
 
   <!-- Reports Tab -->
   <div *ngIf="activeTab === 'reports'" class="tab-content">
-    <h3>Reports</h3>
-    <label>Select Report Type:</label>
-    <select [(ngModel)]="selectedReportType">
-      <option *ngFor="let type of reportTypes" [value]="type">{{ type }}</option>
-    </select>
+    <h3>Reports</h3><!-- This shows search form and waits for input -->
 
-    <ul>
-      <li *ngFor="let report of reports">
-        <strong>{{ report.reportType }}</strong> - {{ report.generatedDate | date }}
-        <button *ngIf="report.filePath" (click)="viewDocument(report.filePath)">View</button>
-      </li>
-    </ul>
+<app-report-component [isAdminView]="true"></app-report-component>
   </div>
 
   <!-- Salary Tab -->

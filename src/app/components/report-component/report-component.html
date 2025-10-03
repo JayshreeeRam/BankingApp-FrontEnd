@@ -1,0 +1,170 @@
+<div class="report-container">
+  <!-- Header Section -->
+  <div class="report-header">
+    <h2>
+      <span *ngIf="!userId && !clientId && !isAdminView">My Account Report</span>
+      <span *ngIf="userId || clientId || isAdminView">User Account Report</span>
+    </h2>
+    
+    <!-- Context Information -->
+    <div class="report-context">
+      <!-- For Admin/External View -->
+      <div *ngIf="(userId || clientId) && isAdminView" class="viewing-info">
+        <span *ngIf="userId">👤 Viewing Report for User ID: <strong>{{ userId }}</strong></span>
+        <span *ngIf="clientId">🏢 Viewing Report for Client ID: <strong>{{ clientId }}</strong></span>
+        <span *ngIf="selectedUserName">👤 User: <strong>{{ selectedUserName }}</strong></span>
+      </div>
+      
+      <!-- For Self View -->
+      <div *ngIf="!isAdminView && profile?.username && profile?.username !== 'N/A'" class="viewing-info">
+        👤 Your Account Report - {{ profile?.username }}
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button (click)="generatePDF()" 
+              class="btn btn-primary" 
+              [disabled]="isGeneratingPDF || !hasData">
+        <span *ngIf="!isGeneratingPDF">📄 Generate PDF Report</span>
+        <span *ngIf="isGeneratingPDF">⏳ Generating PDF...</span>
+      </button>
+      
+      <button (click)="loadReportData()" class="btn btn-secondary" [disabled]="isLoading">
+        🔄 Refresh Data
+      </button>
+
+      <!-- Back to Admin Dashboard -->
+      <button *ngIf="isAdminView" (click)="resetSearch()" class="btn btn-outline">
+        ← Back to Search
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Search Section -->
+  <div *ngIf="isAdminView && !hasData" class="search-section">
+    <h3>Find User Report</h3>
+    <form (ngSubmit)="onSearch()" class="search-form">
+      <div class="form-row">
+        <!-- Search by ID -->
+        <div class="form-group">
+          <label for="searchUserId">User ID:</label>
+          <input type="number" id="searchUserId" [(ngModel)]="searchUserId" name="searchUserId" 
+                 placeholder="Enter User ID" class="form-control" min="1">
+        </div>
+        
+        <!-- Search by Name -->
+        <div class="form-group">
+          <label for="searchUserName">User Name:</label>
+          <input type="text" id="searchUserName" [(ngModel)]="searchUserName" name="searchUserName" 
+                 placeholder="Enter Username" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="searchClientId">Client ID:</label>
+          <input type="number" id="searchClientId" [(ngModel)]="searchClientId" name="searchClientId" 
+                 placeholder="Enter Client ID" class="form-control" min="1">
+        </div>
+        
+        <div class="form-group search-button">
+          <button type="submit" class="btn btn-search" 
+                  [disabled]="!searchUserId && !searchClientId && !searchUserName">
+            🔍 Search User
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- User List for Selection -->
+    <div *ngIf="userList.length > 0" class="user-list-section">
+      <h4>Select User:</h4>
+      <div class="user-list">
+        <div *ngFor="let user of userList" 
+             class="user-item" 
+             [class.selected]="selectedUser?.userId === user.userId"
+             (click)="selectUser(user)">
+          <div class="user-info">
+            <span class="user-name">{{ user.username }}</span>
+            <span class="user-details">ID: {{ user.userId }} | Email: {{ user.email }}</span>
+          </div>
+          <button class="btn-select" (click)="selectUser(user)">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Welcome State for Admin -->
+    <div *ngIf="!isLoading && !errorMessage && !hasData && userList.length === 0" class="welcome-state">
+      <div class="welcome-content">
+        <div class="welcome-icon">👑</div>
+        <h3>Admin Report Generator</h3>
+        <p>Search for users by ID, username, or client ID to generate comprehensive reports.</p>
+        <div class="welcome-features">
+          <div class="feature">
+            <span class="feature-icon">🔍</span>
+            <span>Search by User ID, Username, or Client ID</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📊</span>
+            <span>View complete user financial data</span>
+          </div>
+          <div class="feature">
+            <span class="feature-icon">📄</span>
+            <span>Generate detailed PDF reports</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>
+      <span *ngIf="userId && isAdminView">Loading report for User {{ userId }}...</span>
+      <span *ngIf="clientId && isAdminView">Loading report for Client {{ clientId }}...</span>
+      <span *ngIf="selectedUserName">Loading report for {{ selectedUserName }}...</span>
+      <span *ngIf="!isAdminView">Loading your report data...</span>
+    </p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="btn-close">×</button>
+  </div>
+
+  <!-- Report Content -->
+  <div *ngIf="!isLoading && !errorMessage && hasData" class="report-content">
+    
+    <!-- User Profile Section -->
+    <section class="report-section">
+      <h3>👤 User Profile</h3>
+      <div class="profile-grid">
+        <div class="profile-item">
+          <label>User ID:</label>
+          <span>{{ profile?.userId || 'N/A' }}</span>
+        </div>
+        <div class="profile-item">
+          <label>Username:</label>
+          <span>{{ profile?.username || 'N/A' }}</span>
+        </div>
+        <div class="profile-item">
+          <label>Email:</label>
+          <span>{{ profile?.email || 'N/A' }}</span>
+        </div>
+        <div class="profile-item">
+          <label>Phone:</label>
+          <span>{{ profile?.phoneNumber || 'N/A' }}</span>
+        </div>
+        <div class="profile-item">
+          <label>Full Name:</label>
+          <span>{{ profile?.name || 'N/A' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rest of your report sections remain the same -->
+    <!-- Employees, Beneficiaries, Transactions, Disbursements sections -->
+    
+  </div>
+</div>

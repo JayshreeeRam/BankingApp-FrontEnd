@@ -1,26 +1,79 @@
-<form (submit)="getAllClients($event)">
-  <button type="submit">Load Users</button>
-</form>
+<div class="client-details-container">
+  <h2>Complete Your Client Profile</h2>
+  
+  <div *ngIf="username" class="welcome-message">
+    Welcome, <strong>{{ userFullName }}</strong>! Please select your bank account details.
+  </div>
 
-<div class="table-container" *ngIf="users && users.length > 0">
-  <table class="user-table">
-    <thead>
-      <tr>
-        <th>User ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Phone Number</th>
-        <th>User Role</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.userId }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.phoneNumber }}</td>
-        <td>{{ user.userRole }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+    
+    <!-- User Info Display (Read-only) -->
+    <div class="user-info">
+      <div class="info-item">
+        <label>Username:</label>
+        <span>{{ username }}</span>
+      </div>
+      <div class="info-item">
+        <label>Full Name:</label>
+        <span>{{ userFullName }}</span>
+      </div>
+    </div>
+
+    <!-- Bank Selection Dropdown -->
+    <div class="form-group">
+      <label for="selectedBankId">Select Your Bank *</label>
+      
+      <!-- <div *ngIf="loadingBanks" class="loading-message">
+        Loading available banks...
+      </div> -->
+
+      <select 
+        *ngIf="!loadingBanks"
+        id="selectedBankId"
+        formControlName="selectedBankId" 
+        class="form-control"
+        [class.is-invalid]="selectedBankId?.invalid && selectedBankId?.touched">
+        
+        <option value="">-- Select a Bank --</option>
+        <option *ngFor="let bank of banks" [value]="bank.bankId">
+          {{ bank.name }} 
+          <span *ngIf="bank.ifsccode">({{ bank.ifsccode }})</span>
+        </option>
+      </select>
+
+      <div *ngIf="selectedBankId?.invalid && selectedBankId?.touched" class="error-message">
+        <div *ngIf="selectedBankId?.errors?.['required']">Please select a bank</div>
+      </div>
+    </div>
+
+    <!-- Account Type Dropdown -->
+    <div class="form-group">
+      <label for="accountType">Account Type *</label>
+      <select 
+        id="accountType"
+        formControlName="accountType" 
+        class="form-control"
+        [class.is-invalid]="accountType?.invalid && accountType?.touched">
+        
+        <option value="Savings">Savings Account</option>
+        <option value="Current">Current Account</option>
+        <!-- <option value="Business">Business Account</option> -->
+      </select>
+    </div>
+
+    <!-- Submit Button -->
+    <button 
+      type="submit" 
+      [disabled]="clientForm.invalid || isLoading || loadingBanks" 
+      class="btn btn-primary">
+      <span *ngIf="!isLoading">Complete Registration</span>
+      <span *ngIf="isLoading">Creating Client Profile...</span>
+    </button>
+    
+  </form>
 </div>

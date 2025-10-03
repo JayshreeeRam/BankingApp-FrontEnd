@@ -5,7 +5,7 @@ import { UserDashboardComponent } from './components/user-dashboard/user-dashboa
 import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { SuperadminDashboardComponent } from './components/superadmin-dashboard/superadmin-dashboard.component';
-import { Client } from './components/client/client';
+import { ClientDetailsComponent } from './components/client/client';
 import { AdminGuard } from './guards/adminGuard';
 import { UserGuard } from './guards/userGuard';
 import { SuperadminGuard } from './guards/superadminGuard';
@@ -19,7 +19,7 @@ import { Support } from './components/support/support';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'clients', component: Client },
+  { path: 'clients', component: ClientDetailsComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   {
@@ -38,3 +38,4 @@ export const routes: Routes = [
   { path: 'payment', component: PaymentComponent },
   { path: 'support', component: Support }
 ];
+ 

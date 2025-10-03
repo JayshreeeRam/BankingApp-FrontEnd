@@ -20,6 +20,7 @@ import { SalaryDisbursementComponent } from '../salary-disbursement-component/sa
 import { DocumentsComponent } from "../document-component/document-component";
 import { AccountStatus } from '../../Enum/AccountStatus 1';
 import { UserRole } from '../../Enum/UserRole 1';
+import { ReportComponent } from '../report-component/report-component';
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
@@ -79,7 +80,8 @@ interface Employee {
     FormsModule,
     SafeUrlPipe,
     SalaryDisbursementComponent,
-    DocumentsComponent
+    DocumentsComponent,
+    ReportComponent,
 ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -124,8 +126,33 @@ export class AdminDashboardComponent implements OnInit {
     private userSvc: UserService,
     private salaryDisburse: SalaryDisbursementService
   ) {}
+  
+// In your AdminDashboardComponent
+checkAuthStatus() {
+  console.log('🔍 Authentication Status Check:');
+  console.log('Token exists:', !!localStorage.getItem('token'));
+  console.log('Token value:', localStorage.getItem('token'));
+  console.log('User:', localStorage.getItem('user'));
+  console.log('Role:', localStorage.getItem('role'));
+  console.log('All localStorage:', { ...localStorage });
+  
+  // Test if the interceptor is working
+  this.clientSvc.getAllClients().subscribe({
+    next: (clients) => {
+      console.log('✅ Request successful with token');
+    },
+    error: (err) => {
+      console.error('❌ Request failed:', err);
+      if (err.status === 401) {
+        console.log('💡 401 Error - Token might be missing or invalid');
+      }
+    }
+  });
+}
+
 
   ngOnInit(): void {
+    this.checkAuthStatus(); 
     this.getAllClients();
     this.getAllUsers();
     this.getAllEmployees();

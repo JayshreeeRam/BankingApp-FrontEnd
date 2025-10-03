@@ -36,31 +36,28 @@ export class AuthService {
   }
 
   // Save token and user data to localStorage
-  saveToken(response:any): void {
-    try {
-      if (!response) {
-        throw new Error("Invalid token or user data");
-      }
-
-      console.log(response);
-
-      // Save token and user data
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("role", response.role);
-      localStorage.setItem("user", response.username);
-
-      // Decode JWT token to extract the role
-      const payloadBase64 = response.token.split('.')[1];
-      const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
-      const decodedPayload = JSON.parse(atob(base64));
-
-      // Store the role in localStorage
-      // localStorage.setItem("role", decodedPayload["role"]);
-    } catch (err) {
-      console.error("Error saving token or decoding JWT", err);
+  // In your auth.service.ts
+saveToken(response: any): void {
+  try {
+    if (!response) {
+      throw new Error("Invalid token or user data");
     }
-  }
 
+    console.log('💾 Saving token and user data:', response);
+
+    // Save token and user data - make sure token is saved as 'token'
+    localStorage.setItem("token", response.token); // This should be 'token'
+    localStorage.setItem("role", response.role);
+    localStorage.setItem("user", response.username);
+
+    console.log('✅ Token saved successfully as "token" in localStorage');
+    
+    // Verify it was saved
+    console.log('🔍 Verification - token in localStorage:', localStorage.getItem('token'));
+  } catch (err) {
+    console.error("❌ Error saving token or decoding JWT", err);
+  }
+}
   // Utility function to get the token from localStorage
   getToken(): string | null {
     return localStorage.getItem("token");

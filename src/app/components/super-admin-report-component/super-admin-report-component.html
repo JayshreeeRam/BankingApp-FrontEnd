@@ -1,0 +1,208 @@
+<div class="super-admin-report-container">
+  <!-- Header Section -->
+  <div class="report-header">
+    <h2>🏢 Super Admin Dashboard</h2>
+    <div class="report-context">
+      <div class="viewing-info">
+        👑 Super Admin Overview - System Statistics
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button (click)="generatePDF()" 
+              class="btn btn-primary" 
+              [disabled]=" isGeneratingPDF || !hasData">
+        <span *ngIf="!isGeneratingPDF">📄 Generate PDF Report</span>
+        <span *ngIf="isGeneratingPDF">⏳ Generating PDF...</span>
+      </button>
+      
+      <button (click)="loadReportData()" class="btn btn-secondary">
+        🔄 Refresh Data
+      </button>
+
+      <button (click)="exportToExcel()" class="btn btn-success" [disabled]=" !hasData">
+        📊 Export to Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <!-- <div class="spinner"></div> -->
+    <p>Loading Super Admin Report Data...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="btn-close">×</button>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div *ngIf="!isLoading && !errorMessage && hasData" class="statistics-section">
+    <h3>📈 System Overview</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💸</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalTransactions }}</div>
+          <div class="stat-label">Total Transactions</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalClients }}</div>
+          <div class="stat-label">Total Clients</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalBanks }}</div>
+          <div class="stat-label">Total Banks</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">👑</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalAdmins }}</div>
+          <div class="stat-label">Admin Users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banks Section -->
+  <div *ngIf="!isLoading && !errorMessage && hasData" class="report-section">
+    <div class="section-header">
+      <h3>🏦 Banks Information ({{ banks.length }} Banks)</h3>
+      <div class="section-actions">
+        <button class="btn btn-outline" (click)="toggleBankDetails()">
+          {{ showBankDetails ? '📋 Collapse' : '📋 Expand' }} Details
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="showBankDetails" class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Bank ID</th>
+            <th>Bank Name</th>
+            <th>Address</th>
+            <th>IFSC Code</th>
+            <!-- <th>Contact Info</th> -->
+            <!-- <th>Status</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let bank of banks">
+            <td>{{ bank.bankId }}</td>
+            <td class="bank-name">{{ bank.name }}</td>
+            <td class="bank-address">{{ bank.address || 'N/A' }}</td>
+            <td class="ifsc-code">{{ bank.ifsccode }}</td>
+            <!-- <td>
+              <span class="status-badge" [class.active]="bank.isActive">
+                {{ bank.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="banks.length === 0" class="no-data">
+        No bank data available
+      </div>
+    </div>
+  </div>
+
+  <!-- Admins Section -->
+  <div *ngIf="!errorMessage && hasData" class="report-section">
+    <div class="section-header">
+      <h3>👑 Admin Users ({{ admins.length }} Admins)</h3>
+      <div class="section-actions">
+        <button class="btn btn-outline" (click)="toggleAdminDetails()">
+          {{ showAdminDetails ? '📋 Collapse' : '📋 Expand' }} Details
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="showAdminDetails" class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of admins">
+            <td>{{ admin.userId }}</td>
+            <td class="username">{{ admin.username }}</td>
+            <td class="full-name">{{ admin.name || 'N/A' }}</td>
+            <td class="email">{{ admin.email }}</td>
+            <td class="phone">{{ admin.phoneNumber || 'N/A' }}</td>
+            <td>
+              <span class="role-badge admin">Admin</span>
+            </td>
+            <td>
+              <span class="status-badge active">Active</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="admins.length === 0" class="no-data">
+        No admin users found
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Statistics -->
+  <div *ngIf=" !errorMessage && hasData" class="additional-stats">
+    <h3>📊 Additional Statistics</h3>
+    <div class="stats-grid secondary">
+      <div class="stat-card secondary">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <div class="stat-number">₹{{ totalTransactionAmount | number:'1.0-0' }}</div>
+          <div class="stat-label">Total Transaction Amount</div>
+        </div>
+      </div>
+
+      <div class="stat-card secondary">
+        <div class="stat-icon">👤</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalUsers }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+
+      <div class="stat-card secondary">
+        <div class="stat-icon">📅</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ activeBanks }}</div>
+          <div class="stat-label">Active Banks</div>
+        </div>
+      </div>
+
+      <div class="stat-card secondary">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ todayTransactions }}</div>
+          <div class="stat-label">Today's Transactions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

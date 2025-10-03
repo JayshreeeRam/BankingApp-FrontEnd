@@ -22,6 +22,7 @@
      <button class="tab-btn" data-icon="💰" [class.active]="activeTab === 'payment'" (click)="activeTab = 'payment'">💰 Make Payment</button>
      <button class="tab-btn" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">💼 Salary</button>
      <button class="tab-btn" data-icon="👨‍💼" [class.active]="activeTab === 'employee'"(click)="activeTab = 'employee'">👨‍💼 Employee</button>
+     <!-- <button class="tab-btn" data-icon="👨‍💼" [class.active]="activeTab === 'report'"(click)="activeTab = 'report'">👨‍💼 Report</button> -->
      <button class="tab-btn" data-icon="📞" [class.active]="activeTab === 'support'" (click)="activeTab = 'support'">📞 Support</button>
  
  
@@ -127,7 +128,11 @@
         <button type="submit">Update Profile</button>
       </form>
     </div>
- 
+     <!-- Report Tab -->
+ <div *ngIf="activeTab === 'home'" class="tab-content">
+    <h3>Report </h3>
+<app-report-component [isAdminView]="false"></app-report-component>
+  </div>
     <!-- Transactions Tab -->
     <div *ngIf="activeTab === 'transactions'" class="tab-content" >
       <h3>Recent Transactions</h3>

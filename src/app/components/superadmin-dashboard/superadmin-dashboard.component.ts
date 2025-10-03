@@ -14,6 +14,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentStatus } from '../../Enum/PaymentStatus 1';
 import { CreateBankDto } from '../../DTOs/CreateBankDto';
+import { SuperAdminReportComponent } from '../super-admin-report-component/super-admin-report-component';
 
 // ✅ UI model for displaying clients
 interface ClientUI {
@@ -27,7 +28,7 @@ interface ClientUI {
 
 @Component({
   selector: 'app-superadmin-dashboard',
-  imports:[CommonModule,FormsModule,DatePipe],
+  imports:[CommonModule,FormsModule,DatePipe,SuperAdminReportComponent],
   templateUrl: './superadmin-dashboard.component.html',
   styleUrls: ['./superadmin-dashboard.component.css']
 })
