@@ -103,6 +103,7 @@ paginatedDisbursements: SalaryDisbursement[] = [];
     console.log("Current Client ID in ngOnInit:", this.currentClientId);
      this.getClientIdForCurrentUser();
      this.getEmployees  ();
+     this.loadCurrentClient();
     
   }
  
@@ -119,7 +120,31 @@ onTabChange(tab: string) {
     this.getPastDisbursements();
   }
 }
+// In your component
+currentClientId: number = 0;
 
+
+
+
+// In your component
+loadCurrentClient() {
+  // Get all clients and find the one for current user
+  this.clientService.getAllClients().subscribe({
+    next: (clients) => {
+      const client = clients.find(c => c.userId === this.currentUserId);
+      if (client) {
+        this.currentClientId = client.clientId;
+        console.log('Found Client ID:', this.currentClientId);
+      } else {
+        console.error('No client found for current user');
+        alert('No client account found for your user. Please contact support.');
+      }
+    },
+    error: (err) => {
+      console.error('Error loading clients:', err);
+    }
+  });
+}
 getEmployeeNameById(id: number): string {
   const emp = this.employees.find(e => e.employeeId === id);
   return emp ? emp.employeeName : 'Unknown';
@@ -191,27 +216,44 @@ toggleBeneficiaryList() {
  
   // ================= Payment =================
   submitPayment() {
-    if (!this.selectedBeneficiary || !this.payment.amount || this.payment.amount <= 0) {
-      return alert('Please select a beneficiary and enter a valid amount');
-    }
- 
-    const paymentDto = new CreatePaymentDto(
-      this.currentUserId,
-      this.selectedBeneficiary.beneficiaryId,
-      this.payment.amount,
-      new Date()
-    );
- 
-    this.paymentService.addPayment(paymentDto).subscribe({
-      next: () => {
-        alert('Payment successful');
-        this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
-        this.selectedBeneficiary = undefined;
-        this.loadTransactions();
-      },
-      error: (err) => console.error('Payment failed', err)
-    });
+  if (!this.selectedBeneficiary || !this.payment.amount || this.payment.amount <= 0) {
+    return alert('Please select a beneficiary and enter a valid amount');
   }
+
+  console.log('Current Client ID:', this.currentClientId);
+  console.log('Selected Beneficiary ID:', this.selectedBeneficiary.beneficiaryId);
+
+  // Use currentClientId instead of currentUserId
+  const paymentDto = new CreatePaymentDto(
+    this.currentClientId,  // ← Change this from currentUserId to currentClientId
+    this.selectedBeneficiary.beneficiaryId,
+    this.payment.amount,
+    new Date()
+  );
+
+  this.paymentService.addPayment(paymentDto).subscribe({
+    next: () => {
+      alert('Payment successful');
+      this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
+      this.selectedBeneficiary = undefined;
+      this.loadTransactions();
+    },
+    error: (err) => {
+      console.error('Payment failed', err);
+      
+      // Better error handling
+      let errorMessage = 'Payment failed. ';
+      if (err.error?.message) {
+        errorMessage += err.error.message;
+      } else if (err.status === 400) {
+        errorMessage += 'Invalid client or beneficiary.';
+      } else if (err.status === 500) {
+        errorMessage += 'Server error. Please try again.';
+      }
+      alert(errorMessage);
+    }
+  });
+}
  
   // ================= Documents =================
   onFileSelected(event: any, type: 'aadhaar' | 'pan') {
@@ -384,7 +426,7 @@ console.log('Past Disbursements:', this.pastDisbursements);
 
 
  // ================== Employee / Salary Logic ==================
-currentClientId!: number;  // store it here
+  // store it here
 
 getClientIdForCurrentUser() {
   this.clientService.getAllClients().subscribe({
