@@ -4,18 +4,16 @@
   <!-- Search Input -->
   <div class="search-box">
     <input type="number" [(ngModel)]="searchUserId" placeholder="Enter User ID" />
-    <button (click)="fetchDocumentsByUser()">Search</button>
+    <button class="btn-search" (click)="fetchDocumentsByUser()">Search</button>
   </div>
 
-  <!-- If documents exist -->
+  <!-- Documents Table -->
   <div class="table-container" *ngIf="documents.length > 0">
-    <table>
+    <table class="documents-table">
       <thead>
         <tr>
           <th>Document ID</th>
-          <!-- <th>User</th> -->
           <th>Type</th>
-          <!-- <th>Status</th> -->
           <th>Upload Date</th>
           <th>Actions</th>
         </tr>
@@ -23,26 +21,19 @@
       <tbody>
         <tr *ngFor="let doc of documents">
           <td>{{ doc.documentId }}</td>
-          <!-- <td>{{ doc.uploadedByUsername }}</td> -->
           <td>{{ doc.documentType }}</td>
-          <!-- <td>{{ doc.documentStatus }}</td> -->
           <td>{{ doc.uploadDate | date }}</td>
-         <td>
-  <td>
-  <button (click)="viewDocument(doc)">View</button>
-  <button (click)="downloadDocument(doc)">Download</button>
-</td>
-
-
-
-
+          <td class="actions-cell">
+            <button class="btn-view" (click)="viewDocument(doc)">View</button>
+            <button class="btn-download" (click)="downloadDocument(doc)">Download</button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- If search is done but no documents -->
-  <div *ngIf="searchDone && documents.length === 0">
+  <!-- No Documents Message -->
+  <div *ngIf="searchDone && documents.length === 0" class="no-documents">
     <p>No documents found for this user.</p>
   </div>
 </div>

@@ -88,6 +88,7 @@ interface Employee {
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'clients';
+  isSidebarCollapsed: boolean = false;
   PaymentStatus = PaymentStatus;
   AccountStatus = AccountStatus;
   clients: Client[] = [];

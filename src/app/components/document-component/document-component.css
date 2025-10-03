@@ -1,80 +1,110 @@
-.search-container {
-  margin-bottom: 15px;
+/* Search Box */
+.search-box {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.search-box input[type="number"] {
+  flex: 1;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.search-box input[type="number"]:focus {
+  outline: none;
+  border-color: #1abc9c;
+  box-shadow: 0 0 8px rgba(26, 188, 156, 0.3);
+}
+
+.btn-search {
+  background-color: #1abc9c;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-search:hover {
+  background-color: #159e87;
+  box-shadow: 0 4px 12px rgba(21, 158, 135, 0.6);
+}
+
+/* Table */
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  font-size: 0.95rem;
+}
+
+.documents-table thead tr {
+  background-color: #1abc9c;
+  color: white;
+  text-align: left;
+}
+
+.documents-table th,
+.documents-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+.documents-table tbody tr:hover {
+  background-color: #e6f7f1;
+  cursor: pointer;
+}
+
+.documents-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Action Buttons */
+.actions-cell {
   display: flex;
   gap: 10px;
 }
 
-.search-container input {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  width: 200px;
-}
-
-.btn-search {
+.btn-view, .btn-download {
+  background-color: #007bff;
+  border: none;
+  color: white;
   padding: 8px 14px;
-  background-color: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-search:hover {
-  background-color: #135ba1;
-}
-
-.table-container {
-  margin-top: 10px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-}
-
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-}
-
-th {
-  background: #f5f5f5;
-}
-
-button {
-  margin-right: 5px;
-  padding: 6px 12px;
   border-radius: 5px;
-  border: none;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
 }
 
-.btn-view {
-  background-color: #607d8b;
-  color: white;
-}
 .btn-view:hover {
-  background-color: #455a64;
+  background-color: #0056b3;
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.6);
 }
 
-.btn-approve {
-  background-color: #4caf50;
-  color: white;
-}
-.btn-approve:hover {
-  background-color: #388e3c;
+.btn-download {
+  background-color: #28a745;
 }
 
-.btn-reject {
-  background-color: #f44336;
-  color: white;
+.btn-download:hover {
+  background-color: #1e7e34;
+  box-shadow: 0 4px 12px rgba(30, 126, 52, 0.6);
 }
-.btn-reject:hover {
-  background-color: #d32f2f;
+
+/* No documents message */
+.no-documents {
+  font-style: italic;
+  color: #666;
+  margin-top: 15px;
 }

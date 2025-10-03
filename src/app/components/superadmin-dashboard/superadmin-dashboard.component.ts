@@ -38,6 +38,9 @@ export class SuperadminDashboardComponent implements OnInit {
   PaymentStatus=PaymentStatus;
   superadminName = 'SuperAdmin User';
   activeTab: string = 'admins';
+  sidebarOpen = true;
+
+  
 
   admins: UserDto[] = [];
   banks: BankDto[] = [];
@@ -87,6 +90,9 @@ newBank: CreateBankDto = {  name: '', address: '' };
 });
  }
 
+ toggleSidebar() {
+  this.sidebarOpen = !this.sidebarOpen;
+}
   getBankName(bankId: number): string {
     const bank = this.banks.find(b => b.bankId === bankId);
     return bank ? bank.name : 'N/A';
