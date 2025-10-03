@@ -39,8 +39,11 @@ export class PaymentService {
   }
 
  
-
-  rejectPayment(id: number): Observable<PaymentDto> {
-    return this.http.post<PaymentDto>(`${this.url}/${id}/reject`, {});
-  }
+// In your payment service
+rejectPayment(paymentId: number, remark: string): Observable<any> {
+  return this.http.post(`${this.url}/reject/${paymentId}`, { remark });
+}
+  // rejectPayment(id: number): Observable<PaymentDto> {
+  //   return this.http.post<PaymentDto>(`${this.url}/${id}/reject`, {});
+  // }
 }

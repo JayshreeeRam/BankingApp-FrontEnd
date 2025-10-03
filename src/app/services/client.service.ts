@@ -42,5 +42,8 @@ export class ClientService {
   approveClient(clientId: number): Observable<ClientDto> {
   return this.http.post<ClientDto>(`${this.url}/${clientId}/approve`, {});
 }
+rejectClient(clientId: number, remark: string): Observable<ClientDto> {
+  return this.http.post<ClientDto>(`${this.url}/${clientId}/reject`, { remark });
+}
 
 }

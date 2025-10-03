@@ -3,5 +3,6 @@
     Closed = "Closed",
     Frozen = "Frozen",
     Pending = "Pending",
-    Rejected = "Rejected"
+    Rejected = "Rejected",
+    Approved = "Approved"
 }
