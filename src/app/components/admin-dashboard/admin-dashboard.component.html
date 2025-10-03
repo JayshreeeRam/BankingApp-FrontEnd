@@ -24,12 +24,48 @@
  <div *ngIf="activeTab === 'clients'" class="tab-content">
   <h3>Clients</h3>
 
+  <!-- Client Rejection Dialog -->
+  <div *ngIf="showClientRejectionDialog" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Reject Client</h3>
+      <div class="client-info">
+        <p><strong>Client ID:</strong> {{selectedClientForRejection?.clientId}}</p>
+        <p><strong>Client Name:</strong> {{selectedClientForRejection?.name}}</p>
+        <p><strong>Current Status:</strong> {{selectedClientForRejection?.verificationStatus}}</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="clientRejectionRemark">Rejection Remark *</label>
+        <textarea 
+          id="clientRejectionRemark"
+          [(ngModel)]="clientRejectionRemark"
+          placeholder="Please provide reason for rejection..."
+          rows="4"
+          class="form-control"
+          maxlength="500"
+        ></textarea>
+        <small class="text-muted">{{clientRejectionRemark.length}}/500 characters</small>
+      </div>
+      
+      <div class="modal-actions">
+        <button 
+          (click)="confirmClientRejection()" 
+          class="btn btn-danger"
+          [disabled]="!clientRejectionRemark.trim()"
+        >
+          Confirm Rejection
+        </button>
+        <button (click)="closeClientRejectionDialog()" class="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Filter Buttons -->
   <div class="filter-buttons" style="margin-bottom: 15px;">
-   <button (click)="getAllClients($event)">Load All Clients</button>
-<button (click)="loadClients(AccountStatus.Pending)">Load Pending Clients</button>
-<!-- <button (click)="loadClients(AccountStatus.Rejected)">Load Rejected Clients</button> -->
-
+    <button (click)="getAllClients($event)">Load All Clients</button>
+    <button (click)="loadClients(AccountStatus.Pending)">Load Pending Clients</button>
   </div>
 
   <div class="table-container" *ngIf="clients.length > 0">
@@ -40,6 +76,7 @@
           <th>Name</th>
           <th>Account No</th>
           <th>Verification</th>
+          <th>Rejection Remark</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -48,13 +85,43 @@
           <td>{{ c.clientId }}</td>
           <td>{{ c.name }}</td>
           <td>{{ c.accountNo || 'N/A' }}</td>
-          <td>{{ c.verificationStatus || 'Pending' }}</td>
+          <td>
+            <span [class]="getClientStatusClass(c.verificationStatus)">
+              {{ c.verificationStatus || 'Pending' }}
+            </span>
+          </td>
+          <td>
+            <div *ngIf="c.rejectionRemark" class="rejection-info">
+              {{ c.rejectionRemark }}
+            </div>
+            <span *ngIf="!c.rejectionRemark" class="text-muted">-</span>
+          </td>
           <td>
             <!-- Approve button if Pending or Rejected -->
-            <button *ngIf="c.verificationStatus !== 'Approved'" (click)="approveClient(c)">Approve</button>
+            <button 
+              *ngIf="c.verificationStatus === 'Pending' || c.verificationStatus === 'Rejected'" 
+              (click)="approveClient(c)" 
+              class="btn btn-success"
+            >
+              Approve
+            </button>
 
             <!-- Reject button only if Pending -->
-            <button *ngIf="c.verificationStatus === 'Pending'" (click)="rejectClient(c)">Reject</button>
+            <button 
+              *ngIf="c.verificationStatus === 'Pending'" 
+              (click)="openClientRejectionDialog(c)" 
+              class="btn btn-danger"
+            >
+              Reject
+            </button>
+
+            <!-- Show message if no actions available -->
+            <span 
+              *ngIf="c.verificationStatus === 'Active' || c.verificationStatus === 'Approved'" 
+              class="text-muted"
+            >
+              No actions
+            </span>
           </td>
         </tr>
       </tbody>
@@ -104,56 +171,95 @@
 
 
   <!-- Payments Tab -->
-  <div *ngIf="activeTab === 'payments'" class="tab-content">
-    <h3>Payments</h3>
+ <div *ngIf="activeTab === 'payments'" class="tab-content">
+  <h3>Payments</h3>
 
-    <div class="payment-toggle">
-      <button (click)="togglePaymentsView(true); getAllPayments()">All Payments</button>
-      <button (click)="togglePaymentsView(false) ;getAllPayments() ">Pending Payments</button>
-    </div>
+  <div class="payment-toggle">
+    <button (click)="togglePaymentsView(true); getAllPayments()">All Payments</button>
+    <button (click)="togglePaymentsView(false); getAllPayments()">Pending Payments</button>
+  </div>
 
-    <div class="table-container" *ngIf="displayedPayments.length > 0">
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Beneficiary</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of displayedPayments; let i = index">
-            <td>{{ p.clientId }}</td>
-            <td>{{ p.beneficiaryId }}</td>
-            <td>₹{{ p.amount }}</td>
-            <td>{{ p.paymentDate | date:'short' }}</td>
-            <td>{{ p.paymentStatus }}</td>
-            <td>
-              <div *ngIf="!showAllPayments && p.paymentStatus === PaymentStatus.Pending">
-                <button (click)="approvePayment(p)">Approve</button>
-                <button (click)="rejectPayment(p)">Reject</button>
-
-                <!-- <div *ngIf="showRejectRemarkIndex === i" class="reject-remark">
-                <input type="text" [(ngModel)]="p.rejectRemark" placeholder="Enter rejection reason" />
-                <button (click)="rejectPayment(p, p.rejectRemark)">Submit Reject</button>
-              </div> -->
-              </div>
-              <div *ngIf="showAllPayments || p.paymentStatus !== PaymentStatus.Pending">
-                {{ p.paymentStatus }}
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div *ngIf="displayedPayments.length === 0">
-      <p>No payments to display.</p>
+  <!-- Rejection Dialog -->
+  <div *ngIf="showRejectionDialog" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Reject Payment</h3>
+      <p><strong>Payment ID:</strong> {{selectedPaymentForRejection?.paymentId}}</p>
+      <p><strong>Client:</strong> {{selectedPaymentForRejection?.clientName}}</p>
+      <p><strong>Beneficiary:</strong> {{selectedPaymentForRejection?.beneficiaryName}}</p>
+      <p><strong>Amount:</strong> ₹{{selectedPaymentForRejection?.amount}}</p>
+      
+      <div class="form-group">
+        <label for="rejectionRemark">Rejection Remark *</label>
+        <textarea 
+          id="rejectionRemark"
+          [(ngModel)]="rejectionRemark"
+          placeholder="Please provide reason for rejection..."
+          rows="4"
+          class="form-control"
+        ></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button (click)="confirmRejection()" class="btn btn-danger">
+          Confirm Reject
+        </button>
+        <button (click)="closeRejectionDialog()" class="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
     </div>
   </div>
+
+  <div class="table-container" *ngIf="displayedPayments.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Payment ID</th>
+          <th>Client</th>
+          <th>Beneficiary</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Rejection Remark</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of displayedPayments; let i = index">
+          <td>{{ p.paymentId }}</td>
+          <td>{{ p.clientName }} (ID: {{ p.clientId }})</td>
+          <td>{{ p.beneficiaryName }} (ID: {{ p.beneficiaryId }})</td>
+          <td>₹{{ p.amount }}</td>
+          <td>{{ p.paymentDate | date:'short' }}</td>
+          <td>
+         <span [class]="getPaymentStatusClass(p.paymentStatus)">
+              {{ p.paymentStatus }}
+            </span>
+          </td>
+          <td>
+            <div *ngIf="p.remark" class="rejection-info">
+              {{ p.remark }}
+            </div>
+            <span *ngIf="!p.remark" class="text-muted">-</span>
+          </td>
+          <td>
+            <div *ngIf="!showAllPayments && p.paymentStatus === PaymentStatus.Pending">
+              <button (click)="approvePayment(p)" class="btn btn-success">Approve</button>
+              <button (click)="openRejectionDialog(p)" class="btn btn-danger">Reject</button>
+            </div>
+            <div *ngIf="showAllPayments || p.paymentStatus !== PaymentStatus.Pending">
+              <span class="text-muted">No actions</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="displayedPayments.length === 0">
+    <p>No payments to display.</p>
+  </div>
+</div>
 
 
 
