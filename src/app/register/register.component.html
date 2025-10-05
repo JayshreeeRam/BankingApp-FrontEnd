@@ -1,6 +1,8 @@
 <div class="register-container">
   <h2>Register</h2>
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Username Field -->
     <div class="form-group">
       <label for="username">Username</label>
       <input 
@@ -8,12 +10,31 @@
         id="username" 
         formControlName="username" 
         class="form-control"
-        [class.is-invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
-      <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="error-message">
+        [class.is-invalid]="(registerForm.get('username')?.invalid && registerForm.get('username')?.touched) || fieldErrors['username']"
+        (input)="onFieldInput('username')">
+      
+      <!-- Required validation -->
+      <div *ngIf="registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched" class="error-message">
         Username is required
+      </div>
+      
+      <!-- Min length validation -->
+      <div *ngIf="registerForm.get('username')?.hasError('minlength') && registerForm.get('username')?.touched" class="error-message">
+        Username must be at least 3 characters
+      </div>
+      
+      <!-- Duplicate validation -->
+      <div *ngIf="fieldErrors['username']" class="error-message">
+        {{ fieldErrors['username'] }}
+      </div>
+      
+      <!-- Checking status -->
+      <div *ngIf="isChecking['username']" class="checking-message">
+        Checking username availability...
       </div>
     </div>
 
+    <!-- Email Field -->
     <div class="form-group">
       <label for="email">Email</label>
       <input 
@@ -21,12 +42,31 @@
         id="email" 
         formControlName="email" 
         class="form-control"
-        [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
+        [class.is-invalid]="(registerForm.get('email')?.invalid && registerForm.get('email')?.touched) || fieldErrors['email']"
+        (input)="onFieldInput('email')">
+      
+      <!-- Required validation -->
+      <div *ngIf="registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched" class="error-message">
+        Email is required
+      </div>
+      
+      <!-- Email format validation -->
+      <div *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched" class="error-message">
         Valid email is required
+      </div>
+      
+      <!-- Duplicate validation -->
+      <div *ngIf="fieldErrors['email']" class="error-message">
+        {{ fieldErrors['email'] }}
+      </div>
+      
+      <!-- Checking status -->
+      <div *ngIf="isChecking['email']" class="checking-message">
+        Checking email availability...
       </div>
     </div>
 
+    <!-- Phone Number Field -->
     <div class="form-group">
       <label for="phoneNumber">Phone Number</label>
       <input 
@@ -34,12 +74,31 @@
         id="phoneNumber" 
         formControlName="phoneNumber" 
         class="form-control"
-        [class.is-invalid]="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched">
-      <div *ngIf="registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched" class="error-message">
+        [class.is-invalid]="(registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched) || fieldErrors['phoneNumber']"
+        (input)="onFieldInput('phoneNumber')">
+      
+      <!-- Required validation -->
+      <div *ngIf="registerForm.get('phoneNumber')?.hasError('required') && registerForm.get('phoneNumber')?.touched" class="error-message">
         Phone number is required
+      </div>
+      
+      <!-- Pattern validation -->
+      <div *ngIf="registerForm.get('phoneNumber')?.hasError('pattern') && registerForm.get('phoneNumber')?.touched" class="error-message">
+        Phone number must be 10 digits
+      </div>
+      
+      <!-- Duplicate validation -->
+      <div *ngIf="fieldErrors['phoneNumber']" class="error-message">
+        {{ fieldErrors['phoneNumber'] }}
+      </div>
+      
+      <!-- Checking status -->
+      <div *ngIf="isChecking['phoneNumber']" class="checking-message">
+        Checking phone number availability...
       </div>
     </div>
 
+    <!-- Password Field -->
     <div class="form-group">
       <label for="password">Password</label>
       <input 
@@ -48,11 +107,14 @@
         formControlName="password" 
         class="form-control"
         [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+      
       <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
-        Password must be at least 6 characters
+        <div *ngIf="registerForm.get('password')?.hasError('required')">Password is required</div>
+        <div *ngIf="registerForm.get('password')?.hasError('minlength')">Password must be at least 6 characters</div>
       </div>
     </div>
 
+    <!-- Confirm Password Field -->
     <div class="form-group">
       <label for="confirmPassword">Confirm Password</label>
       <input 
@@ -61,16 +123,22 @@
         formControlName="confirmPassword" 
         class="form-control"
         [class.is-invalid]="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched">
+      
       <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched" class="error-message">
         Passwords do not match
       </div>
     </div>
 
+    <!-- General Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
     <button 
       type="submit" 
-      [disabled]="registerForm.invalid" 
+      [disabled]="registerForm.invalid || isLoading || hasDuplicateErrors()" 
       class="btn btn-primary">
-      Register
+      {{ isLoading ? 'Registering...' : 'Register' }}
     </button>
     
     <div class="login-link">

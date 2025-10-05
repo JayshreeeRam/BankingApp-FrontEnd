@@ -7,6 +7,7 @@
   salary: number;
   clientId: number;
   clientName: string;
+  Department?: string;
 
   constructor(
     id: number,
@@ -16,7 +17,8 @@
     bankName: string,
     salary: number,
     clientId: number,
-    clientName: string
+    clientName: string,
+    Department?: string
   ) {
     this.id = id;
     this.employeeId = employeeId;
@@ -26,5 +28,6 @@
     this.salary = salary;
     this.clientId = clientId;
     this.clientName = clientName;
+    this.Department = Department;
   }
 }

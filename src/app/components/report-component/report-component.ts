@@ -87,6 +87,8 @@ export class ReportComponent implements OnInit {
   userList: UserDto[] = [];
   selectedUser: UserDto | null = null;
   selectedUserName: string = '';
+  allUsers: UserDto[] = [];       // all users fetched from backend
+filteredUsers: UserDto[] = []; 
 
   constructor(
     private http: HttpClient,
@@ -102,14 +104,50 @@ export class ReportComponent implements OnInit {
   ngOnInit() {
     // If it's admin view, don't auto-load data - show search interface
     if (this.isAdminView) {
-      this.isLoading = false;
-      return;
-    }
-
-    // For user dashboard, get current user from auth service
-    this.loadCurrentUserData();
+    this.isLoading = false;
+    this.loadAllUsers(); // Fetch all users for live search
+    return;
   }
 
+  this.loadCurrentUserData();
+}
+
+    // For user dashboard, get current user from auth service
+  //   this.loadCurrentUserData();
+  //     this.loadAllUsers();
+
+
+ loadAllUsers() {
+  this.userService.getAllUsers().subscribe(users => {
+    this.allUsers = users;
+    this.filteredUsers = users; // optional
+  });
+}
+
+// Called on every input change
+onSearchUserNameChange() {
+  const term = this.searchUserName.trim().toLowerCase();
+
+  if (!term) {
+    this.filteredUsers = [];
+    return;
+  }
+
+  this.filteredUsers = this.allUsers.filter(u =>
+    u.username.toLowerCase().includes(term)
+  );
+}
+
+
+// Use the existing selectUser method (update logic inside)
+selectUser(user: UserDto) {
+  this.selectedUser = user;
+  this.selectedUserName = user.username;
+  this.searchUserName = user.username;
+  this.filteredUsers = []; // hide suggestions after selection
+  this.userId = user.userId;
+  this.loadReportData(); // optional: auto-load report after selection
+}
   // Load current logged-in user data
   loadCurrentUserData() {
     this.isLoading = true;
@@ -234,15 +272,7 @@ export class ReportComponent implements OnInit {
     });
   }
 
-  // Select user from search results
-  selectUser(user: UserDto) {
-    this.selectedUser = user;
-    this.userId = user.userId;
-    this.selectedUserName = user.username;
-    this.clientId = 0; // Reset client ID when selecting by user
-    console.log('👤 Selected user:', user.username, 'ID:', user.userId);
-    this.loadReportData();
-  }
+ 
 
   // Reset search and clear data
   resetSearch() {
@@ -473,7 +503,7 @@ export class ReportComponent implements OnInit {
       doc.setFontSize(10);
       doc.setTextColor(100);
       if (this.isAdminView && this.selectedUserName) {
-        doc.text(`Report for: ${this.selectedUserName} (ID: ${this.userId})`, 14, currentY);
+        doc.text(`Report for: ${this.selectedUserName} `, 14, currentY);
       } else {
         doc.text(`My Account Report - Generated on: ${new Date().toLocaleDateString()}`, 14, currentY);
       }
@@ -484,7 +514,7 @@ export class ReportComponent implements OnInit {
         startY: currentY,
         head: [['Field', 'Value']],
         body: [
-          ['User ID', this.profile.userId?.toString() || 'N/A'],
+          // ['User ID', this.profile.userId?.toString() || 'N/A'],
           ['Username', this.profile.username || 'N/A'],
           ['Email', this.profile.email || 'N/A'],
           ['Phone', this.profile.phoneNumber || 'N/A'],
@@ -509,12 +539,13 @@ export class ReportComponent implements OnInit {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Employee Name', 'Bank', 'Salary', 'Employee ID']],
+          head: [['Employee Name', 'Bank', 'Salary']],
           body: this.employees.map(emp => [
             emp.employeeName || 'N/A',
             emp.bankName || 'N/A',
             `₹${emp.salary?.toLocaleString() || '0'}`,
-            emp.employeeId?.toString() || 'N/A'
+          
+           
           ]),
           styles: { fontSize: 10, cellPadding: 3 },
           headStyles: {
@@ -601,13 +632,14 @@ export class ReportComponent implements OnInit {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Employee', 'Sender', 'Amount', 'Status', 'Date']],
+          head: [['Employee', 'Sender', 'Amount', 'Status', 'Date','Batch/Dept']],
           body: this.pastDisbursements.map(dis => [
             dis.employeeName || 'N/A',
             dis.senderName || 'N/A',
             `₹${dis.amount?.toLocaleString() || '0'}`,
             dis.status || 'N/A',
-            new Date(dis.date).toLocaleDateString()
+            new Date(dis.date).toLocaleDateString(),
+            dis.batchId?.toString() || 'N/A'
           ]),
           styles: { fontSize: 10, cellPadding: 3 },
           headStyles: {

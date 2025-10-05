@@ -3,46 +3,44 @@
 
   <!-- Search Input -->
   <div class="search-box">
-    <input type="number" [(ngModel)]="searchUserId" placeholder="Enter User ID" />
-    <button (click)="fetchDocumentsByUser()">Search</button>
+    <input 
+      type="text" 
+      [(ngModel)]="searchAccountNo" 
+      (ngModelChange)="onSearchAccountChange()" 
+      placeholder="Search by Account Number" />
   </div>
 
-  <!-- If documents exist -->
-  <div class="table-container" *ngIf="documents.length > 0">
-    <table>
+  <!-- Documents Table -->
+  <div class="table-container" *ngIf="filteredDocuments.length > 0">
+    <table class="documents-table">
       <thead>
         <tr>
-          <th>Document ID</th>
-          <!-- <th>User</th> -->
+          <th>Sr No</th>
+          <th>File Name</th>
+          <th>Client Name</th>
           <th>Type</th>
-          <!-- <th>Status</th> -->
           <th>Upload Date</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let doc of documents">
-          <td>{{ doc.documentId }}</td>
-          <!-- <td>{{ doc.uploadedByUsername }}</td> -->
+        <tr *ngFor="let doc of filteredDocuments ; let i = index">
+          <td>{{ i+1 }}</td>
+          <td>{{ doc.fileName }}</td>
+          <td>{{ doc.uploadedByUsername || 'n/a' }}</td>
           <td>{{ doc.documentType }}</td>
-          <!-- <td>{{ doc.documentStatus }}</td> -->
           <td>{{ doc.uploadDate | date }}</td>
-         <td>
-  <td>
-  <button (click)="viewDocument(doc)">View</button>
-  <button (click)="downloadDocument(doc)">Download</button>
-</td>
-
-
-
-
+          <td class="actions-cell">
+            <button class="btn-view" (click)="viewDocument(doc)">View</button>
+            <button class="btn-download" (click)="downloadDocument(doc)">Download</button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- If search is done but no documents -->
-  <div *ngIf="searchDone && documents.length === 0">
-    <p>No documents found for this user.</p>
+  <!-- No Documents Message -->
+  <div *ngIf="searchAccountNo && filteredDocuments.length === 0" class="no-documents">
+    <p>No documents found for this account number.</p>
   </div>
 </div>

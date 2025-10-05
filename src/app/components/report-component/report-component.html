@@ -46,25 +46,32 @@
     <h3>Find User Report</h3>
     <form (ngSubmit)="onSearch()" class="search-form">
       <div class="form-row">
-        <!-- Search by ID -->
-        <div class="form-group">
-          <label for="searchUserId">User ID:</label>
-          <input type="number" id="searchUserId" [(ngModel)]="searchUserId" name="searchUserId" 
-                 placeholder="Enter User ID" class="form-control" min="1">
-        </div>
         
         <!-- Search by Name -->
-        <div class="form-group">
-          <label for="searchUserName">User Name:</label>
-          <input type="text" id="searchUserName" [(ngModel)]="searchUserName" name="searchUserName" 
-                 placeholder="Enter Username" class="form-control">
-        </div>
+      <div class="form-group">
+  <label for="searchUserName">User Name:</label>
+  <input type="text"
+         id="searchUserName"
+         [(ngModel)]="searchUserName"
+         (ngModelChange)="onSearchUserNameChange()"
+         [ngModelOptions]="{standalone: true}"
+         placeholder="Enter Username"
+         class="form-control">
+  
+  <!-- Suggestions -->
+  <ul class="autocomplete-list" *ngIf="searchUserName && filteredUsers.length > 0">
+    <li *ngFor="let user of filteredUsers" (click)="selectUser(user)">
+      {{ user.username }}
+    </li>
+  </ul>
+</div>
 
-        <div class="form-group">
+
+        <!-- <div class="form-group">
           <label for="searchClientId">Client ID:</label>
           <input type="number" id="searchClientId" [(ngModel)]="searchClientId" name="searchClientId" 
                  placeholder="Enter Client ID" class="form-control" min="1">
-        </div>
+        </div> -->
         
         <div class="form-group search-button">
           <button type="submit" class="btn btn-search" 

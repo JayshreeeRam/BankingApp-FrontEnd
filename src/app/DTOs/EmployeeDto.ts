@@ -7,6 +7,7 @@
   senderName?: string;
   employeeClientId: number;
   salary: number;
+  Department?: string;
 
   constructor(
     employeeId: number,
@@ -16,7 +17,8 @@
     senderClientId: number,
     senderName: string | undefined,
     employeeClientId: number,
-    salary: number
+    salary: number,
+    Department?: string
   ) {
     this.employeeId = employeeId;
     this.employeeName = employeeName;
@@ -26,5 +28,6 @@
     this.senderName = senderName;
     this.employeeClientId = employeeClientId;
     this.salary = salary;
+    this.Department = Department;
   }
 }

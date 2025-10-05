@@ -9,7 +9,8 @@ export class PaymentDto {
   amount: number;
   paymentDate: Date;
   paymentStatus: PaymentStatus;
-   remark?: string;     // Add this for rejection remarks
+  remark?: string;     
+  isLoading: boolean; // Changed from 'true' to boolean
 
   constructor(
     paymentId: number,
@@ -20,7 +21,8 @@ export class PaymentDto {
     amount: number,
     paymentDate: Date,
     paymentStatus: PaymentStatus = PaymentStatus.Pending,
-     remark?: string,  // Add this parameter
+    remark?: string,
+    isLoading: boolean = false // Changed to boolean with default false
   ) {
     this.paymentId = paymentId;
     this.clientId = clientId;
@@ -30,6 +32,7 @@ export class PaymentDto {
     this.amount = amount;
     this.paymentDate = paymentDate;
     this.paymentStatus = paymentStatus;
-    this. remark= remark;  // Initialize here
+    this.remark = remark;
+    this.isLoading = isLoading;
   }
 }

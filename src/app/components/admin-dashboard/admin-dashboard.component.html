@@ -10,28 +10,44 @@
 
   <!-- Tabs Navigation -->
   <div class="tabs">
-    <button (click)="activeTab = 'clients'" [class.active]="activeTab === 'clients'">Clients</button>
-    <button (click)="activeTab = 'users'" [class.active]="activeTab === 'users'">Users</button>
-    <button (click)="activeTab = 'documents'" [class.active]="activeTab === 'documents'">Documents</button>
-    <button (click)="activeTab = 'payments'" [class.active]="activeTab === 'payments'">Payments</button>
-    <button (click)="activeTab = 'reports'" [class.active]="activeTab === 'reports'">Reports</button>
-    <button (click)="activeTab = 'salary'" [class.active]="activeTab === 'salary'">Salary</button>
-    <button (click)="activeTab = 'employees'" [class.active]="activeTab === 'employees'">Employees</button>
-    <button class="logout" (click)="logout()">Logout</button>
+    <button class="tab-btn" (click)="activeTab = 'clients'" [class.active]="activeTab === 'clients'">Clients</button>
+    <button class="tab-btn" (click)="activeTab = 'users'" [class.active]="activeTab === 'users'">Users</button>
+    <button class="tab-btn" (click)="activeTab = 'documents'" [class.active]="activeTab === 'documents'">Documents</button>
+    <button class="tab-btn" (click)="activeTab = 'payments'" [class.active]="activeTab === 'payments'">Payments</button>
+    <button class="tab-btn" (click)="activeTab = 'reports'" [class.active]="activeTab === 'reports'">Reports</button>
+    <button class="tab-btn" (click)="activeTab = 'salary'" [class.active]="activeTab === 'salary'">Salary</button>
+    <button class="tab-btn" (click)="activeTab = 'employees'" [class.active]="activeTab === 'employees'">Employees</button>
+    <button class="logout-btn" (click)="logout()">Logout</button>
   </div>
 
   <!-- Clients Tab -->
- <div *ngIf="activeTab === 'clients'" class="tab-content">
+  <div *ngIf="activeTab === 'clients'" class="tab-content">
   <h3>Clients</h3>
 
   <!-- Client Rejection Dialog -->
   <div *ngIf="showClientRejectionDialog" class="modal-overlay">
-    <div class="modal-content">
+  <div class="modal-content">
+    <div class="modal-header">
       <h3>Reject Client</h3>
+      <button class="close-btn" (click)="closeClientRejectionDialog()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Debug info (remove in production) -->
+      <div style="background: #fff3cd; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        <small>Debug: Dialog is open - {{ showClientRejectionDialog }}</small>
+        <br>
+        <small>Selected Client: {{ selectedClientForRejection?.clientId }} - {{ selectedClientForRejection?.name }}</small>
+      </div>
+      
       <div class="client-info">
         <p><strong>Client ID:</strong> {{selectedClientForRejection?.clientId}}</p>
         <p><strong>Client Name:</strong> {{selectedClientForRejection?.name}}</p>
-        <p><strong>Current Status:</strong> {{selectedClientForRejection?.verificationStatus}}</p>
+        <p><strong>Current Status:</strong> 
+          <span [class]="getClientStatusClass(selectedClientForRejection?.verificationStatus)">
+            {{selectedClientForRejection?.verificationStatus}}
+          </span>
+        </p>
       </div>
       
       <div class="form-group">
@@ -43,45 +59,85 @@
           rows="4"
           class="form-control"
           maxlength="500"
+          [class.is-invalid]="clientRejectionRemarkInvalid"
         ></textarea>
-        <small class="text-muted">{{clientRejectionRemark.length}}/500 characters</small>
-      </div>
-      
-      <div class="modal-actions">
-        <button 
-          (click)="confirmClientRejection()" 
-          class="btn btn-danger"
-          [disabled]="!clientRejectionRemark.trim()"
-        >
-          Confirm Rejection
-        </button>
-        <button (click)="closeClientRejectionDialog()" class="btn btn-secondary">
-          Cancel
-        </button>
+        <small class="text-muted">{{clientRejectionRemark?.length || 0}}/500 characters</small>
+        <div *ngIf="clientRejectionRemarkInvalid" class="error-message">
+          Rejection remark is required
+        </div>
       </div>
     </div>
+    
+    <div class="modal-actions">
+      <button 
+        (click)="confirmClientRejection()" 
+        class="btn btn-danger"
+        [disabled]="!clientRejectionRemark?.trim() || isRejecting"
+      >
+        <span *ngIf="!isRejecting">Confirm Rejection</span>
+        <span *ngIf="isRejecting">
+          <i class="fas fa-spinner fa-spin"></i> Rejecting...
+        </span>
+      </button>
+      <button 
+        (click)="closeClientRejectionDialog()" 
+        class="btn btn-secondary"
+        [disabled]="isRejecting"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Loading and Error States -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Loading clients...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+    <button (click)="clearError()" class="btn-close">×</button>
   </div>
 
   <!-- Filter Buttons -->
   <div class="filter-buttons" style="margin-bottom: 15px;">
-    <button (click)="getAllClients($event)">Load All Clients</button>
-    <button (click)="loadClients(AccountStatus.Pending)">Load Pending Clients</button>
+    <button 
+      (click)="loadClients('all')" 
+      class="btn-filter"
+      [class.active]="currentFilter === 'all'"
+    >
+      All Clients
+    </button>
+    <button 
+      (click)="loadClients([AccountStatus.Pending, AccountStatus.Frozen])" 
+      class="btn-filter"
+      [class.active]="currentFilter === 'pending'"
+    >
+      Action Required
+    </button>
+   
   </div>
 
-  <div class="table-container" *ngIf="clients.length > 0">
-    <table>
+  <!-- Clients Count -->
+  <div class="clients-count" *ngIf="clients.length > 0 && !isLoading">
+    Showing {{ clients.length }} client(s)
+  </div>
+
+  <div class="table-container" *ngIf="clients.length > 0 && !isLoading">
+    <table class="clients-table">
       <thead>
         <tr>
           <th>Client ID</th>
           <th>Name</th>
           <th>Account No</th>
-          <th>Verification</th>
+          <th>Verification Status</th>
           <th>Rejection Remark</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of clients">
+        <tr *ngFor="let c of clients" [class.loading]="c.isLoading">
           <td>{{ c.clientId }}</td>
           <td>{{ c.name }}</td>
           <td>{{ c.accountNo || 'N/A' }}</td>
@@ -91,54 +147,70 @@
             </span>
           </td>
           <td>
-            <div *ngIf="c.rejectionRemark" class="rejection-info">
-              {{ c.rejectionRemark }}
+            <div *ngIf="c.rejectionRemark" class="rejection-info" [title]="c.rejectionRemark">
+              {{ (c.rejectionRemark.length > 50) ? (c.rejectionRemark | slice:0:50) + '...' : c.rejectionRemark }}
             </div>
             <span *ngIf="!c.rejectionRemark" class="text-muted">-</span>
           </td>
           <td>
-            <!-- Approve button if Pending or Rejected -->
-            <button 
-              *ngIf="c.verificationStatus === 'Pending' || c.verificationStatus === 'Rejected'" 
-              (click)="approveClient(c)" 
-              class="btn btn-success"
-            >
-              Approve
-            </button>
+            <div class="action-buttons">
+              <!-- Approve button for Pending, Rejected, or Frozen -->
+                 <button 
+                *ngIf="c.verificationStatus === 'Pending' || (c.verificationStatus !== 'Approved' && c.verificationStatus !== 'Active')" 
+                (click)="approveClient(c)" 
+                class="btn btn-warning btn-sm"
+                [disabled]="c.isLoading"
+              >
+                Approve
+              </button>
 
-            <!-- Reject button only if Pending -->
-            <button 
-              *ngIf="c.verificationStatus === 'Pending'" 
-              (click)="openClientRejectionDialog(c)" 
-              class="btn btn-danger"
-            >
-              Reject
-            </button>
+              
+              <!-- Reject button ONLY for Pending status -->
+              <button 
+                *ngIf="c.verificationStatus === 'Pending'" 
+                (click)="openClientRejectionDialog(c)" 
+                class="btn btn-danger btn-sm"
+                [disabled]="c.isLoading"
+              >
+                Reject
+              </button>
 
-            <!-- Show message if no actions available -->
-            <span 
-              *ngIf="c.verificationStatus === 'Active' || c.verificationStatus === 'Approved'" 
-              class="text-muted"
-            >
-              No actions
-            </span>
+             
+            
+              <!-- View Details button for all clients -->
+              <button 
+                (click)="viewClientDetails(c)" 
+                class="btn btn-info btn-sm"
+              >
+                View Details
+              </button>
+
+              <!-- No actions message for approved/active clients -->
+              <span 
+                *ngIf="(c.verificationStatus === 'Approved' || c.verificationStatus === 'Active') && !showViewDetails" 
+                class="text-muted"
+              >
+                No actions
+              </span>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div *ngIf="clients.length === 0">
+  <!-- Empty State -->
+  <div *ngIf="clients.length === 0 && !isLoading" class="empty-state">
     <p>No clients found.</p>
+    <button (click)="loadClients('all')" class="btn btn-primary">Load All Clients</button>
   </div>
 </div>
-
 
 
   <!-- Users Tab -->
   <div *ngIf="activeTab === 'users'" class="tab-content">
     <h3>Users</h3>
-    <button class="btn-view" (click)="getAllUsers()">Load Users</button>
+    <button class="tab-btn" (click)="getAllUsers()">Load Users</button>
 
     <div class="table-container" *ngIf="users.length > 0">
       <table>
@@ -165,10 +237,9 @@
   </div>
 
   <!-- Documents Tab -->
- <div *ngIf="activeTab === 'documents'" class="tab-content">
-   <app-documents></app-documents>
+  <div *ngIf="activeTab === 'documents'" class="tab-content">
+    <app-documents></app-documents>
   </div>
-
 
   <!-- Payments Tab -->
  <div *ngIf="activeTab === 'payments'" class="tab-content">
@@ -227,8 +298,8 @@
       <tbody>
         <tr *ngFor="let p of displayedPayments; let i = index">
           <td>{{ p.paymentId }}</td>
-          <td>{{ p.clientName }} (ID: {{ p.clientId }})</td>
-          <td>{{ p.beneficiaryName }} (ID: {{ p.beneficiaryId }})</td>
+          <td>{{ p.clientName || 'n/a' }}</td>
+          <td>{{ p.beneficiaryName }} </td>
           <td>₹{{ p.amount }}</td>
           <td>{{ p.paymentDate | date:'short' }}</td>
           <td>
@@ -265,9 +336,8 @@
 
   <!-- Reports Tab -->
   <div *ngIf="activeTab === 'reports'" class="tab-content">
-    <h3>Reports</h3><!-- This shows search form and waits for input -->
-
-<app-report-component [isAdminView]="true"></app-report-component>
+    <h3>Reports</h3>
+    <app-report-component [isAdminView]="true"></app-report-component>
   </div>
 
   <!-- Salary Tab -->
@@ -276,17 +346,14 @@
     <app-salary-disbursement></app-salary-disbursement>
   </div>
 
-
-
   <!-- Employees Tab -->
   <div *ngIf="activeTab === 'employees'" class="tab-content employees-tab">
-    <button class="btn-view" (click)="getAllEmployees()">Load Employees</button>
+    <button class="tab-btn" (click)="getAllEmployees()">Load Employees</button>
     <h3>Employees</h3>
     <div class="table-container" *ngIf="employees.length > 0">
       <table>
         <thead>
           <tr>
-           
             <th>Employee Id</th>
             <th>Name</th>
             <th>Bank</th>
@@ -296,13 +363,11 @@
         </thead>
         <tbody>
           <tr *ngFor="let emp of employees">
-            <td>{{emp.employeeId}}</td>
-            <td>{{ emp.employeeName }}</td> <!-- employeeName instead of name -->
-            <td>{{ emp.bankName }}</td> <!-- bankName is correct -->
+            <td>{{ emp.employeeId }}</td>
+            <td>{{ emp.employeeName }}</td>
+            <td>{{ emp.bankName }}</td>
             <td>₹{{ emp.salary }}</td>
-            <td>{{ emp.senderName  }}</td> <!-- use senderName instead of clientName -->
-           
-
+            <td>{{ emp.senderName }}</td>
           </tr>
         </tbody>
       </table>
@@ -311,5 +376,4 @@
       <p>No employees found.</p>
     </div>
   </div>
-
 </div>

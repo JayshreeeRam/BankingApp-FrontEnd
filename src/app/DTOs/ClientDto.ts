@@ -11,4 +11,5 @@ export interface ClientDto {
   verificationStatus?: AccountStatus; 
   accountType?: AccountType;
   rejectionRemark?: string; // Add this property for rejection remarks
+  isLoading:boolean;
 }

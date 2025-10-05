@@ -1,15 +1,15 @@
-﻿import { PaymentStatus } from '../Enum/PaymentStatus 1';  // Assuming PaymentStatus is defined in the enums file
+﻿import { PaymentStatus } from '../Enum/PaymentStatus 1';
 
 export class SalaryDisbursementDto {
   disbursementId: number;
   employeeId: number;
   employeeName: string;
-  senderName: string;  // Client/Company sending salary
+  senderName: string;    // Employer client/company
   clientId: number;
-  amount: number;  // Automatically fetched, not input by user
+  amount: number;
   date: Date;
   status: PaymentStatus;
-  batchId: number;
+  batchId: string;       // Now department instead of numeric batch
 
   constructor(
     disbursementId: number,
@@ -20,7 +20,7 @@ export class SalaryDisbursementDto {
     amount: number,
     date: Date,
     status: PaymentStatus,
-    batchId: number
+    batchId: string
   ) {
     this.disbursementId = disbursementId;
     this.employeeId = employeeId;
@@ -30,6 +30,6 @@ export class SalaryDisbursementDto {
     this.amount = amount;
     this.date = date;
     this.status = status;
-    this.batchId = batchId;
+    this.batchId = batchId;  // stores department name now
   }
 }

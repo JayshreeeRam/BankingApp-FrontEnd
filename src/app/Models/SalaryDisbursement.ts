@@ -11,7 +11,7 @@ export class SalaryDisbursement {
     amount: number;
     status: PaymentStatus;
     date: Date;
-    batchId: number;
+    batchId: string;
 
     constructor(
         disbursementId: number,
@@ -22,7 +22,7 @@ export class SalaryDisbursement {
         amount: number,
         status: PaymentStatus,
         date: Date,
-        batchId: number
+        batchId: string
     ) {
         this.disbursementId = disbursementId;
         this.employeeId = employeeId;

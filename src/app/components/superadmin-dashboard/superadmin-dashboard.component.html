@@ -14,9 +14,12 @@
 <div class="dashboard-container">
   <!-- Sidebar -->
   <nav class="sidebar">
+   
     <div class="sidebar-header">
+      
       <h2>Dashboard</h2>
     </div>
+    
     <ul class="nav-links">
       <li (click)="activeTab='admins'" [class.active]="activeTab==='admins'">
         <i class="fas fa-user-shield"></i> Admins
@@ -47,7 +50,7 @@
           <div class="card-body">
             <p><strong>Email:</strong> {{ admin.email }}</p>
             <p><strong>Phone:</strong> {{ admin.phoneNumber }}</p>
-            <p><strong>ID:</strong> {{ admin.userId }}</p>
+            <!-- <p><strong>ID:</strong> {{ admin.userId }}</p> -->
           </div>
         </div>
       </div>
@@ -62,18 +65,57 @@
   <h4>Add Bank</h4>
   <form (ngSubmit)="addBank()" #addBankForm="ngForm">
     <label>Bank Name:</label>
-    <input type="text" [(ngModel)]="newBank.name" name="name" required />
+    <input 
+      type="text" 
+      [(ngModel)]="newBank.name" 
+      name="name" 
+      required 
+      #name="ngModel"
+      [class.invalid]="name.invalid && name.touched"
+    />
+    <div *ngIf="name.invalid && name.touched" class="error-message">
+      Bank Name is required
+    </div>
 
     <label>Address:</label>
-    <input type="text" [(ngModel)]="newBank.address" name="address" />
+    <input 
+      type="text" 
+      [(ngModel)]="newBank.address" 
+      name="address" 
+      required 
+      #address="ngModel"
+      [class.invalid]="address.invalid && address.touched"
+    />
+    <div *ngIf="address.invalid && address.touched" class="error-message">
+      Address is required
+    </div>
 
+    <label>IFSC Code:</label>
+    <input 
+      type="text" 
+      [(ngModel)]="newBank.ifsccode" 
+      name="ifsccode" 
+      required 
+      #ifsccode="ngModel"
+      [class.invalid]="ifsccode.invalid && ifsccode.touched"
+    />
+    <div *ngIf="ifsccode.invalid && ifsccode.touched" class="error-message">
+      IFSC Code is required
+    </div>
    
     <div class="form-buttons">
-      <button type="submit" class="btn-save">Save</button>
+      <button 
+        type="submit" 
+        class="btn-save" 
+        [disabled]="addBankForm.invalid"
+      >
+        Save
+      </button>
       <button type="button" class="btn-cancel" (click)="showAddBankForm=false">Cancel</button>
     </div>
   </form>
 </div>
+
 
 <!-- Banks Display as Cards -->
 <div class="cards-container">
@@ -98,7 +140,7 @@
       <table class="list-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>Sr No</th>
             <th>Client</th>
             <th>Beneficiary</th>
             <th>Amount</th>
@@ -107,10 +149,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of payments">
-            <td>{{ p.paymentId }}</td>
-            <td>{{ p.clientId }}</td>
-            <td>{{ p.beneficiaryId }}</td>
+          <tr *ngFor="let p of payments ; let i = index">
+            <td>{{ i+1 }}</td>
+            <td>{{ p.clientName }}</td>
+            <td>{{ p.beneficiaryName }}</td>
             <td>₹{{ p.amount }}</td>
             <td>{{ p.paymentDate | date:'mediumDate' }}</td>
             <td>

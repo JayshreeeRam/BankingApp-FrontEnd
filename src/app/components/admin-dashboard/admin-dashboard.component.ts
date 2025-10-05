@@ -22,6 +22,11 @@ import { AccountStatus } from '../../Enum/AccountStatus 1';
 import { UserRole } from '../../Enum/UserRole 1';
 import { ReportComponent } from '../report-component/report-component';
 import { ClientDto } from '../../DTOs/ClientDto';
+import { UserDto } from '../../DTOs/UserDto';
+import { ChangeDetectorRef } from '@angular/core';
+
+// In your component class
+
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
@@ -80,6 +85,7 @@ interface Employee {
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'clients';
+  isSidebarCollapsed: boolean = false;
   PaymentStatus = PaymentStatus;
   AccountStatus = AccountStatus;
   clients: ClientDto[] = [];
@@ -116,6 +122,14 @@ export class AdminDashboardComponent implements OnInit {
   showClientRejectionDialog: boolean = false;
   selectedClientForRejection: ClientDto | null = null;
   clientRejectionRemark: string = '';
+  clientRejectionRemarkInvalid: boolean = false;
+
+  // Loading states
+  isLoading: boolean = false;
+  isRejecting: boolean = false;
+  errorMessage: string = '';
+  currentFilter: string = 'all';
+  showViewDetails: boolean = true;
 
   constructor(
     private router: Router,
@@ -125,9 +139,10 @@ export class AdminDashboardComponent implements OnInit {
     private reportSvc: ReportService,
     private employeeSvc: EmployeeService,
     private userSvc: UserService,
-    private salaryDisburse: SalaryDisbursementService
+    private salaryDisburse: SalaryDisbursementService,
+    private cdRef: ChangeDetectorRef
   ) {}
-  
+
   checkAuthStatus() {
     console.log('🔍 Authentication Status Check:');
     console.log('Token exists:', !!localStorage.getItem('token'));
@@ -163,107 +178,236 @@ export class AdminDashboardComponent implements OnInit {
   // --- Clients ---
   getAllClients(event?: Event) {
     event?.preventDefault();
+    this.isLoading = true;
     this.clientSvc.getAllClients().subscribe({
       next: (data: ClientDto[]) => {
         this.allClients = data;
         this.clients = [...this.allClients];
+        this.isLoading = false;
       },
-      error: err => console.error('Error loading clients:', err)
-    });
-  }
-
-  loadClients(filter: AccountStatus | 'all') {
-    if (filter === 'all') {
-      this.clients = [...this.allClients];
-    } else {
-      this.clients = this.allClients.filter(c => c.verificationStatus === filter);
-    }
-  }
-
-  approveClient(client: ClientDto) {
-    if (!confirm('Are you sure you want to approve this client?')) {
-      return;
-    }
-
-    this.clientSvc.approveClient(client.clientId).subscribe({
-      next: (updatedClient) => {
-        // Update the client in the local array
-        const index = this.clients.findIndex(c => c.clientId === client.clientId);
-        if (index !== -1) {
-          this.clients[index] = updatedClient;
-        }
-        alert(`Client ${client.name} approved.`);
-      },
-      error: (err) => {
-        console.error('Error approving client:', err);
-        alert('Failed to approve client. Please try again.');
+      error: err => {
+        console.error('Error loading clients:', err);
+        this.isLoading = false;
+        this.errorMessage = 'Failed to load clients';
       }
     });
   }
 
-  // Client rejection methods
-  openClientRejectionDialog(client: ClientDto) {
-    this.selectedClientForRejection = client;
-    this.clientRejectionRemark = '';
-    this.showClientRejectionDialog = true;
+  loadClients(filter: AccountStatus | AccountStatus[] | 'all') {
+    if (filter === 'all') {
+      this.clients = [...this.allClients];
+      this.currentFilter = 'all';
+    } else if (Array.isArray(filter)) {
+      // Handle multiple statuses
+      this.clients = this.allClients.filter(c => 
+        c.verificationStatus !== undefined && 
+        filter.includes(c.verificationStatus as AccountStatus)
+      );
+      this.currentFilter = 'pending';
+    } else {
+      // Handle single status
+      this.clients = this.allClients.filter(c => c.verificationStatus === filter);
+      this.currentFilter = filter.toLowerCase();
+    }
   }
 
-  confirmClientRejection() {
-    if (!this.selectedClientForRejection) return;
-
-    if (!this.clientRejectionRemark.trim()) {
-      alert('Please provide a rejection remark.');
+  approveClient(client: ClientDto) {
+    if (!confirm(`Are you sure you want to approve ${client.name}?`)) {
       return;
     }
 
-    this.clientSvc.rejectClient(this.selectedClientForRejection.clientId, this.clientRejectionRemark)
-      .subscribe({
-        next: (rejectedClient) => {
-          // Update the client in the local array
-          const index = this.clients.findIndex(c => c.clientId === rejectedClient.clientId);
-          if (index !== -1) {
-            this.clients[index] = rejectedClient;
-          }
-          alert('Client rejected successfully and email sent.');
-          this.closeClientRejectionDialog();
-        },
-        error: (err: any) => {
-          console.error('Error rejecting client:', err);
-          let errorMessage = 'Failed to reject client.';
-          
-          if (err.error?.message) {
-            errorMessage = err.error.message;
-          } else if (err.status === 404) {
-            errorMessage = 'Client not found.';
-          } else if (err.status === 400) {
-            errorMessage = 'Cannot reject this client. It may not be in pending status.';
-          }
-          
-          alert(errorMessage);
+    console.log('🔄 Approving client ID:', client.clientId);
+    
+    // Set loading state for this client
+    client.isLoading = true;
+
+    this.clientSvc.approveClient(client.clientId).subscribe({
+      next: (updatedClient) => {
+        console.log('✅ Approval successful:', updatedClient);
+        
+        // Update the client in the local array
+        const index = this.clients.findIndex(c => c.clientId === client.clientId);
+        if (index !== -1) {
+          this.clients[index] = { ...updatedClient, isLoading: false };
         }
-      });
+        
+        this.showNotification(`Client ${client.name} approved successfully.`, 'success');
+      },
+      error: (err) => {
+        console.error('❌ Error approving client:', err);
+        client.isLoading = false;
+        
+        const errorMsg = this.getErrorMessage(err);
+        this.showNotification(`Failed to approve client: ${errorMsg}`, 'error');
+      }
+    });
   }
 
-  closeClientRejectionDialog() {
-    this.showClientRejectionDialog = false;
-    this.selectedClientForRejection = null;
-    this.clientRejectionRemark = '';
+  // Client rejection methods - USE THESE INSTEAD
+openClientRejectionDialog(client: ClientDto) {
+  console.log('🔄 Opening rejection dialog for client:', client.clientId, client.name);
+  
+  this.selectedClientForRejection = client;
+  this.clientRejectionRemark = '';
+  this.clientRejectionRemarkInvalid = false;
+  this.showClientRejectionDialog = true;
+  
+  console.log('✅ Dialog state set - showClientRejectionDialog:', this.showClientRejectionDialog);
+}
+
+confirmClientRejection() {
+  console.log('🔄 Confirm rejection called');
+  console.log('Selected client:', this.selectedClientForRejection);
+  console.log('Rejection remark:', this.clientRejectionRemark);
+  
+  if (!this.selectedClientForRejection) {
+    console.error('❌ No client selected for rejection');
+    this.showNotification('No client selected for rejection.', 'error');
+    return;
   }
+
+  // Validate rejection remark
+  if (!this.clientRejectionRemark?.trim()) {
+    console.warn('⚠️ Rejection remark is empty');
+    this.clientRejectionRemarkInvalid = true;
+    this.showNotification('Please provide a rejection remark.', 'error');
+    this.cdRef.detectChanges(); 
+    return;
+  }
+
+  this.clientRejectionRemarkInvalid = false;
+  this.isRejecting = true;
+  
+  console.log('🔄 Calling rejectClient API...');
+  console.log('Client ID:', this.selectedClientForRejection.clientId);
+  console.log('Client Name:', this.selectedClientForRejection.name);
+  console.log('Remark:', this.clientRejectionRemark);
+
+  this.clientSvc.rejectClient(this.selectedClientForRejection.clientId, this.clientRejectionRemark)
+    .subscribe({
+      next: (rejectedClient) => {
+        console.log('✅ Client rejection API call successful:', rejectedClient);
+        
+        // Update the client in the local array
+        const index = this.clients.findIndex(c => c.clientId === rejectedClient.clientId);
+        if (index !== -1) {
+          this.clients[index] = rejectedClient;
+          console.log('✅ Client updated in local array at index:', index);
+        } else {
+          console.warn('⚠️ Client not found in local array, refreshing list...');
+          this.getAllClients(); // Make sure this method exists and works
+        }
+        
+        this.showNotification('Client rejected successfully.', 'success');
+        this.closeClientRejectionDialog();
+      },
+      error: (err: any) => {
+        console.error('❌ Error rejecting client:', err);
+        console.error('Error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          message: err.message,
+          error: err.error
+        });
+        
+        this.isRejecting = false;
+        
+        let errorMessage = 'Failed to reject client. Please try again.';
+        
+        if (err.error?.message) {
+          errorMessage = err.error.message;
+        } else if (err.status === 404) {
+          errorMessage = 'Client not found. It may have been deleted.';
+        } else if (err.status === 400) {
+          errorMessage = err.error?.message || 'Cannot reject this client. It may not be in pending status.';
+        } else if (err.status === 500) {
+          errorMessage = 'Server error occurred. Please try again later.';
+        } else if (err.status === 0) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        this.showNotification(errorMessage, 'error');
+      },
+      complete: () => {
+        console.log('🔚 Client rejection observable completed');
+        this.isRejecting = false;
+      }
+    });
+}
+
+closeClientRejectionDialog() {
+  console.log('🔒 Closing client rejection dialog...');
+  console.log('Current dialog state before closing:', this.showClientRejectionDialog);
+  
+  this.showClientRejectionDialog = false;
+  this.selectedClientForRejection = null;
+  this.clientRejectionRemark = '';
+  this.clientRejectionRemarkInvalid = false;
+  this.isRejecting = false;
+  
+  // Force Angular to detect changes
+  this.cdRef.detectChanges();
+  
+  console.log('✅ Client rejection dialog closed and reset');
+  console.log('Dialog state after closing:', this.showClientRejectionDialog);
+}
+
+  viewClientDetails(client: ClientDto) {
+    console.log('Viewing client details:', client);
+    
+    const details = `
+      Client Details:
+      
+      ID: ${client.clientId}
+      Name: ${client.name}
+      Account Number: ${client.accountNo || 'N/A'}
+      Status: ${client.verificationStatus || 'Pending'}
+      ${client.rejectionRemark ? `Rejection Reason: ${client.rejectionRemark}` : ''}
+    `;
+    
+    alert(details);
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.error && typeof error.error === 'string') {
+      return error.error;
+    }
+    if (error.error?.message) {
+      return error.error.message;
+    }
+    if (error.status === 400) {
+      return 'Bad request. The client data may be invalid.';
+    }
+    if (error.status === 404) {
+      return 'Client not found.';
+    }
+    return 'Please try again.';
+  }
+
+  private showNotification(message: string, type: 'success' | 'error') {
+    alert(message);
+  }
+
+
 
   // --- Users ---
   getAllUsers(event?: Event) {
     event?.preventDefault();
     this.userSvc.getAllUsers().subscribe({
-      next: (data: any[]) => {
-        console.log('Fetching all users from server...', { data });
-        this.users = data.map(u => ({
+      next: (users: UserDto[] | undefined) => {
+        const safeUsers = users || [];
+        
+        this.users = safeUsers.map(u => ({
           userId: u.userId,
           username: u.username,
           email: u.email,
           phoneNumber: u.phoneNumber
         }));
       },
-      error: err => console.error('Error loading users:', err)
+      error: err => {
+        console.error('Error loading users:', err);
+        this.errorMessage = 'Failed to load users';
+      }
     });
   }
 
@@ -271,25 +415,34 @@ export class AdminDashboardComponent implements OnInit {
   getAllEmployees() {
     this.employeeSvc.getAllEmployees().subscribe({
       next: (data: any) => {
-        alert('Fetching all employees from server...');
         this.employees = data;
         console.log('Employees loaded:', this.employees);
       },
       error: (err: any) => {
         console.error('Failed to load employees', err);
+        this.errorMessage = 'Failed to load employees';
       }
     });
   }
 
   // --- Payments ---
+  beneficiaries: { beneficiaryId: number, beneficiaryName: string }[] = [];
+
   getAllPayments() {
     this.paymentSvc.getAllPayments().subscribe({
       next: (data: PaymentDto[]) => {
         console.log('Fetching all payments from server...');
-        this.payments = data;
+        this.payments = data.map(p => ({
+          ...p,
+          clientName: this.getClientNameById(p.clientId),
+          beneficiaryName: this.getBeneficiaryNameById(p.beneficiaryId)
+        }));
         this.updateDisplayedPayments();
       },
-      error: err => console.error('Error loading payments:', err)
+      error: err => {
+        console.error('Error loading payments:', err);
+        this.errorMessage = 'Failed to load payments';
+      }
     });
   }
 
@@ -303,15 +456,10 @@ export class AdminDashboardComponent implements OnInit {
     return user ? user.username : 'Unknown';
   }
 
-  getDisplayedPayments(): PaymentDto[] {
-    return this.showAllPayments ? this.payments : this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
-  }
-
   updateDisplayedPayments() {
     this.displayedPayments = this.showAllPayments
       ? this.payments
       : this.payments.filter(p => p.paymentStatus === PaymentStatus.Pending);
-    console.log('Displayed Payments:', this.displayedPayments);
   }
 
   togglePaymentsView(showAll: boolean) {
@@ -320,14 +468,19 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   approvePayment(payment: PaymentDto) {
+    if (!confirm(`Approve payment of $${payment.amount}?`)) return;
+
+    payment.isLoading = true;
     this.paymentSvc.approvePayment(payment.paymentId).subscribe({
       next: () => {
         payment.paymentStatus = PaymentStatus.Approved;
-        alert('✅ Payment approved successfully.');
+        payment.isLoading = false;
+        this.showNotification('✅ Payment approved successfully.', 'success');
         this.updateDisplayedPayments();
       },
       error: err => {
-        alert(`❌ Failed to approve payment: ${err.error?.message || 'Unknown error'}`);
+        (payment as any).isLoading = false;
+        this.showNotification(`❌ Failed to approve payment: ${err.error?.message || 'Unknown error'}`, 'error');
       }
     });
   }
@@ -353,21 +506,23 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
+    this.isRejecting = true;
     this.paymentSvc.rejectPayment(this.selectedPaymentForRejection.paymentId, this.rejectionRemark)
       .subscribe({
         next: (rejectedPayment) => {
-          // Update the payment in the list
           const index = this.payments.findIndex(p => p.paymentId === rejectedPayment.paymentId);
           if (index !== -1) {
             this.payments[index] = rejectedPayment;
           }
-          alert('Payment rejected successfully.');
+          this.showNotification('Payment rejected successfully.', 'success');
           this.updateDisplayedPayments();
           this.closeRejectionDialog();
+          this.isRejecting = false;
         },
         error: (err) => {
           console.error('Error rejecting payment:', err);
-          alert('Failed to reject payment. Please try again.');
+          this.isRejecting = false;
+          this.showNotification('Failed to reject payment. Please try again.', 'error');
         }
       });
   }
@@ -381,6 +536,7 @@ export class AdminDashboardComponent implements OnInit {
       case AccountStatus.Active: 
       case AccountStatus.Approved: return 'status-approved';
       case AccountStatus.Rejected: return 'status-rejected';
+      case AccountStatus.Frozen: return 'status-frozen';
       default: return 'status-pending';
     }
   }
@@ -405,7 +561,10 @@ export class AdminDashboardComponent implements OnInit {
   getAllDocuments() {
     this.documentSvc.getAllDocuments().subscribe({
       next: (data: any[]) => this.documents = data,
-      error: err => console.error('Error loading documents:', err)
+      error: err => {
+        console.error('Error loading documents:', err);
+        this.errorMessage = 'Failed to load documents';
+      }
     });
   }
 
@@ -418,7 +577,10 @@ export class AdminDashboardComponent implements OnInit {
   getReports() {
     this.reportSvc.getAllReports().subscribe({
       next: (data: any[]) => this.reports = data,
-      error: err => console.error('Error loading reports:', err)
+      error: err => {
+        console.error('Error loading reports:', err);
+        this.errorMessage = 'Failed to load reports';
+      }
     });
   }
 
@@ -431,7 +593,10 @@ export class AdminDashboardComponent implements OnInit {
   getPastDisbursements() {
     this.salaryDisburse.getAllSalaryDisbursements().subscribe({
       next: data => this.pastDisbursements = data,
-      error: err => console.error('Error loading past disbursements:', err)
+      error: err => {
+        console.error('Error loading past disbursements:', err);
+        this.errorMessage = 'Failed to load salary disbursements';
+      }
     });
   }
 
@@ -450,4 +615,45 @@ export class AdminDashboardComponent implements OnInit {
     this.showModal = false;
     this.selectedDocumentUrl = null;
   }
+
+  // Clear error message
+  clearError() {
+    this.errorMessage = '';
+  }
+  // Add these methods to your component
+getClientsCount(): number {
+  return this.clients.length;
+}
+
+getUsersCount(): number {
+  return this.users.length;
+}
+
+getPaymentsCount(): number {
+  return this.payments.length;
+}
+
+getPendingDocumentsCount(): number {
+  // Implement based on your documents data
+  return 0;
+}
+
+getPendingClientsCount(): number {
+  return this.clients.filter(c => c.verificationStatus === 'Pending').length;
+}
+
+getApprovedClientsCount(): number {
+  return this.clients.filter(c => c.verificationStatus === 'Approved').length;
+}
+
+getRejectedClientsCount(): number {
+  return this.clients.filter(c => c.verificationStatus === 'Rejected').length;
+}
+
+
+
+exportClients() {
+  // Implement export functionality
+  console.log('Export clients functionality');
+}
 }

@@ -60,7 +60,10 @@
 <!-- Batch Salaries -->
 <div *ngIf="activeTab === 'batch'" class="salary-section">
   <h3>Batch-wise Salary Disbursement</h3>
-  <input type="number" [(ngModel)]="batchId" placeholder="Enter Batch ID" />
+ <label for="departmentSelect">Select Department:</label>
+  <select id="departmentSelect" [(ngModel)]="selectedBatchId">
+    <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+  </select>
   <button class="action-btn approve-btn" (click)="loadBatchSalaries()">Load Salaries</button>
 
   <table class="salary-table" *ngIf="batchSalaries.length > 0">
