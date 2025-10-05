@@ -51,11 +51,16 @@ export class SuperadminDashboardComponent implements OnInit {
   banks: BankDto[] = [];
   clients: ClientUI[] = [];
   payments: PaymentWithNames[] = [];
+  searchPayments: string = '';
   allClients: ClientDto[] = []; // Store all clients for name lookup
   allBeneficiaries: BeneficiaryDto[] = []; // Store all beneficiaries for name lookup
 
   selectedClient: ClientUI | null = null;
   showAddBankForm: boolean = false;
+  searchBanks: string = '';
+
+currentPage: number = 1;
+itemsPerPage: number = 8; 
 
   verificationStatuses = Object.values(AccountStatus); // For dropdown
 
@@ -162,6 +167,16 @@ export class SuperadminDashboardComponent implements OnInit {
     });
   }
 
+  get filteredBanks() {
+  if (!this.searchBanks.trim()) return this.banks;
+  const term = this.searchBanks.toLowerCase();
+  return this.banks.filter(bank =>
+    bank.name.toLowerCase().includes(term) ||
+    (bank.address?.toLowerCase().includes(term)) ||
+    (bank.ifsccode?.toLowerCase().includes(term))
+  );
+}
+
   // ================= Reports =================
   generateReport() {
     alert("Report generated successfully");
@@ -189,6 +204,32 @@ export class SuperadminDashboardComponent implements OnInit {
     console.log('Update payment:', payment.paymentId);
   }
 
+ get filteredPayments() {
+  if (!this.searchPayments || !this.searchPayments.trim()) {
+    return this.payments;
+  }
+  const term = this.searchPayments.toLowerCase();
+  return this.payments.filter(p =>
+    p.clientName.toLowerCase().includes(term) ||
+    p.beneficiaryName.toLowerCase().includes(term)
+  );
+}
+
+get paginatedPayments() {
+  const start = (this.currentPage - 1) * this.itemsPerPage;
+  const end = start + this.itemsPerPage;
+  return this.filteredPayments.slice(start, end);
+}
+
+get totalPages() {
+  return Math.ceil(this.filteredPayments.length / this.itemsPerPage);
+}
+
+goToPage(page: number) {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+  }
+}
   // ================= Logout =================
   logout() {
     localStorage.clear();

@@ -97,7 +97,21 @@ export class AdminDashboardComponent implements OnInit {
   reports: Report[] = [];
   pastDisbursements: SalaryDisbursement[] = [];
   allClients: ClientDto[] = [];
+  pageSize: number = 4; 
+  currentPage: number = 1;
+   filteredClients: any[] = [];
+    searchQuery: string = '';
+    searchPaymentQuery: string = '';
+filteredPayments: any[] = [];
+paymentPageSize = 8;
+paymentCurrentPage = 1;
+employeeSearchQuery: string = '';
+filteredEmployees: any[] = [];
+pagedEmployees: any[] = [];
 
+employeeCurrentPage: number = 1;
+employeePageSize: number = 5;
+employeeTotalPages: number = 1;
   selectedReportType: string = 'Daily Transactions';
   reportTypes = ['Daily Transactions', 'Client Activity', 'Payment Summary'];
 
@@ -130,6 +144,18 @@ export class AdminDashboardComponent implements OnInit {
   errorMessage: string = '';
   currentFilter: string = 'all';
   showViewDetails: boolean = true;
+
+  // salarySearch
+
+salarySearchQuery: string = '';
+filteredSalaries: any[] = [];
+pagedSalaries: any[] = [];
+
+salaryPageSize: number = 10;
+salaryCurrentPage: number = 1;
+salaryTotalPages: number = 1;
+
+salaries: any[] = [];
 
   constructor(
     private router: Router,
@@ -173,6 +199,8 @@ export class AdminDashboardComponent implements OnInit {
     this.getAllDocuments();
     this.getReports();
     this.getPastDisbursements();
+    this.applyFilter();
+    
   }
 
   // --- Clients ---
@@ -596,6 +624,7 @@ closeClientRejectionDialog() {
       error: err => {
         console.error('Error loading past disbursements:', err);
         this.errorMessage = 'Failed to load salary disbursements';
+        
       }
     });
   }
@@ -614,6 +643,32 @@ closeClientRejectionDialog() {
   closeModal() {
     this.showModal = false;
     this.selectedDocumentUrl = null;
+  }
+
+   get totalPages(): number {
+    return Math.ceil(this.filteredClients.length / this.pageSize) || 1;
+  }
+
+    nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  // Move to the previous page if not already at first page
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+   applyFilter() {
+    // Filter clients based on the search query
+    this.filteredClients = this.clients.filter(client =>
+      client.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      client.clientId.toString().includes(this.searchQuery)
+    );
+    this.currentPage = 1; // Reset to the first page when a filter is applied
   }
 
   // Clear error message
@@ -656,4 +711,86 @@ exportClients() {
   // Implement export functionality
   console.log('Export clients functionality');
 }
+
+// payment search filteration and pagination 
+
+get paymentTotalPages(): number {
+  return Math.ceil(this.filteredPayments.length / this.paymentPageSize);
+}
+
+applyPaymentFilter() {
+  const query = this.searchPaymentQuery.toLowerCase().trim();
+
+  // If query is empty, reset filteredPayments to all displayedPayments
+  if (!query) {
+    this.filteredPayments = [...this.displayedPayments];
+  } else {
+    this.filteredPayments = this.displayedPayments.filter(p =>
+      (p.clientName && p.clientName.toLowerCase().includes(query)) ||
+      (p.paymentId && p.paymentId.toString().toLowerCase().includes(query)) ||
+      (p.beneficiaryName && p.beneficiaryName.toLowerCase().includes(query))
+    );
+  }
+
+  this.paymentCurrentPage = 1; // Reset pagination
+}
+get pagedPayments(): PaymentDto[] {
+  const startIndex = (this.paymentCurrentPage - 1) * this.paymentPageSize;
+  return this.filteredPayments.slice(startIndex, startIndex + this.paymentPageSize);
+}
+
+
+
+nextPaymentPage() {
+  if (this.paymentCurrentPage < this.paymentTotalPages) {
+    this.paymentCurrentPage++;
+  }
+}
+
+prevPaymentPage() {
+  if (this.paymentCurrentPage > 1) {
+    this.paymentCurrentPage--;
+  }
+}
+
+// employees search and pagination 
+
+applyEmployeeFilter(): void {
+  const query = this.employeeSearchQuery.toLowerCase().trim();
+
+  this.filteredEmployees = this.employees.filter(emp =>
+    emp.employeeName?.toLowerCase().includes(query) ||
+    emp.employeeId?.toString().includes(query) ||
+    emp.senderName?.toLowerCase().includes(query)
+  );
+
+  this.employeeCurrentPage = 1;
+  this.calculateEmployeePagination();
+}
+
+calculateEmployeePagination(): void {
+  this.employeeTotalPages = Math.ceil(this.filteredEmployees.length / this.employeePageSize);
+  const start = (this.employeeCurrentPage - 1) * this.employeePageSize;
+  const end = this.employeeCurrentPage * this.employeePageSize;
+  this.pagedEmployees = this.filteredEmployees.slice(start, end);
+}
+
+// salary filter and search and pagination 
+applySalaryFilter(): void {
+  const query = this.salarySearchQuery?.toLowerCase().trim();
+
+  if (!query) {
+    this.filteredSalaries = [...this.salaries];
+  } else {
+    this.filteredSalaries = this.salaries.filter((s: any) => 
+      (s.employeeName?.toLowerCase().includes(query)) ||
+      (s.senderName?.toLowerCase().includes(query)) ||
+      (s.employeeId?.toString().includes(query))
+    );
+  }
+
+  this.salaryCurrentPage = 1;
+  
+}
+
 }

@@ -48,6 +48,19 @@ export class UserDashboardComponent implements OnInit {
   employees: any[] = [];
   isEmployee: boolean = false;
 
+// Transactions
+   searchTransaction: string = '';
+  transactionPage: number = 1;
+  totalTransactionPages: number = 1;
+
+  //beneficiary 
+
+  searchBeneficiaryTerm: string = '';
+
+//employees
+  employeeSearchTerm: string = '';
+  salaryEmployeeSearchTerm: string = '';
+
   salaryDisbursement: {
     employeeId: number | null;
     amount: number | null;
@@ -180,6 +193,24 @@ export class UserDashboardComponent implements OnInit {
       error: (err) => console.error(err)
     });
   }
+   private updateTransactionPagination() {
+    const totalFiltered = this.transactions.filter(tx =>
+      tx.senderName.toLowerCase().includes(this.searchTransaction.toLowerCase()) ||
+      tx.receiverName.toLowerCase().includes(this.searchTransaction.toLowerCase())
+    ).length;
+    this.totalTransactionPages = Math.ceil(totalFiltered / this.pageSize) || 1;
+  }
+
+  get filteredTransactions(): any[] {
+    const filtered = this.transactions.filter(tx =>
+      tx.senderName.toLowerCase().includes(this.searchTransaction.toLowerCase()) ||
+      tx.receiverName.toLowerCase().includes(this.searchTransaction.toLowerCase())
+    );
+    // Update page count
+    this.totalTransactionPages = Math.ceil(filtered.length / this.pageSize) || 1;
+    const start = (this.transactionPage - 1) * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
+  }
 
   goToTransactions() {
     this.activeTab = 'transactions';
@@ -232,6 +263,14 @@ export class UserDashboardComponent implements OnInit {
 
   onCreateNewBeneficiary() {
     this.router.navigate(['/create-beneficiary', this.currentUserId]);
+  }
+
+  get filteredBeneficiaries() {
+    return this.beneficiaries.filter(b => 
+      b.bankName.toLowerCase().includes(this.searchBeneficiaryTerm.toLowerCase()) ||
+      b.accountNo?.includes(this.searchBeneficiaryTerm)||
+      b.ifsccode?.toLowerCase().includes(this.searchBeneficiaryTerm)
+    );
   }
 
   submitPayment() {
@@ -411,6 +450,7 @@ isClientAccountActive(): boolean {
 
     if (selectedEmpId == null) {
       this.salaryDisbursement.amount = null;
+      this.salaryDisbursement.batchId = null;
       return;
     }
 
@@ -418,13 +458,28 @@ isClientAccountActive(): boolean {
 
     if (selectedEmp) {
       this.salaryDisbursement.amount = selectedEmp.salary;
+       
       console.log('Selected Employee:', selectedEmp);
+       
     } else {
       this.salaryDisbursement.amount = null;
       console.warn("⚠️ Employee not found for ID:", selectedEmpId);
       console.warn("Current filteredEmployees:", this.filteredEmployees);
     }
   }
+
+get filteredEmployeesByName() {
+  const term = this.employeeSearchTerm?.toLowerCase() || '';
+  return this.employees.filter(emp =>
+    emp.employeeName.toLowerCase().includes(term)
+  );
+}
+  get filteredEmployeesForSalary(): EmployeeDto[] {
+  const term = this.salaryEmployeeSearchTerm.toLowerCase();
+  return this.filteredEmployees.filter(emp =>
+    emp.employeeName.toLowerCase().includes(term)
+  );
+}
 
   getPastDisbursements(): void {
     this.salaryDisburse.getAllSalaryDisbursements().subscribe({
@@ -480,6 +535,7 @@ isClientAccountActive(): boolean {
     });
   }
 
+  
   get totalPages(): number {
     return Math.ceil(this.pastDisbursements.length / this.pageSize);
   }

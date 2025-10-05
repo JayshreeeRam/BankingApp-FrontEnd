@@ -8,6 +8,7 @@
   employeeClientId: number;
   salary: number;
   Department?: string;
+  batchId?: number;
 
   constructor(
     employeeId: number,

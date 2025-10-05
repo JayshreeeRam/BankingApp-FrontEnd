@@ -24,6 +24,12 @@
   <div *ngIf="activeTab === 'clients'" class="tab-content">
   <h3>Clients</h3>
 
+   <div class="search-bar" style="margin-bottom: 10px;">
+      <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" placeholder="Search clients by name or ID..." />
+    </div>
+
+   
+
   <!-- Client Rejection Dialog -->
   <div *ngIf="showClientRejectionDialog" class="modal-overlay">
   <div class="modal-content">
@@ -137,7 +143,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of clients" [class.loading]="c.isLoading">
+        <tr *ngFor="let c of filteredClients | slice:(currentPage - 1) * pageSize : currentPage * pageSize" [class.loading]="c.isLoading">
+
           <td>{{ c.clientId }}</td>
           <td>{{ c.name }}</td>
           <td>{{ c.accountNo || 'N/A' }}</td>
@@ -197,6 +204,12 @@
         </tr>
       </tbody>
     </table>
+     <!-- NEW: Pagination Controls -->
+    <div class="pagination-controls" *ngIf="filteredClients.length > pageSize" style="margin-bottom: 10px;">
+      <button (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    </div>
   </div>
 
   <!-- Empty State -->
@@ -245,6 +258,14 @@
  <div *ngIf="activeTab === 'payments'" class="tab-content">
   <h3>Payments</h3>
 
+  <div class="search-bar" style="margin-bottom: 10px;">
+  <input
+    type="text"
+    [(ngModel)]="searchPaymentQuery"
+    (ngModelChange)="applyPaymentFilter()"
+    placeholder="Search by Payment ID, Client, or Beneficiary..."
+  />
+</div>
   <div class="payment-toggle">
     <button (click)="togglePaymentsView(true); getAllPayments()">All Payments</button>
     <button (click)="togglePaymentsView(false); getAllPayments()">Pending Payments</button>
@@ -296,7 +317,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of displayedPayments; let i = index">
+        <tr *ngFor="let p of pagedPayments; let i = index"P>
           <td>{{ p.paymentId }}</td>
           <td>{{ p.clientName || 'n/a' }}</td>
           <td>{{ p.beneficiaryName }} </td>
@@ -325,6 +346,12 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="pagination-controls" *ngIf="filteredPayments.length > paymentPageSize" style="margin-bottom: 10px;">
+  <button (click)="paymentCurrentPage = paymentCurrentPage - 1" [disabled]="paymentCurrentPage === 1">Prev</button>
+  <span>Page {{ paymentCurrentPage }} of {{ paymentTotalPages }}</span>
+  <button (click)="paymentCurrentPage = paymentCurrentPage + 1" [disabled]="paymentCurrentPage === paymentTotalPages">Next</button>
+</div>
   </div>
 
   <div *ngIf="displayedPayments.length === 0">
@@ -343,13 +370,33 @@
   <!-- Salary Tab -->
   <div *ngIf="activeTab === 'salary'" class="tab-content">
     <h3>Salary Disbursement</h3>
+
+    <div class="search-bar">
+    <input
+      type="text"
+      [(ngModel)]="salarySearchQuery"
+      (ngModelChange)="applySalaryFilter()"
+      placeholder="Search by employee name, client, or ID..."
+    />
+  </div>
     <app-salary-disbursement></app-salary-disbursement>
+    
+
   </div>
 
   <!-- Employees Tab -->
   <div *ngIf="activeTab === 'employees'" class="tab-content employees-tab">
     <button class="tab-btn" (click)="getAllEmployees()">Load Employees</button>
     <h3>Employees</h3>
+
+    <div class="search-bar">
+    <input
+      type="text"
+      [(ngModel)]="employeeSearchQuery"
+      (ngModelChange)="applyEmployeeFilter()"
+      placeholder="Search employees by name, ID, or client..."
+    />
+  </div>
     <div class="table-container" *ngIf="employees.length > 0">
       <table>
         <thead>
@@ -362,7 +409,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let emp of employees">
+          <tr *ngFor="let emp of pagedEmployees">
             <td>{{ emp.employeeId }}</td>
             <td>{{ emp.employeeName }}</td>
             <td>{{ emp.bankName }}</td>
@@ -372,6 +419,11 @@
         </tbody>
       </table>
     </div>
+    <div class="pagination-controls" *ngIf="filteredEmployees.length > employeePageSize">
+    <button (click)="employeeCurrentPage = employeeCurrentPage - 1" [disabled]="employeeCurrentPage === 1">Prev</button>
+    <span>Page {{ employeeCurrentPage }} of {{ employeeTotalPages }}</span>
+    <button (click)="employeeCurrentPage = employeeCurrentPage + 1" [disabled]="employeeCurrentPage === employeeTotalPages">Next</button>
+  </div>
     <div *ngIf="employees.length === 0">
       <p>No employees found.</p>
     </div>

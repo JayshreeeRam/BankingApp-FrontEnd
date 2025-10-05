@@ -59,6 +59,9 @@
     <!-- Banks -->
    <!-- Button to show add bank form -->
 <button (click)="showAddBankForm = !showAddBankForm" class="btn-add">Add New Bank</button>
+  <br>
+
+<input type="text" [(ngModel)]="searchBanks" placeholder="Search banks..." class="search-input" />
 
 <!-- Add Bank Form -->
 <div *ngIf="showAddBankForm" class="form-section">
@@ -119,7 +122,7 @@
 
 <!-- Banks Display as Cards -->
 <div class="cards-container">
-  <div class="bank-card" *ngFor="let bank of banks">
+  <div class="bank-card" *ngFor="let bank of filteredBanks">
     <h3>{{ bank.name }}</h3>
     <p><strong>Address:</strong> {{ bank.address || 'N/A' }}</p>
     <p><strong>IFSC Code:</strong> {{ bank.ifsccode  }}</p>
@@ -137,6 +140,13 @@
     <!-- Payments -->
     <div *ngIf="activeTab==='payments'" class="tab-content">
       <h2>Payments</h2>
+      <input
+  type="text"
+  [(ngModel)]="searchPayments"
+  placeholder="Search by client name..."
+  class="search-input"
+/>
+
       <table class="list-table">
         <thead>
           <tr>
@@ -149,7 +159,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of payments ; let i = index">
+          <tr *ngFor="let p of paginatedPayments ; let i = index">
             <td>{{ i+1 }}</td>
             <td>{{ p.clientName }}</td>
             <td>{{ p.beneficiaryName }}</td>
@@ -165,6 +175,19 @@
           </tr>
         </tbody>
       </table>
+      <div class="pagination-controls" *ngIf="totalPages > 1">
+  <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+
+  <button 
+    *ngFor="let page of [].constructor(totalPages); let i = index"
+    (click)="goToPage(i + 1)"
+    [class.active]="currentPage === i + 1"
+  >
+    {{ i + 1 }}
+  </button>
+
+  <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+</div>
     </div>
   </section>
 </div>
