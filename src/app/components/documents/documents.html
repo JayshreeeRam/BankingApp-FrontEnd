@@ -1,0 +1,25 @@
+<h3>Uploaded Documents</h3>
+
+<!-- Display message if there are no documents -->
+<p *ngIf="documents.length === 0">No documents uploaded.</p>
+
+<!-- Display table if documents are available -->
+<table *ngIf="documents.length > 0" class="documents-table">
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let doc of documents">
+            <td>{{ doc.fileName }}</td>
+            <td>{{ doc.documentType }}</td>
+            <td>
+                <a href="{{doc.filePath}}" target="_blank">view </a>
+                <button (click)="downloadDocument(doc.filePath, doc.fileName)">Download</button>
+            </td>
+        </tr>
+    </tbody>
+</table>

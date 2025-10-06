@@ -972,3 +972,7 @@ button:hover {
   background-color: #aaa;
   cursor: not-allowed;
 }
+.action-buttons .btn {
+  margin-right: 5px;
+  margin-bottom: 4px;
+}

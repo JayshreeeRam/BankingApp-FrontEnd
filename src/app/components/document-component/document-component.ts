@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ClientService } from '../../services/client.service';
 import { UserDto } from '../../DTOs/UserDto';
@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-documents',
@@ -23,15 +24,31 @@ export class DocumentsComponent implements OnInit {
   clients: ClientDto[] = [];
   filteredDocuments: DocumentDto[] = [];
   searchSubject = new Subject<string>();
-  
+  documents!:Document[];
+  id: string | null = null;
+
+  @Input() accountNo: string = '';
+
 
   constructor(
     private userSvc: UserService,
-    private clientSvc: ClientService
-  ) {}
+    private clientSvc: ClientService,
+    private route:ActivatedRoute
+  ) { }
 
   ngOnInit() {
+
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get('id');
+      console.log('ID from route:', this.id);
+    });
+    
     // Load all users
+    if (this.accountNo) {
+      this.searchAccountNo = this.accountNo;
+      this.searchByAccount(this.accountNo);
+    }
+
     this.userSvc.getAllUsers().subscribe({
       next: (users: UserDto[] | undefined) => this.users = users || [],
       error: err => console.error('Error loading users:', err)
@@ -64,34 +81,34 @@ export class DocumentsComponent implements OnInit {
     );
 
     this.filteredDocuments = this.filteredDocuments.map(doc => {
-  const user = this.users.find(u => u.userId === doc.uploadedByUserId);
-  return {
-    ...doc,
-    uploadedByUsername: user ? user.username : 'Unknown'
-  };
-});
-   
+      const user = this.users.find(u => u.userId === doc.uploadedByUserId);
+      return {
+        ...doc,
+        uploadedByUsername: user ? user.username : 'Unknown'
+      };
+    });
+
 
     this.filteredDocuments = [];
 
-matchedClients.forEach(client => {
-  const clientUser = this.users.find(u => u.userId === client.userId);
+    matchedClients.forEach(client => {
+      const clientUser = this.users.find(u => u.userId === client.userId);
 
-  if (clientUser?.documents?.length) {
-    this.filteredDocuments.push(
-      ...clientUser.documents.map(d => {
-        const uploader = this.users.find(u => u.userId === d.uploadedByUserId);
-        return {
-          ...d,
-          clientName: client.name,
-          accountNumber: client.accountNo,
-          uploadedByUsername: uploader ? uploader.username : 'Unknown'
-        };
-      })
-    );
+      if (clientUser?.documents?.length) {
+        this.filteredDocuments.push(
+          ...clientUser.documents.map(d => {
+            const uploader = this.users.find(u => u.userId === d.uploadedByUserId);
+            return {
+              ...d,
+              clientName: client.name,
+              accountNumber: client.accountNo,
+              uploadedByUsername: uploader ? uploader.username : 'Unknown'
+            };
+          })
+        );
+      }
+    });
   }
-});
-}
 
   viewDocument(doc: DocumentDto) {
     if (!doc.filePath || doc.filePath === 'string') {
@@ -102,27 +119,27 @@ matchedClients.forEach(client => {
   }
 
   downloadDocument(doc: DocumentDto) {
-  if (!doc.filePath || doc.filePath === 'string') {
-    alert('No file available for download.');
-    return;
-  }
+    if (!doc.filePath || doc.filePath === 'string') {
+      alert('No file available for download.');
+      return;
+    }
 
-  fetch(doc.filePath)
-    .then(res => res.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = doc.fileName || 'document';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    })
-    .catch(err => {
-      console.error('Download failed', err);
-      alert('Failed to download file.');
-    });
-}
+    fetch(doc.filePath)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.fileName || 'document';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(err => {
+        console.error('Download failed', err);
+        alert('Failed to download file.');
+      });
+  }
 
 }

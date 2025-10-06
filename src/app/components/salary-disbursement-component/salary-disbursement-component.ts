@@ -23,6 +23,10 @@ export class SalaryDisbursementComponent implements OnInit {
   // batchId: string | null = null;
   selectedBatchId: string | null = null;
 
+  // Pagination Variables
+  currentPage: number = 1; // Current page
+  itemsPerPage: number = 5; // Items per page
+
   constructor(private salaryService: SalaryDisbursementService) {}
 
   ngOnInit() {
@@ -141,5 +145,54 @@ export class SalaryDisbursementComponent implements OnInit {
       }
     });
   }
-  
+
+  // Pagination Logic for each section (All, Pending, Batch)
+  getPaginatedSalaries(salaries: any[]) {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return salaries.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  // Calculate total pages for pagination
+  getTotalPages(salaries: any[]) {
+    return Math.ceil(salaries.length / this.itemsPerPage);
+  }
+
+  // Paginate Salaries based on Active Tab
+  paginateSalaries(tab: 'all' | 'pending' | 'batch') {
+    if (tab === 'all') {
+      this.getPaginatedSalaries(this.allSalaries);
+    } else if (tab === 'pending') {
+      this.getPaginatedSalaries(this.pendingSalaries);
+    } else if (tab === 'batch') {
+      this.getPaginatedSalaries(this.batchSalaries);
+    }
+  }
+
+  // Go to the next page
+  nextPage() {
+    if (this.currentPage < this.getTotalPages(this.getSalariesByTab())) {
+      this.currentPage++;
+    }
+  }
+
+  // Go to the previous page
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  // Helper method to get the correct salaries based on active tab
+  getSalariesByTab() {
+    if (this.activeTab === 'all') {
+      return this.allSalaries;
+    } else if (this.activeTab === 'pending') {
+      return this.pendingSalaries;
+    } else if (this.activeTab === 'batch') {
+      return this.batchSalaries;
+    }
+    return [];
+  }
 }
+  
+

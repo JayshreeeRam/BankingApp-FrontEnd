@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let salary of allSalaries">
+      <tr *ngFor="let salary of getPaginatedSalaries(allSalaries)">
         <td>{{ salary.employeeName }}</td>
         <td>₹{{ salary.amount }}</td>
         <td>{{ salary.status }}</td>
@@ -28,6 +28,11 @@
       </tr>
     </tbody>
   </table>
+  <div *ngIf="activeTab === 'all'" class="pagination-controls">
+  <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+  <span>Page {{ currentPage }} of {{ getTotalPages(allSalaries) }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === getTotalPages(allSalaries)">Next</button>
+</div>
 </div>
 
 <!-- Pending Salaries -->
@@ -44,7 +49,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let salary of pendingSalaries; let i = index">
+      <tr *ngFor="let salary of getPaginatedSalaries(pendingSalaries); let i = index">
         <!-- <td>{{ salary.employeeId }}</td> -->
        <td>{{i+1}}</td>
         <td>{{ salary.employeeName }}</td>
@@ -57,6 +62,12 @@
       </tr>
     </tbody>
   </table>
+  <div *ngIf="activeTab === 'pending'" class="pagination-controls">
+  <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+  <span>Page {{ currentPage }} of {{ getTotalPages(pendingSalaries) }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === getTotalPages(pendingSalaries)">Next</button>
+</div>
+
 </div>
 
 <!-- Batch Salaries -->
@@ -77,14 +88,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let salary of batchSalaries">
+      <tr *ngFor="let salary of getPaginatedSalaries(batchSalaries)">
         <td>{{ salary.employeeName }}</td>
         <td>₹{{ salary.amount }}</td>
         <td>{{ salary.status }}</td>
       </tr>
     </tbody>
   </table>
-
+<div *ngIf="activeTab === 'batch'" class="pagination-controls">
+  <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+  <span>Page {{ currentPage }} of {{ getTotalPages(batchSalaries) }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === getTotalPages(batchSalaries)">Next</button>
+</div>
   <button class="disburse-btn" (click)="disburseAllBatchSalaries()" [disabled]="batchSalaries.length === 0">
     Disburse All Salaries in Batch
   </button>

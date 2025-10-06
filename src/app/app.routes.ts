@@ -15,6 +15,7 @@ import { CreateBeneficaryComponent } from './components/create-beneficary-compon
 import { BeneficaryComponent } from './components/beneficary-component/beneficary-component';
 
 import { Support } from './components/support/support';
+import { Documents } from './components/documents/documents';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -36,6 +37,7 @@ export const routes: Routes = [
   { path: 'beneficiary', component:BeneficaryComponent },
   { path: 'create-beneficiary/:clientId', component: CreateBeneficaryComponent },
   { path: 'payment', component: PaymentComponent },
-  { path: 'support', component: Support }
+  { path: 'support', component: Support },
+  { path: 'dashboard/admin/:id', component: Documents }
 ];
  

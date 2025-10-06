@@ -1,7 +1,7 @@
 import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ClientService } from '../../services/client.service';
 import { PaymentService } from '../../services/payment.service';
@@ -24,6 +24,7 @@ import { ReportComponent } from '../report-component/report-component';
 import { ClientDto } from '../../DTOs/ClientDto';
 import { UserDto } from '../../DTOs/UserDto';
 import { ChangeDetectorRef } from '@angular/core';
+
 
 // In your component class
 
@@ -79,6 +80,7 @@ interface Employee {
     SalaryDisbursementComponent,
     DocumentsComponent,
     ReportComponent,
+    RouterLink
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
@@ -156,6 +158,10 @@ salaryCurrentPage: number = 1;
 salaryTotalPages: number = 1;
 
 salaries: any[] = [];
+
+
+selectedClientAccountNo: string = '';
+
 
   constructor(
     private router: Router,
@@ -792,5 +798,12 @@ applySalaryFilter(): void {
   this.salaryCurrentPage = 1;
   
 }
+
+viewDocuments(client: any) {
+  this.selectedClientAccountNo = client.accountNo;
+  this.activeTab = 'documents';
+}
+
+
 
 }

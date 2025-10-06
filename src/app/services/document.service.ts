@@ -12,24 +12,24 @@ import { DocumentStatus } from '../Enum/DocumentStatus 1';
 export class DocumentService {
   url: string = environment.backendURL + "Document";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Fetch all documents
-   getAllDocuments(): Observable<DocumentDto[]> {
+  getAllDocuments(): Observable<DocumentDto[]> {
     return this.http.get<DocumentDto[]>(this.url);
   }
 
   // Upload a document (Cloudinary handled in backend)
- uploadDocument(formData: FormData): Observable<any> {
-  return this.http.post(`${this.url}/upload`, formData); 
-}
-// DocumentService
-downloadFile(fileUrl: string) {
-  return this.http.get(fileUrl, { responseType: 'blob' }); // fetch as binary
-}
-updateDocumentStatus(documentId: number, status: DocumentStatus): Observable<DocumentDto> {
-  return this.http.put<DocumentDto>(`${this.url}/${documentId}/status`, { status });
-}
+  uploadDocument(formData: FormData): Observable<any> {
+    return this.http.post(`${this.url}/upload`, formData);
+  }
+  // DocumentService
+  downloadFile(fileUrl: string) {
+    return this.http.get(fileUrl, { responseType: 'blob' }); // fetch as binary
+  }
+  updateDocumentStatus(documentId: number, status: DocumentStatus): Observable<DocumentDto> {
+    return this.http.put<DocumentDto>(`${this.url}/${documentId}/status`, { status });
+  }
 
 
 }

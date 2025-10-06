@@ -192,6 +192,19 @@
                 View Details
               </button>
 
+              <button 
+                  class="btn btn-secondary btn-sm"
+                  (click)="viewDocuments(c)"
+                  [disabled]="c.isLoading"
+                  routerLink="dashboard/admin/, c.userId "
+                >
+                  View Documents
+                </button>
+
+
+              <app-documents [accountNo]="selectedClientAccountNo"></app-documents>
+
+
               <!-- No actions message for approved/active clients -->
               <span 
                 *ngIf="(c.verificationStatus === 'Approved' || c.verificationStatus === 'Active') && !showViewDetails" 
