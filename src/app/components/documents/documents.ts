@@ -12,10 +12,12 @@ import { CommonModule } from '@angular/common';
 export class Documents implements OnInit {
   documents: any[] = [];  // Initialize as an empty array
   id: string | null = null;
+  activeTab: string = ''; // Add this property to fix the error
 
   constructor(private route: ActivatedRoute, private documentSvc: DocumentService) { }
 
   ngOnInit(): void {
+   
     // Subscribe to route parameters to get the 'id'
     this.route.paramMap.subscribe(params => {
       this.id = params.get('id');  // Get the 'id' from the route params
@@ -28,29 +30,43 @@ export class Documents implements OnInit {
     });
   }
 
+  searchClientId: number | null = null;
+
+fetchDocumentsByClientId(): void {
+  if (this.searchClientId) {
+    this.fetchDocuments(this.searchClientId.toString());
+  }
+}
+
+clearSearch(): void {
+  this.searchClientId = null;
+  // Reload all documents or clear the current list
+  this.documents = []; // or reload all documents if you want to show everything
+}
+
   // Fetch documents based on the 'id'
-  fetchDocuments(id: string | null): void {
-    if (id) {
-      this.documentSvc.getAllDocuments().subscribe(
-        (data) => {
-          console.log(data);
-          // Filter documents based on uploadedByUserId
-          this.documents = data.filter(d => d.uploadedByUserId === Number(id));
-        },
-        (error) => {
-          // Handle error (you could show a message to the user)
-          console.error('Error fetching documents:', error);
-        }
-      );
-    }
-  }
+  // Add this method to your component
+viewClientDocuments(clientId: number): void {
+  this.fetchDocuments(clientId.toString());
+  this.activeTab = 'documents'; // Switch to documents tab to show the results
+}
 
-  // Method to view document
-  viewDocument(path: any): void {
-    console.log('Viewing document at:', path);
-    // Add your view logic here, e.g., opening the document in a modal or new window
+// Update your existing fetchDocuments method
+fetchDocuments(id: string | null): void {
+  if (id) {
+    this.documentSvc.getAllDocuments().subscribe(
+      (data) => {
+        console.log(data);
+        // Filter documents based on uploadedByUserId
+        this.documents = data.filter(d => d.uploadedByUserId === Number(id));
+      },
+      (error) => {
+        // Handle error (you could show a message to the user)
+        console.error('Error fetching documents:', error);
+      }
+    );
   }
-
+}
   // Method to download document
   downloadDocument(path: any, name: any): void {
     console.log('Downloading document:', name);

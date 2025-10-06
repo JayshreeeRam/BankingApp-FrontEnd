@@ -293,8 +293,53 @@
 
     <!-- Employee Tab -->
     <!-- Employee Tab -->
+<!-- Employee Tab -->
 <div *ngIf="activeTab === 'employee'" class="tab-content">
   <h3>Employee Management</h3>
+  
+  <!-- CSV Upload Section -->
+  <div class="csv-upload-section">
+    <h4>Upload Employees via CSV</h4>
+    <div class="upload-container">
+      <input 
+        type="file" 
+        id="csvFileInput"
+        accept=".csv" 
+        (change)="onCsvFileSelected($event)"
+        [disabled]="isUploading"
+        class="file-input"
+      />
+      <button 
+        (click)="uploadCsvFile()" 
+        [disabled]="!csvFile || isUploading"
+        class="upload-btn"
+      >
+        <span *ngIf="!isUploading">📤 Upload CSV</span>
+        <span *ngIf="isUploading">⏳ Uploading...</span>
+      </button>
+    </div>
+    
+    <!-- Upload Message -->
+    <div *ngIf="uploadMessage" class="upload-message" [class.success]="!isUploading && !uploadMessage.includes('failed') && !uploadMessage.includes('error')" [class.error]="uploadMessage.includes('failed') || uploadMessage.includes('error')">
+      {{ uploadMessage }}
+    </div>
+
+    <!-- Upload Instructions -->
+    <div class="upload-instructions">
+      <h5>CSV Format Requirements:</h5>
+      <ul>
+        <li>File must be in CSV format</li>
+        <li>Maximum file size: 5MB</li>
+        <li>Required columns: EmployeeName, Salary, Department</li>
+        <li>Optional columns: BankName, BatchId</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Existing Employee Management Section -->
+  <h4>Manage Employees</h4>
   
   <!-- Filters and Search -->
   <div class="employee-filters">
@@ -305,14 +350,14 @@
         <option *ngFor="let dept of uniqueDepartments" [value]="dept">{{ dept }}</option>
       </select>
     </div>
-    
+<!--     
     <div class="filter-group">
       <label for="batchFilter">Filter by Batch ID:</label>
       <select id="batchFilter" [(ngModel)]="selectedBatch" (change)="filterEmployees()">
         <option value="all">All Batches</option>
         <option *ngFor="let batch of uniqueBatches" [value]="batch">{{ batch }}</option>
       </select>
-    </div>
+    </div> -->
     
     <div class="filter-group search-box">
       <input 
@@ -372,7 +417,7 @@
   <!-- No employees message -->
   <div *ngIf="displayedEmployees.length === 0 && employeeDataLoaded" class="no-data">
     <i class="fas fa-user-slash"></i>
-    <p>No employees found matching your criteria.</p>
+    <p>No employees found. Upload a CSV file to add employees.</p>
   </div>
 
   <!-- Loading state -->

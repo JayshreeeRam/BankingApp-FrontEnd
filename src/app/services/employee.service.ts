@@ -8,17 +8,16 @@ import { environment } from '../environment/environment';
   providedIn: 'root'
 })
 export class EmployeeService {
-  private url: string = environment.backendURL+ "Employee";
+  private url: string = environment.backendURL + "Employee";
 
   constructor(private http: HttpClient) {}
 
   // Get all employees
-   getAllEmployees() {
-    const token = localStorage.getItem('jwtToken'); // wherever you stored it after login
+  getAllEmployees() {
+    const token = localStorage.getItem('jwtToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.http.get<any[]>(this.url, { headers });
-   }
+  }
 
   // Get employee by ID
   getEmployeeById(id: number): Observable<EmployeeDto> {
@@ -38,5 +37,21 @@ export class EmployeeService {
   // Delete employee by ID
   deleteEmployee(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  // Upload employees from CSV file
+  uploadEmployees(file: File, senderClientId: number): Observable<any> {
+    const token = localStorage.getItem('jwtToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    // Create FormData to send the file
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<any>(
+      `${this.url}/upload/${senderClientId}`, 
+      formData, 
+      { headers }
+    );
   }
 }

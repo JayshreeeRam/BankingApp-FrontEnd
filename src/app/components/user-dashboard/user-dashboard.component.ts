@@ -654,6 +654,84 @@ export class UserDashboardComponent implements OnInit {
     }
   }
 
+  // Add this property to your component class
+csvFile: File | null = null;
+uploadMessage: string = '';
+isUploading: boolean = false;
+
+// Add this method to handle file selection for CSV
+onCsvFileSelected(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    // Validate file type
+    const allowedExtensions = ['.csv'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+      this.uploadMessage = 'Only CSV files are allowed';
+      this.csvFile = null;
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      this.uploadMessage = 'File size exceeds 5MB limit';
+      this.csvFile = null;
+      return;
+    }
+
+    this.csvFile = file;
+    this.uploadMessage = `Selected file: ${file.name}`;
+  }
+}
+
+// Add this method to upload the CSV file
+uploadCsvFile(): void {
+  if (!this.csvFile) {
+    this.uploadMessage = 'Please select a CSV file first';
+    return;
+  }
+
+  if (!this.currentClientId) {
+    this.uploadMessage = 'Client ID not found. Please try again.';
+    return;
+  }
+
+  this.isUploading = true;
+  this.uploadMessage = 'Uploading employees...';
+
+  this.employeeService.uploadEmployees(this.csvFile, this.currentClientId).subscribe({
+    next: (response) => {
+      this.isUploading = false;
+      this.uploadMessage = response.message || `${response.employees?.length || 0} employees uploaded successfully`;
+      
+      // Clear the file input
+      this.csvFile = null;
+      const fileInput = document.getElementById('csvFileInput') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+
+      // Refresh the employee list
+      this.loadEmployeesForCurrentClient();
+      
+      console.log('Upload successful:', response);
+    },
+    error: (error) => {
+      this.isUploading = false;
+      console.error('Upload failed:', error);
+      
+      if (error.error) {
+        this.uploadMessage = `Upload failed: ${error.error}`;
+      } else if (error.status === 400) {
+        this.uploadMessage = 'Validation error: ' + (error.error?.message || 'Invalid file format');
+      } else if (error.status === 401) {
+        this.uploadMessage = 'Unauthorized: Please login again';
+      } else {
+        this.uploadMessage = 'Error uploading employees. Please try again.';
+      }
+    }
+  });
+}
+
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
