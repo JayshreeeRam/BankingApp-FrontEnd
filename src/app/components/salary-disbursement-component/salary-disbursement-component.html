@@ -36,7 +36,7 @@
   <table class="salary-table">
     <thead>
       <tr>
-        <th>Employee ID</th>
+        <th>Sr No</th>
         <th>Employee Name</th>
         <th>Amount</th>
         <th>Batch Id</th>
@@ -44,8 +44,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let salary of pendingSalaries">
-       <td>{{salary.employeeId}}</td>
+      <tr *ngFor="let salary of pendingSalaries; let i = index">
+        <!-- <td>{{ salary.employeeId }}</td> -->
+       <td>{{i+1}}</td>
         <td>{{ salary.employeeName }}</td>
         <td>₹{{ salary.amount }}</td>
         <td>    {{ salary.batchId }}</td>

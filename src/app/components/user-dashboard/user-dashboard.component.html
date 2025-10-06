@@ -136,13 +136,6 @@
     <!-- Transactions Tab -->
     <div *ngIf="activeTab === 'transactions'" class="tab-content" >
       <h3>Recent Transactions</h3>
-
-       <input
-    type="text"
-    placeholder="Search transactions by sender or receiver"
-    [(ngModel)]="searchTransaction"
-    class="search-input"
-  />
       <table class="transactions-table">
         <thead>
           <tr>
@@ -155,7 +148,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let tx of filteredTransactions">
+          <tr *ngFor="let tx of transactions">
             <td>{{ tx.senderName }}</td>
             <td>{{ tx.receiverName }}</td>
             <td>₹{{ tx.amount }}</td>
@@ -166,31 +159,16 @@
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-    <button (click)="transactionPage = transactionPage - 1" [disabled]="transactionPage <= 1">Previous</button>
-    <span>Page {{ transactionPage }} of {{ totalTransactionPages }}</span>
-    <button (click)="transactionPage = transactionPage + 1" [disabled]="transactionPage >= totalTransactionPages">Next</button>
-  </div>
-</div>
-  
+    </div>
 
     <!-- Make Payment Tab -->
     <div *ngIf="activeTab === 'payment'" class="tab-content">
       <h3>Make a Payment</h3>
 
-      <label for="beneficiarySearch">Search Beneficiaries:</label>
-  <input 
-    type="text" 
-    id="beneficiarySearch" 
-    [(ngModel)]="searchBeneficiaryTerm" 
-    placeholder="Search Beneficiaries" 
-    class="search-input"
-  />
-
       <label>Select Beneficiary:</label>
       <select [(ngModel)]="payment.beneficiaryId" (change)="onBeneficiarySelect($event)">
         <option [value]="null" disabled selected>Select beneficiary</option>
-        <option *ngFor="let b of filteredBeneficiaries" [value]="b.beneficiaryId">
+        <option *ngFor="let b of beneficiaries" [value]="b.beneficiaryId">
           {{ b.bankName }} - {{ b.accountNo }}
         </option>
       </select>
@@ -221,7 +199,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let b of filteredBeneficiaries">
+            <tr *ngFor="let b of beneficiaries">
               <td>{{ b.bankName }}</td>
               <td>{{ b.accountNo }}</td>
               <td>{{ b.ifsccode }}</td>
@@ -241,7 +219,7 @@
         <p><strong>Selected Beneficiary:</strong></p>
         <p><strong>Bank:</strong> {{ selectedBeneficiary.bankName }}</p>
         <p><strong>Account No:</strong> {{ selectedBeneficiary.accountNo }}</p>
-        <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifsccode || 'na' }}</p>
+        <p><strong>IFSC Code:</strong> {{ selectedBeneficiary.ifsccode }}</p>
       </div>
 
       <label>Amount (₹):</label>
@@ -314,40 +292,109 @@
     </div>
 
     <!-- Employee Tab -->
-    <ng-container *ngIf="(activeTab === 'employee' || activeTab === 'salary') && !employeeDataLoaded">
-      {{ loadEmployeesForCurrentClient() }}
-    </ng-container>
-    <div *ngIf="activeTab === 'employee' && filteredEmployees.length > 0">
-      <input
-    type="text"
-    placeholder="Search employees by name"
-    [(ngModel)]="employeeSearchTerm"
-    class="search-input"
-  />
-      <table class="employee-table">
-        <thead>
-          <tr>
-            <th>Employee ID</th>
-            <th>Name</th>
-            <th>Bank Name</th>
-            <th>Salary</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let emp of filteredEmployeesByName">
-            <td>{{ emp.employeeId }}</td>
-            <td>{{ emp.employeeName }}</td>
-            <td>{{ emp.bankName }}</td>
-            <td>{{ emp.salary }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Employee Tab -->
+<div *ngIf="activeTab === 'employee'" class="tab-content">
+  <h3>Employee Management</h3>
+  
+  <!-- Filters and Search -->
+  <div class="employee-filters">
+    <div class="filter-group">
+      <label for="departmentFilter">Filter by Department:</label>
+      <select id="departmentFilter" [(ngModel)]="selectedDepartment" (change)="filterEmployees()">
+        <option value="all">All Departments</option>
+        <option *ngFor="let dept of uniqueDepartments" [value]="dept">{{ dept }}</option>
+      </select>
     </div>
+    
+    <div class="filter-group">
+      <label for="batchFilter">Filter by Batch ID:</label>
+      <select id="batchFilter" [(ngModel)]="selectedBatch" (change)="filterEmployees()">
+        <option value="all">All Batches</option>
+        <option *ngFor="let batch of uniqueBatches" [value]="batch">{{ batch }}</option>
+      </select>
+    </div>
+    
+    <div class="filter-group search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="filterEmployees()" 
+        placeholder="Search employees..."
+      />
+      <i class="fas fa-search"></i>
+    </div>
+  </div>
 
-    <!-- Show if no employees found -->
-    <ng-template [ngIf]="filteredEmployees.length === 0 && activeTab === 'employee' && employeeDataLoaded">
-      <p>No employees found for the current client.</p>
-    </ng-template>
+  <!-- Employee Table -->
+  <div *ngIf="displayedEmployees.length > 0" class="table-container">
+    <table class="employee-table">
+      <thead>
+        <tr>
+          <th class="checkbox-cell">
+            <input 
+              type="checkbox" 
+              [checked]="isAllSelected" 
+              [indeterminate]="isSomeSelected"
+              (change)="toggleSelectAll($event)"
+            />
+          </th>
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Bank Name</th>
+          <th>Salary</th>
+          <th>Department</th>
+          <th>Batch ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr 
+          *ngFor="let emp of displayedEmployees" 
+          [class.selected]="isEmployeeSelected(emp.employeeId)"
+        >
+          <td class="checkbox-cell">
+            <input 
+              type="checkbox" 
+              [checked]="isEmployeeSelected(emp.employeeId)"
+              (change)="toggleEmployeeSelection(emp.employeeId, $event)"
+            />
+          </td>
+          <td class="employee-id">{{ emp.employeeId }}</td>
+          <td>{{ emp.employeeName }}</td>
+          <td>{{ emp.bankName }}</td>
+          <td class="salary">₹{{ emp.salary | number }}</td>
+          <td>{{ emp.department }}</td>
+          <td>{{ emp.batchId || 'N/A' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No employees message -->
+  <div *ngIf="displayedEmployees.length === 0 && employeeDataLoaded" class="no-data">
+    <i class="fas fa-user-slash"></i>
+    <p>No employees found matching your criteria.</p>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="!employeeDataLoaded" class="loading">
+    <p>Loading employees...</p>
+  </div>
+
+  <!-- Selection Actions -->
+  <div *ngIf="selectedEmployees.length > 0" class="selection-actions">
+    <div class="selected-count">
+      {{ selectedEmployees.length }} employee(s) selected
+    </div>
+    <div class="action-buttons">
+      <button class="btn-clear" (click)="clearSelection()">
+        <i class="fas fa-times"></i> Clear Selection
+      </button>
+      <button class="btn-disburse" (click)="disburseToSelected()">
+        <i class="fas fa-money-check"></i> Disburse Salary to Selected
+      </button>
+    </div>
+  </div>
+</div>
 
     <!-- Salary Tab -->
     <div *ngIf="activeTab === 'salary'" class="tab-content">
@@ -357,13 +404,6 @@
         <p>No employees available for salary disbursement.</p>
         <p>Please add employees first to use this feature.</p>
       </div>
-
-      <input
-  type="text"
-  [(ngModel)]="salaryEmployeeSearchTerm"
-  placeholder="Search employee by name..."
-  class="form-control mb-2"
-/>
       
       <div *ngIf="filteredEmployees.length > 0">
         <label>Employee:</label>
@@ -371,10 +411,9 @@
           [(ngModel)]="salaryDisbursement.employeeId"
           (ngModelChange)="onEmployeeChange($event)"
         >
-        
           <option [ngValue]="null">-- Select Employee --</option>
           <option
-            *ngFor="let employee of filteredEmployeesForSalary"
+            *ngFor="let employee of filteredEmployees"
             [ngValue]="employee.employeeId"
           >
             {{ employee.employeeName }}

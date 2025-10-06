@@ -50,6 +50,13 @@
           <div class="stat-label">Total Transactions</div>
         </div>
       </div>
+       <div class="stat-card">
+        <div class="stat-icon">🏦</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ totalBanks }}</div>
+          <div class="stat-label">Total Banks</div>
+        </div>
+      </div>
 
       <div class="stat-card">
         <div class="stat-icon">👥</div>
@@ -59,13 +66,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon">🏦</div>
-        <div class="stat-content">
-          <div class="stat-number">{{ totalBanks }}</div>
-          <div class="stat-label">Total Banks</div>
-        </div>
-      </div>
+     
 
       <div class="stat-card">
         <div class="stat-icon">👑</div>
@@ -92,7 +93,7 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Bank ID</th>
+            <th>Sr No</th>
             <th>Bank Name</th>
             <th>Address</th>
             <th>IFSC Code</th>
@@ -101,8 +102,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let bank of banks">
-            <td>{{ bank.bankId }}</td>
+          <tr *ngFor="let bank of banks;let i = index">
+            <td>{{ i+1 }}</td>
             <td class="bank-name">{{ bank.name }}</td>
             <td class="bank-address">{{ bank.address || 'N/A' }}</td>
             <td class="ifsc-code">{{ bank.ifsccode }}</td>
@@ -136,7 +137,7 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>User ID</th>
+            <th>Sr No</th>
             <th>Username</th>
             <th>Full Name</th>
             <th>Email</th>
@@ -146,8 +147,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let admin of admins">
-            <td>{{ admin.userId }}</td>
+          <tr *ngFor="let admin of admins;let i = index">
+            <td>{{ i+1 }}</td>
             <td class="username">{{ admin.username }}</td>
             <td class="full-name">{{ admin.name || 'N/A' }}</td>
             <td class="email">{{ admin.email }}</td>

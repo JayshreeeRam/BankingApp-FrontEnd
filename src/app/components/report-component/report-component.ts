@@ -475,15 +475,19 @@ selectUser(user: UserDto) {
     });
   }
 
-  private setDefaultProfile() {
-    this.profile = {
-      userId: this.userId || 0,
-      username: 'N/A',
-      email: 'N/A',
-      phoneNumber: 'N/A',
-      name: 'N/A'
-    };
-  }
+  private setDefaultProfile(index: number = 0) {
+  this.profile = {
+    userId: index + 1,
+    username: 'N/A',
+    email: 'N/A',
+    phoneNumber: 'N/A',
+    name: 'N/A'
+  };
+}
+
+// Usage:
+// this.setDefaultProfile(5); // userId will be 6
+// this.setDefaultProfile(); // userId will be 1 (default parameter 0)
 
   generatePDF() {
     if (this.isGeneratingPDF) return;
@@ -512,7 +516,7 @@ selectUser(user: UserDto) {
       // User Profile Table
       autoTable(doc, {
         startY: currentY,
-        head: [['Field', 'Value']],
+        head: [['User Information', 'Details']],
         body: [
           // ['User ID', this.profile.userId?.toString() || 'N/A'],
           ['Username', this.profile.username || 'N/A'],
@@ -543,7 +547,7 @@ selectUser(user: UserDto) {
           body: this.employees.map(emp => [
             emp.employeeName || 'N/A',
             emp.bankName || 'N/A',
-            `₹${emp.salary?.toLocaleString() || '0'}`,
+            `${emp.salary?.toLocaleString() || '0'}`,
           
            
           ]),
@@ -610,7 +614,7 @@ selectUser(user: UserDto) {
           body: this.transactions.map(trans => [
             trans.senderName || 'N/A',
             trans.receiverName || 'N/A',
-            `₹${trans.amount?.toLocaleString() || '0'}`,
+            `${trans.amount?.toLocaleString() || '0'}`,
             new Date(trans.date).toLocaleDateString()
           ]),
           styles: { fontSize: 10, cellPadding: 3 },
@@ -636,7 +640,7 @@ selectUser(user: UserDto) {
           body: this.pastDisbursements.map(dis => [
             dis.employeeName || 'N/A',
             dis.senderName || 'N/A',
-            `₹${dis.amount?.toLocaleString() || '0'}`,
+            `${dis.amount?.toLocaleString() || '0'}`,
             dis.status || 'N/A',
             new Date(dis.date).toLocaleDateString(),
             dis.batchId?.toString() || 'N/A'

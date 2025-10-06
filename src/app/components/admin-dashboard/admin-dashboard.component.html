@@ -47,7 +47,7 @@
       </div>
       
       <div class="client-info">
-        <p><strong>Client ID:</strong> {{selectedClientForRejection?.clientId}}</p>
+        <!-- <p><strong>Client ID:</strong> {{selectedClientForRejection?.clientId}}</p> -->
         <p><strong>Client Name:</strong> {{selectedClientForRejection?.name}}</p>
         <p><strong>Current Status:</strong> 
           <span [class]="getClientStatusClass(selectedClientForRejection?.verificationStatus)">
@@ -97,9 +97,9 @@
 </div>
 
   <!-- Loading and Error States -->
-  <div *ngIf="isLoading" class="loading-state">
+  <!-- <div *ngIf="isLoading" class="loading-state">
     <p>Loading clients...</p>
-  </div>
+  </div> -->
 
   <div *ngIf="errorMessage" class="alert alert-error">
     {{ errorMessage }}
@@ -134,7 +134,7 @@
     <table class="clients-table">
       <thead>
         <tr>
-          <th>Client ID</th>
+          <th>Sr No</th>
           <th>Name</th>
           <th>Account No</th>
           <th>Verification Status</th>
@@ -143,9 +143,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of filteredClients | slice:(currentPage - 1) * pageSize : currentPage * pageSize" [class.loading]="c.isLoading">
+        <tr *ngFor="let c of filteredClients | slice:(currentPage - 1) * pageSize : currentPage * pageSize; let i = index" [class.loading]="c.isLoading ">
 
-          <td>{{ c.clientId }}</td>
+          <td>{{ i+1 }}</td>
           <td>{{ c.name }}</td>
           <td>{{ c.accountNo || 'N/A' }}</td>
           <td>
@@ -229,7 +229,7 @@
       <table>
         <thead>
           <tr>
-            <th>User ID</th>
+            <th>Sr No</th>
             <th>Name</th>
             <th>Email</th>
             <!-- <th>Role</th> -->
@@ -237,8 +237,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let u of users">
-            <td>{{ u.userId }}</td>
+          <tr *ngFor="let u of users; let i = index">
+            <td>{{ i+1 }}</td>
             <td>{{ u.username }}</td>
             <td>{{ u.email }}</td>
             <!-- <td>{{ u.userRole }}</td> -->
@@ -306,7 +306,7 @@
     <table>
       <thead>
         <tr>
-          <th>Payment ID</th>
+          <th>Sr No</th>
           <th>Client</th>
           <th>Beneficiary</th>
           <th>Amount</th>
@@ -317,8 +317,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of pagedPayments; let i = index"P>
-          <td>{{ p.paymentId }}</td>
+        <tr *ngFor="let p of pagedPayments; let i = index">
+          <td>{{ i+1 }}</td>
           <td>{{ p.clientName || 'n/a' }}</td>
           <td>{{ p.beneficiaryName }} </td>
           <td>₹{{ p.amount }}</td>
@@ -401,7 +401,7 @@
       <table>
         <thead>
           <tr>
-            <th>Employee Id</th>
+            <th>Sr No</th>
             <th>Name</th>
             <th>Bank</th>
             <th>Salary</th>
@@ -409,8 +409,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let emp of pagedEmployees">
-            <td>{{ emp.employeeId }}</td>
+          <tr *ngFor="let emp of pagedEmployees; let i = index">
+            <td>{{ i+1 }}</td>
             <td>{{ emp.employeeName }}</td>
             <td>{{ emp.bankName }}</td>
             <td>₹{{ emp.salary }}</td>

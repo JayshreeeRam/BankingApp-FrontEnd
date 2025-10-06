@@ -7,7 +7,7 @@
   senderName?: string;
   employeeClientId: number;
   salary: number;
-  Department?: string;
+  department?: string;
   batchId?: number;
 
   constructor(
@@ -19,7 +19,7 @@
     senderName: string | undefined,
     employeeClientId: number,
     salary: number,
-    Department?: string
+    department?: string
   ) {
     this.employeeId = employeeId;
     this.employeeName = employeeName;
@@ -29,6 +29,6 @@
     this.senderName = senderName;
     this.employeeClientId = employeeClientId;
     this.salary = salary;
-    this.Department = Department;
+    this.department = department;
   }
 }

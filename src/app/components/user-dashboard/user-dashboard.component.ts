@@ -48,19 +48,6 @@ export class UserDashboardComponent implements OnInit {
   employees: any[] = [];
   isEmployee: boolean = false;
 
-// Transactions
-   searchTransaction: string = '';
-  transactionPage: number = 1;
-  totalTransactionPages: number = 1;
-
-  //beneficiary 
-
-  searchBeneficiaryTerm: string = '';
-
-//employees
-  employeeSearchTerm: string = '';
-  salaryEmployeeSearchTerm: string = '';
-
   salaryDisbursement: {
     employeeId: number | null;
     amount: number | null;
@@ -73,6 +60,13 @@ export class UserDashboardComponent implements OnInit {
   paginatedDisbursements: SalaryDisbursement[] = [];
   employeeDataLoaded = false;
   isSidebarCollapsed = false;
+
+  // New properties for employee tab functionality
+  selectedDepartment: string = 'all';
+  selectedBatch: string = 'all';
+  searchTerm: string = '';
+  displayedEmployees: EmployeeDto[] = [];
+  selectedEmployees: number[] = []; // Array of employee IDs
 
   constructor(
     private router: Router,
@@ -103,6 +97,33 @@ export class UserDashboardComponent implements OnInit {
   // Computed property to check if salary tab should be disabled
   get isSalaryTabDisabled(): boolean {
     return this.filteredEmployees.length === 0;
+  }
+
+  // New computed properties for employee tab
+ get uniqueDepartments(): string[] {
+  const departments = this.filteredEmployees
+    .map(emp => emp.department)
+    .filter((dept): dept is string => !!dept && dept.trim() !== '');
+  return [...new Set(departments)];
+}
+
+ get uniqueBatches(): string[] {
+  const batches = this.filteredEmployees
+    .map(emp => emp.batchId?.toString()) // Convert to string
+    .filter((batch): batch is string => !!batch && batch.trim() !== '');
+  return [...new Set(batches)];
+}
+
+  get isAllSelected(): boolean {
+    return this.displayedEmployees.length > 0 && 
+           this.displayedEmployees.every(emp => 
+             this.selectedEmployees.includes(emp.employeeId)
+           );
+  }
+
+  get isSomeSelected(): boolean {
+    return this.selectedEmployees.length > 0 && 
+           !this.isAllSelected;
   }
 
   loadProfile(userId: number) {
@@ -193,24 +214,6 @@ export class UserDashboardComponent implements OnInit {
       error: (err) => console.error(err)
     });
   }
-   private updateTransactionPagination() {
-    const totalFiltered = this.transactions.filter(tx =>
-      tx.senderName.toLowerCase().includes(this.searchTransaction.toLowerCase()) ||
-      tx.receiverName.toLowerCase().includes(this.searchTransaction.toLowerCase())
-    ).length;
-    this.totalTransactionPages = Math.ceil(totalFiltered / this.pageSize) || 1;
-  }
-
-  get filteredTransactions(): any[] {
-    const filtered = this.transactions.filter(tx =>
-      tx.senderName.toLowerCase().includes(this.searchTransaction.toLowerCase()) ||
-      tx.receiverName.toLowerCase().includes(this.searchTransaction.toLowerCase())
-    );
-    // Update page count
-    this.totalTransactionPages = Math.ceil(filtered.length / this.pageSize) || 1;
-    const start = (this.transactionPage - 1) * this.pageSize;
-    return filtered.slice(start, start + this.pageSize);
-  }
 
   goToTransactions() {
     this.activeTab = 'transactions';
@@ -223,7 +226,7 @@ export class UserDashboardComponent implements OnInit {
         const seen = new Set();
         this.beneficiaries = res.filter((beneficiary) => {
           // Then remove duplicates based on accountNo + ifsccode
-          const identifier = `${beneficiary.accountNo}-${beneficiary.ifsccode || 'na'}`;
+          const identifier = `${beneficiary.accountNo}-${beneficiary.ifsccode}`;
           if (seen.has(identifier)) {
             return false;
           }
@@ -265,67 +268,59 @@ export class UserDashboardComponent implements OnInit {
     this.router.navigate(['/create-beneficiary', this.currentUserId]);
   }
 
-  get filteredBeneficiaries() {
-    return this.beneficiaries.filter(b => 
-      b.bankName.toLowerCase().includes(this.searchBeneficiaryTerm.toLowerCase()) ||
-      b.accountNo?.includes(this.searchBeneficiaryTerm)||
-      b.ifsccode?.toLowerCase().includes(this.searchBeneficiaryTerm)
-    );
-  }
-
   submitPayment() {
-  // First check if beneficiary and amount are valid
-  if (!this.selectedBeneficiary || !this.payment.amount || this.payment.amount <= 0) {
-    return alert('Please select a beneficiary and enter a valid amount');
-  }
-
-  // Check if client account is active
-  if (!this.isClientAccountActive()) {
-    return alert('Payment failed: Your account is not active. Please contact support for account verification.');
-  }
-
-  console.log('Current Client ID:', this.currentClientId);
-  console.log('Selected Beneficiary ID:', this.selectedBeneficiary.beneficiaryId);
-
-  const paymentDto = new CreatePaymentDto(
-    this.currentClientId,
-    this.selectedBeneficiary.beneficiaryId,
-    this.payment.amount,
-    new Date()
-  );
-
-  this.paymentService.addPayment(paymentDto).subscribe({
-    next: () => {
-      alert('Payment successful');
-      this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
-      this.selectedBeneficiary = undefined;
-      this.loadTransactions();
-    },
-    error: (err) => {
-      console.error('Payment failed', err);
-      let errorMessage = 'Payment failed. ';
-      if (err.error?.message) {
-        errorMessage += err.error.message;
-      } else if (err.status === 400) {
-        errorMessage += 'Invalid client or beneficiary.';
-      } else if (err.status === 500) {
-        errorMessage += 'Server error. Please try again.';
-      }
-      alert(errorMessage);
+    // First check if beneficiary and amount are valid
+    if (!this.selectedBeneficiary || !this.payment.amount || this.payment.amount <= 0) {
+      return alert('Please select a beneficiary and enter a valid amount');
     }
-  });
-}
 
-isClientAccountActive(): boolean {
-  // If you have client data loaded, check the status
-  if (this.profile?.verificationStatus) {
-    return this.profile.verificationStatus === 'Active' || this.profile.verificationStatus === 'Approved';
+    // Check if client account is active
+    if (!this.isClientAccountActive()) {
+      return alert('Payment failed: Your account is not active. Please contact support for account verification.');
+    }
+
+    console.log('Current Client ID:', this.currentClientId);
+    console.log('Selected Beneficiary ID:', this.selectedBeneficiary.beneficiaryId);
+
+    const paymentDto = new CreatePaymentDto(
+      this.currentClientId,
+      this.selectedBeneficiary.beneficiaryId,
+      this.payment.amount,
+      new Date()
+    );
+
+    this.paymentService.addPayment(paymentDto).subscribe({
+      next: () => {
+        alert('Payment successful');
+        this.payment = { beneficiaryId: 0, amount: null, remarks: '' };
+        this.selectedBeneficiary = undefined;
+        this.loadTransactions();
+      },
+      error: (err) => {
+        console.error('Payment failed', err);
+        let errorMessage = 'Payment failed. ';
+        if (err.error?.message) {
+          errorMessage += err.error.message;
+        } else if (err.status === 400) {
+          errorMessage += 'Invalid client or beneficiary.';
+        } else if (err.status === 500) {
+          errorMessage += 'Server error. Please try again.';
+        }
+        alert(errorMessage);
+      }
+    });
   }
-  
-  // If you don't have client data, you might need to fetch it
-  console.warn('Client account status not available. Please ensure client data is loaded.');
-  return false; // Default to false for safety
-}
+
+  isClientAccountActive(): boolean {
+    // If you have client data loaded, check the status
+    if (this.profile?.verificationStatus) {
+      return this.profile.verificationStatus === 'Active' || this.profile.verificationStatus === 'Approved';
+    }
+    
+    // If you don't have client data, you might need to fetch it
+    console.warn('Client account status not available. Please ensure client data is loaded.');
+    return false; // Default to false for safety
+  }
 
   onFileSelected(event: any, type: 'aadhaar' | 'pan') {
     const file = event.target.files[0];
@@ -450,7 +445,6 @@ isClientAccountActive(): boolean {
 
     if (selectedEmpId == null) {
       this.salaryDisbursement.amount = null;
-      this.salaryDisbursement.batchId = null;
       return;
     }
 
@@ -458,28 +452,13 @@ isClientAccountActive(): boolean {
 
     if (selectedEmp) {
       this.salaryDisbursement.amount = selectedEmp.salary;
-       
       console.log('Selected Employee:', selectedEmp);
-       
     } else {
       this.salaryDisbursement.amount = null;
       console.warn("⚠️ Employee not found for ID:", selectedEmpId);
       console.warn("Current filteredEmployees:", this.filteredEmployees);
     }
   }
-
-get filteredEmployeesByName() {
-  const term = this.employeeSearchTerm?.toLowerCase() || '';
-  return this.employees.filter(emp =>
-    emp.employeeName.toLowerCase().includes(term)
-  );
-}
-  get filteredEmployeesForSalary(): EmployeeDto[] {
-  const term = this.salaryEmployeeSearchTerm.toLowerCase();
-  return this.filteredEmployees.filter(emp =>
-    emp.employeeName.toLowerCase().includes(term)
-  );
-}
 
   getPastDisbursements(): void {
     this.salaryDisburse.getAllSalaryDisbursements().subscribe({
@@ -524,18 +503,133 @@ get filteredEmployeesByName() {
         this.filteredEmployees = employees.filter(
           emp => emp.senderClientId === this.currentClientId
         );
+        this.displayedEmployees = [...this.filteredEmployees];
         console.log("Filtered Employees:", this.filteredEmployees);
         this.employeeDataLoaded = true;
       },
       error: err => {
         console.error("Error fetching employees:", err);
         this.filteredEmployees = [];
+        this.displayedEmployees = [];
         this.employeeDataLoaded = true;
       }
     });
   }
 
-  
+  // New methods for employee tab functionality
+  filterEmployees(): void {
+    let filtered = this.filteredEmployees;
+
+    // Department filter
+    if (this.selectedDepartment !== 'all') {
+      filtered = filtered.filter(emp => 
+        emp.department === this.selectedDepartment
+      );
+    }
+
+    // Batch filter
+    if (this.selectedBatch !== 'all') {
+      filtered = filtered.filter(emp => 
+        String(emp.batchId) === this.selectedBatch
+      );
+    }
+
+    // Search filter
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(emp =>
+        emp.employeeName.toLowerCase().includes(term) ||
+        emp.employeeId.toString().includes(term) ||
+        emp.department?.toLowerCase().includes(term) ||
+        emp.bankName?.toLowerCase().includes(term)
+      );
+    }
+
+    this.displayedEmployees = filtered;
+    
+    // Update selection to only include employees that are still displayed
+    this.selectedEmployees = this.selectedEmployees.filter(id =>
+      this.displayedEmployees.some(emp => emp.employeeId === id)
+    );
+  }
+
+  toggleSelectAll(event: any): void {
+    const isChecked = event.target.checked;
+    
+    if (isChecked) {
+      // Select all displayed employees
+      this.selectedEmployees = [
+        ...new Set([
+          ...this.selectedEmployees,
+          ...this.displayedEmployees.map(emp => emp.employeeId)
+        ])
+      ];
+    } else {
+      // Deselect all displayed employees
+      this.selectedEmployees = this.selectedEmployees.filter(id =>
+        !this.displayedEmployees.some(emp => emp.employeeId === id)
+      );
+    }
+  }
+
+  toggleEmployeeSelection(employeeId: number, event: any): void {
+    const isChecked = event.target.checked;
+    
+    if (isChecked) {
+      this.selectedEmployees.push(employeeId);
+    } else {
+      this.selectedEmployees = this.selectedEmployees.filter(id => id !== employeeId);
+    }
+  }
+
+  isEmployeeSelected(employeeId: number): boolean {
+    return this.selectedEmployees.includes(employeeId);
+  }
+
+  clearSelection(): void {
+    this.selectedEmployees = [];
+  }
+
+  disburseToSelected(): void {
+    if (this.selectedEmployees.length === 0) {
+      alert('Please select at least one employee to disburse salary.');
+      return;
+    }
+
+    const selectedEmployeesData = this.filteredEmployees.filter(emp =>
+      this.selectedEmployees.includes(emp.employeeId)
+    );
+
+    // Create disbursements for selected employees
+    const disbursementPromises = selectedEmployeesData.map(emp => {
+      const dto = new SalaryDisbursementDto(
+        0,
+        emp.employeeId,
+        emp.employeeName,
+        emp.senderName || 'N/A',
+        emp.senderClientId,
+        emp.salary,
+        new Date(),
+        PaymentStatus.Pending,
+        `BATCH-${new Date().getTime()}`
+      );
+
+      return this.salaryDisburse.addSalaryDisbursement(dto).toPromise();
+    });
+
+    // Execute all disbursements
+    Promise.all(disbursementPromises)
+      .then(() => {
+        alert(`Successfully initiated salary disbursement for ${this.selectedEmployees.length} employees.`);
+        this.clearSelection();
+        this.getPastDisbursements(); // Refresh past disbursements
+      })
+      .catch(err => {
+        console.error('Error disbursing salaries:', err);
+        alert('Some disbursements failed. Please check the console for details.');
+      });
+  }
+
   get totalPages(): number {
     return Math.ceil(this.pastDisbursements.length / this.pageSize);
   }

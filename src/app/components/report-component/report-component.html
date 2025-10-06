@@ -92,7 +92,7 @@
              (click)="selectUser(user)">
           <div class="user-info">
             <span class="user-name">{{ user.username }}</span>
-            <span class="user-details">ID: {{ user.userId }} | Email: {{ user.email }}</span>
+            <span class="user-details"> Email: {{ user.email }}</span>
           </div>
           <button class="btn-select" (click)="selectUser(user)">Select</button>
         </div>
@@ -125,7 +125,7 @@
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
+    <!-- <div class="spinner"></div> -->
     <p>
       <span *ngIf="userId && isAdminView">Loading report for User {{ userId }}...</span>
       <span *ngIf="clientId && isAdminView">Loading report for Client {{ clientId }}...</span>
@@ -147,10 +147,10 @@
     <section class="report-section">
       <h3>👤 User Profile</h3>
       <div class="profile-grid">
-        <div class="profile-item">
+        <!-- <div class="profile-item">
           <label>User ID:</label>
           <span>{{ profile?.userId || 'N/A' }}</span>
-        </div>
+        </div> -->
         <div class="profile-item">
           <label>Username:</label>
           <span>{{ profile?.username || 'N/A' }}</span>

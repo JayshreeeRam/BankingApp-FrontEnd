@@ -296,7 +296,7 @@ export class SuperAdminReportComponent implements OnInit {
           ['Total Banks', this.totalBanks.toString()],
           ['Admin Users', this.totalAdmins.toString()],
           ['Total Users', this.totalUsers.toString()],
-          ['Total Transaction Amount', `₹${this.totalTransactionAmount.toLocaleString()}`],
+          ['Total Transaction Amount', `${this.totalTransactionAmount.toLocaleString()}`],
           ['Active Banks', this.activeBanks.toString()],
           ["Today's Transactions", this.todayTransactions.toString()],
         ],
@@ -322,9 +322,9 @@ export class SuperAdminReportComponent implements OnInit {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Bank ID', 'Bank Name', 'Address', 'IFSC Code', 'Contact', 'Status']],
-          body: this.banks.map(bank => [
-            bank.bankId.toString(),
+          head: [['SR No', 'Bank Name', 'Address', 'IFSC Code', 'Contact', 'Status']],
+          body: this.banks.map((bank,index) => [
+           index+1,
             bank.name,
             bank.address || 'N/A',
             bank.ifsccode || 'N/A',
@@ -358,9 +358,9 @@ export class SuperAdminReportComponent implements OnInit {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Role']],
-          body: this.admins.map(admin => [
-            admin.userId.toString(),
+          head: [['Sr no' ,'Username', 'Name', 'Email', 'Phone', 'Role']],
+          body: this.admins.map((admin,index) => [
+            index+1,
             admin.username,
             admin.name || 'N/A',
             admin.email,
@@ -408,24 +408,24 @@ export class SuperAdminReportComponent implements OnInit {
     csvContent += `Total Banks,${this.totalBanks}\n`;
     csvContent += `Admin Users,${this.totalAdmins}\n`;
     csvContent += `Total Users,${this.totalUsers}\n`;
-    csvContent += `Total Transaction Amount,₹${this.totalTransactionAmount}\n`;
+    csvContent += `Total Transaction Amount,${this.totalTransactionAmount}\n`;
     csvContent += `Active Banks,${this.activeBanks}\n`;
     csvContent += `Today's Transactions,${this.todayTransactions}\n\n`;
 
     // Banks
     csvContent += 'Banks\n';
-    csvContent += 'Bank ID,Bank Name,Address,IFSC Code,Contact Info,Status\n';
-    this.banks.forEach(bank => {
-      csvContent += `${bank.bankId},"${bank.name}","${bank.address || ''}","${bank.ifsccode }'\n`;
+    csvContent += 'Sr No,Bank Name,Address,IFSC Code,Contact Info,Status\n';
+    this.banks.forEach((bank,index) => {
+      csvContent += `${index+1},"${bank.name}","${bank.address || ''}","${bank.ifsccode }'\n`;
     });
     csvContent += '\n';
 
     // Admins
-    csvContent += 'Admin Users\n';
-    csvContent += 'User ID,Username,Name,Email,Phone Number,Role\n';
-    this.admins.forEach(admin => {
-      csvContent += `${admin.userId},"${admin.username}","${admin.name || ''}","${admin.email}","${admin.phoneNumber || ''}","${admin.role}"\n`;
-    });
+  csvContent += 'Admin Users\n';
+csvContent += 'Sr no,Username,Name,Email,Phone Number,Role\n';
+this.admins.forEach((admin, index) => {
+  csvContent += `${index + 1},"${admin.username}","${admin.name || ''}","${admin.email}","${admin.phoneNumber || ''}","${admin.role}"\n`;
+});
 
     // Download CSV
     const blob = new Blob([csvContent], { type: 'text/csv' });
