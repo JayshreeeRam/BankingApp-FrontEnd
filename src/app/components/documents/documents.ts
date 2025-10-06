@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../services/document.service';
 import { CommonModule } from '@angular/common';
@@ -6,14 +6,18 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.html',
-  imports:[CommonModule],
-  styleUrls: ['./documents.css']  // Fixed typo: it should be "styleUrls" (plural)
+  imports: [CommonModule],
+  styleUrls: ['./documents.css']
 })
 export class Documents implements OnInit {
   documents: any[] = [];  // Initialize as an empty array
   id: string | null = null;
 
-  constructor(private route: ActivatedRoute, private documentSvc: DocumentService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private documentSvc: DocumentService,
+    private cdRef: ChangeDetectorRef  // Inject ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     // Subscribe to route parameters to get the 'id'
@@ -36,6 +40,9 @@ export class Documents implements OnInit {
           console.log(data);
           // Filter documents based on uploadedByUserId
           this.documents = data.filter(d => d.uploadedByUserId === Number(id));
+          
+          // Manually trigger change detection
+          this.cdRef.detectChanges();
         },
         (error) => {
           // Handle error (you could show a message to the user)
