@@ -10,24 +10,24 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./documents.css']
 })
 export class Documents implements OnInit {
-  documents: any[] = [];  // Initialize as an empty array
+  documents: any[] = [];  
   id: string | null = null;
-  activeTab: string = ''; // Add this property to fix the error
+  activeTab: string = ''; 
 
   constructor(
     private route: ActivatedRoute,
     private documentSvc: DocumentService,
-    private cdRef: ChangeDetectorRef  // Inject ChangeDetectorRef
+    private cdRef: ChangeDetectorRef  
   ) { }
 
   ngOnInit(): void {
    
-    // Subscribe to route parameters to get the 'id'
+    
     this.route.paramMap.subscribe(params => {
-      this.id = params.get('id');  // Get the 'id' from the route params
-      console.log('Document ID:', this.id);  // Log the id or use it in your logic
+      this.id = params.get('id');  
+      console.log('Document ID:', this.id);  
 
-      // Only fetch documents if id is not null
+      
       if (this.id) {
         this.fetchDocuments(this.id);
       }
@@ -44,49 +44,49 @@ fetchDocumentsByClientId(): void {
 
 clearSearch(): void {
   this.searchClientId = null;
-  // Reload all documents or clear the current list
-  this.documents = []; // or reload all documents if you want to show everything
+  
+  this.documents = []; 
 }
 
-  // Fetch documents based on the 'id'
+  
   fetchDocuments(id: string | null): void {
     if (id) {
       this.documentSvc.getAllDocuments().subscribe(
         (data) => {
           console.log(data);
-          // Filter documents based on uploadedByUserId
+          
           this.documents = data.filter(d => d.uploadedByUserId === Number(id));
           
-          // Manually trigger change detection
+          
           this.cdRef.detectChanges();
         },
         (error) => {
-          // Handle error (you could show a message to the user)
+          
           console.error('Error fetching documents:', error);
         }
       );
     }
   }
 
-// Update your existing fetchDocuments method
-// fetchDocuments(id: string | null): void {
-//   if (id) {
-//     this.documentSvc.getAllDocuments().subscribe(
-//       (data) => {
-//         console.log(data);
-//         // Filter documents based on uploadedByUserId
-//         this.documents = data.filter(d => d.uploadedByUserId === Number(id));
-//       },
-//       (error) => {
-//         // Handle error (you could show a message to the user)
-//         console.error('Error fetching documents:', error);
-//       }
-//     );
-//   }
-// }
-  // Method to download document
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   downloadDocument(path: any, name: any): void {
     console.log('Downloading document:', name);
-    // Add your download logic here, e.g., triggering a download action
+    
   }
 }
