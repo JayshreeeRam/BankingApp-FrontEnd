@@ -1,7 +1,7 @@
 ﻿export class UpdateTransactionDto {
-  amount?: number;  // Optional property, can be null or not provided
-  transactionType?: string;  // Optional property, can be null or not provided
-  transactionStatus?: string;  // Optional property, can be null or not provided
+  amount?: number;  
+  transactionType?: string;  
+  transactionStatus?: string;  
 
   constructor(
     amount?: number,

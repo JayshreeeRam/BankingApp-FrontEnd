@@ -6,7 +6,7 @@ export class ReportDto {
   generatedDate: Date;
   filePath?: string;
   generatedByUserId: number;
-  generatedByUsername?: string;  // optional
+  generatedByUsername?: string;  
 
   constructor(
     reportId: number,

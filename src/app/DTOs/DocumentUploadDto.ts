@@ -3,11 +3,11 @@
   DOCX = 'DOCX',
   IMAGE = 'IMAGE',
   OTHER = 'OTHER',
-  // Add other document types as needed
+  
 }
 
 export class DocumentUploadDto {
-  file: File | null; // File object from the browser (similar to IFormFile in .NET)
+  file: File | null; 
   userId: number;
   documentType: DocumentType;
 

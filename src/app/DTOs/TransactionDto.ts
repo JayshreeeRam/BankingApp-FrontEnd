@@ -1,5 +1,5 @@
 ﻿import { TransactionStatus } from '../Enum/TransactionStatus 1'; 
-import{TransactionType} from '../Enum/TransactionType 1'  // Assuming enums are defined in the enums file
+import{TransactionType} from '../Enum/TransactionType 1'  
 
 export class TransactionDto {
   transactionId: number;

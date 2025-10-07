@@ -1,7 +1,7 @@
-﻿import { PaymentStatus } from '../Enum/PaymentStatus 1';  // Assuming PaymentStatus is an enum
+﻿import { PaymentStatus } from '../Enum/PaymentStatus 1';  
 
 export class UpdatePaymentDto {
-  beneficiaryId?: number;  // Optional, can be null or not provided
+  beneficiaryId?: number;  
   amount: number;
   paymentDate: Date;
   paymentStatus: PaymentStatus;

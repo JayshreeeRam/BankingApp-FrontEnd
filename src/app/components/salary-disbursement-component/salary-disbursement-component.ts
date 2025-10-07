@@ -19,13 +19,12 @@ export class SalaryDisbursementComponent implements OnInit {
   batchSalaries: any[] = [];
   departments: string[] = []; 
 
-  // ⚡ Changed from number → string
-  // batchId: string | null = null;
+
   selectedBatchId: string | null = null;
 
   // Pagination Variables
-  currentPage: number = 1; // Current page
-  itemsPerPage: number = 5; // Items per page
+  currentPage: number = 1; 
+  itemsPerPage: number = 5; 
 
   constructor(private salaryService: SalaryDisbursementService) {}
 

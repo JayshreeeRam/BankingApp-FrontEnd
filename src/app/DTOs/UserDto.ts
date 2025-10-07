@@ -6,5 +6,5 @@ export interface UserDto {
   email: string;
   phoneNumber: string;
   userRole: UserRole;
-  documents: any[]; // replace with DocumentDto[] later
+  documents: any[]; 
 }

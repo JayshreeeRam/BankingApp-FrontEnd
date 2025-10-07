@@ -1,8 +1,8 @@
 ﻿export class UpdateEmployeeDto {
   name: string;
-  bankId?: number;  // Optional, can be null or not provided
-  clientId?: number;  // Optional, can be null or not provided
-  Department?: string; // Optional field
+  bankId?: number;  
+  clientId?: number; 
+  Department?: string; 
   constructor(
     name: string,
     bankId?: number,
