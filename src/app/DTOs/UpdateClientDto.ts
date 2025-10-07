@@ -1,13 +1,13 @@
-﻿import { AccountStatus } from '../Enum/AccountStatus 1';  // Assuming enums are defined in the enums file
+﻿import { AccountStatus } from '../Enum/AccountStatus 1';  
 import{AccountType} from '../Enum/AccountType 1'
 export class UpdateClientDto {
-  name?: string;  // Optional
-  address?: string;  // Optional
-  bankId?: number;  // Optional
-  userId?: number;  // Optional
+  name?: string;  
+  address?: string;  
+  bankId?: number;  
+  userId?: number;  
   verificationStatus: AccountStatus = AccountStatus.Pending;
-  //accountType: AccountType;
-  accountNo?: string;  // Optional
+  
+  accountNo?: string;  
 
   constructor(
     name?: string,

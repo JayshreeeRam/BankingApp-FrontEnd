@@ -3,14 +3,14 @@
 export class PaymentDto {
   paymentId: number;
   clientId: number;
-  clientName: string;          // Added sender/client name
+  clientName: string;          
   beneficiaryId: number;
-  beneficiaryName: string;     // Added beneficiary name
+  beneficiaryName: string;    
   amount: number;
   paymentDate: Date;
   paymentStatus: PaymentStatus;
   remark?: string;     
-  isLoading: boolean; // Changed from 'true' to boolean
+  isLoading: boolean; 
 
   constructor(
     paymentId: number,
@@ -22,7 +22,7 @@ export class PaymentDto {
     paymentDate: Date,
     paymentStatus: PaymentStatus = PaymentStatus.Pending,
     remark?: string,
-    isLoading: boolean = false // Changed to boolean with default false
+    isLoading: boolean = false 
   ) {
     this.paymentId = paymentId;
     this.clientId = clientId;

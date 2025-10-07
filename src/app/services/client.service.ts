@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ClientDto } from '../DTOs/ClientDto'; // Adjust the import paths accordingly
+import { ClientDto } from '../DTOs/ClientDto';
 import { CreateClientDto } from '../DTOs/CreateClientDto';
 import { UpdateClientDto } from '../DTOs/UpdateClientDto';
 import { environment } from '../environment/environment';

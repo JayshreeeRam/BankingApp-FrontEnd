@@ -4,12 +4,12 @@ export class SalaryDisbursementDto {
   disbursementId: number;
   employeeId: number;
   employeeName: string;
-  senderName: string;    // Employer client/company
+  senderName: string;    
   clientId: number;
   amount: number;
   date: Date;
   status: PaymentStatus;
-  batchId: string;       // Now department instead of numeric batch
+  batchId: string;       
 
   constructor(
     disbursementId: number,
@@ -30,6 +30,6 @@ export class SalaryDisbursementDto {
     this.amount = amount;
     this.date = date;
     this.status = status;
-    this.batchId = batchId;  // stores department name now
+    this.batchId = batchId;  
   }
 }

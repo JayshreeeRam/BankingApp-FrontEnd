@@ -1,10 +1,10 @@
-﻿import { AccountType  } from '../Enum/AccountType 1';  // Assuming enums are defined in the enums file
+﻿import { AccountType  } from '../Enum/AccountType 1';  
 import{AccountStatus} from '../Enum/AccountStatus 1'
 export class UpdateAccountDto {
   accountNumber: string;
-  accountType?: AccountType;  // Optional, can be null or undefined
-  accountStatus?: AccountStatus;  // Optional, can be null or undefined
-  balance?: number;  // Optional, can be null or undefined
+  accountType?: AccountType;  
+  accountStatus?: AccountStatus; 
+  balance?: number;  
 
   constructor(
     accountNumber: string,

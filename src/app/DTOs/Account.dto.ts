@@ -6,6 +6,6 @@ export interface AccountDto {
   accountNumber: string;
   accountType?: AccountType | null;
   accountStatus?: AccountStatus | null;
-  balance: number;  // decimal in C# maps to number in TS
+  balance: number;  
   clientId: number;
 }

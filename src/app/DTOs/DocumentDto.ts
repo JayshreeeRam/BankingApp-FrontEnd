@@ -2,7 +2,7 @@
   PDF = 'PDF',
   DOCX = 'DOCX',
   IMAGE = 'IMAGE',
-  // Add other document types as needed
+  
 }
 
 export enum DocumentStatus {
