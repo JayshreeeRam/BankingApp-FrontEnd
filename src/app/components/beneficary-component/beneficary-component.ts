@@ -14,7 +14,7 @@ import { BeneficiaryDto } from '../../DTOs/Beneficiary.dto';
   styleUrls: ['./beneficary-component.css']
 })
 export class BeneficaryComponent implements OnInit {
-  clientId: number = 1; // Should come from actual logged-in user
+  clientId: number = 1; 
   beneficiaries: BeneficiaryDto[] = [];
   selectedBeneficiary?: BeneficiaryDto;
   paymentAmount: number = 0;
