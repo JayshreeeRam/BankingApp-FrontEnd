@@ -192,17 +192,10 @@
                 View Details
               </button>
 
-              <button 
-                  class="btn btn-secondary btn-sm"
-                  (click)="viewDocuments(c)"
-                  [disabled]="c.isLoading"
-                  routerLink="dashboard/admin/, c.userId "
-                >
-                  View Documents
-                </button>
+              <a [routerLink]="['/dashboard/admin', c.userId]">
 
 
-              <app-documents [accountNo]="selectedClientAccountNo"></app-documents>
+              <app-documents [accountNo]="selectedClientAccountNo"></app-documents></a>
 
 
               <!-- No actions message for approved/active clients -->

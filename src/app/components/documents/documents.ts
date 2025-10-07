@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../services/document.service';
 import { CommonModule } from '@angular/common';
@@ -6,15 +6,19 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.html',
-  imports:[CommonModule],
-  styleUrls: ['./documents.css']  // Fixed typo: it should be "styleUrls" (plural)
+  imports: [CommonModule],
+  styleUrls: ['./documents.css']
 })
 export class Documents implements OnInit {
   documents: any[] = [];  // Initialize as an empty array
   id: string | null = null;
   activeTab: string = ''; // Add this property to fix the error
 
-  constructor(private route: ActivatedRoute, private documentSvc: DocumentService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private documentSvc: DocumentService,
+    private cdRef: ChangeDetectorRef  // Inject ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
    
@@ -45,28 +49,41 @@ clearSearch(): void {
 }
 
   // Fetch documents based on the 'id'
-  // Add this method to your component
-viewClientDocuments(clientId: number): void {
-  this.fetchDocuments(clientId.toString());
-  this.activeTab = 'documents'; // Switch to documents tab to show the results
-}
+  fetchDocuments(id: string | null): void {
+    if (id) {
+      this.documentSvc.getAllDocuments().subscribe(
+        (data) => {
+          console.log(data);
+          // Filter documents based on uploadedByUserId
+          this.documents = data.filter(d => d.uploadedByUserId === Number(id));
+          
+          // Manually trigger change detection
+          this.cdRef.detectChanges();
+        },
+        (error) => {
+          // Handle error (you could show a message to the user)
+          console.error('Error fetching documents:', error);
+        }
+      );
+    }
+  }
 
 // Update your existing fetchDocuments method
-fetchDocuments(id: string | null): void {
-  if (id) {
-    this.documentSvc.getAllDocuments().subscribe(
-      (data) => {
-        console.log(data);
-        // Filter documents based on uploadedByUserId
-        this.documents = data.filter(d => d.uploadedByUserId === Number(id));
-      },
-      (error) => {
-        // Handle error (you could show a message to the user)
-        console.error('Error fetching documents:', error);
-      }
-    );
-  }
-}
+// fetchDocuments(id: string | null): void {
+//   if (id) {
+//     this.documentSvc.getAllDocuments().subscribe(
+//       (data) => {
+//         console.log(data);
+//         // Filter documents based on uploadedByUserId
+//         this.documents = data.filter(d => d.uploadedByUserId === Number(id));
+//       },
+//       (error) => {
+//         // Handle error (you could show a message to the user)
+//         console.error('Error fetching documents:', error);
+//       }
+//     );
+//   }
+// }
   // Method to download document
   downloadDocument(path: any, name: any): void {
     console.log('Downloading document:', name);

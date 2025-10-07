@@ -1,34 +1,25 @@
-<h3>Client Documents</h3>
+    <h3>Uploaded Documents</h3>
 
-<!-- Show which client's documents we're viewing -->
-<div *ngIf="id" class="client-info">
-  <h4>📁 Documents for Client ID: {{ id }}</h4>
-</div>
+    <!-- Display message if there are no documents -->
+    <p *ngIf="documents.length === 0">No documents uploaded.</p>
 
-<!-- Display message if there are no documents -->
-<div *ngIf="documents.length === 0" class="no-documents">
-  <p>No documents found for this client.</p>
-</div>
-
-<!-- Display table if documents are available -->
-<table *ngIf="documents.length > 0" class="documents-table">
-    <thead>
-        <tr>
-            <th>File Name</th>
-            <th>Type</th>
-            <th>Upload Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let doc of documents">
-            <td>{{ doc.fileName }}</td>
-            <td>{{ doc.documentType }}</td>
-            <td>{{ doc.uploadDate | date:'medium' }}</td>
-            <td class="actions">
-                <a href="{{doc.filePath}}" target="_blank" class="view-btn">👁️ View</a>
-                <button (click)="downloadDocument(doc.filePath, doc.fileName)" class="download-btn">📥 Download</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+    <!-- Display table if documents are available -->
+    <table *ngIf="documents.length > 0" class="documents-table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let doc of documents">
+                <td>{{ doc.fileName }}</td>
+                <td>{{ doc.documentType }}</td>
+                <td>
+                    <a href="{{doc.filePath}}" target="_blank">see </a>
+                    <button (click)="downloadDocument(doc.filePath, doc.fileName)">Download</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
